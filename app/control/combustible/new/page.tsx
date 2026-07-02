@@ -283,67 +283,6 @@ function NewFuelLogContent() {
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit((v) => onSubmit(v))} className="space-y-6">
 
-                                {/* Ticket Number & Date */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <FormField
-                                        control={form.control}
-                                        name="ticket_number"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel className="text-zinc-500 font-bold uppercase text-[10px] tracking-wider ml-1">N# de Ticket (Solo números)</FormLabel>
-                                                <FormControl>
-                                                    <Input 
-                                                        placeholder="000123" 
-                                                        className="h-14 rounded-2xl border-zinc-200 text-lg font-bold focus:ring-indigo-500 bg-zinc-50/50" 
-                                                        {...field}
-                                                        onChange={(e) => {
-                                                            const val = e.target.value.replace(/\D/g, '');
-                                                            field.onChange(val);
-                                                        }}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="fuel_date"
-                                        render={({ field }) => (
-                                            <FormItem className="flex flex-col">
-                                                <FormLabel className="text-zinc-500 font-bold uppercase text-[10px] tracking-wider ml-1 mb-2">Fecha de Carga</FormLabel>
-                                                <Popover>
-                                                    <PopoverTrigger asChild>
-                                                        <FormControl>
-                                                            <Button
-                                                                variant={"outline"}
-                                                                className={cn(
-                                                                    "w-full h-14 pl-4 text-left font-bold text-lg rounded-2xl border-zinc-200 bg-zinc-50/50",
-                                                                    !field.value && "text-muted-foreground"
-                                                                )}
-                                                            >
-                                                                <CalendarIcon className="mr-2 h-5 w-5 text-indigo-500" />
-                                                                {field.value ? format(field.value, "PPP") : <span>Seleccionar fecha</span>}
-                                                            </Button>
-                                                        </FormControl>
-                                                    </PopoverTrigger>
-                                                    <PopoverContent className="w-auto p-0 rounded-3xl overflow-hidden" align="start">
-                                                        <Calendar
-                                                            mode="single"
-                                                            selected={field.value}
-                                                            onSelect={field.onChange}
-                                                            disabled={(date) => date > new Date()}
-                                                            initialFocus
-                                                        />
-                                                    </PopoverContent>
-                                                </Popover>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-
                                 {/* Vehicle & Driver */}
                                 {!scannedVehicle && (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -487,6 +426,64 @@ function NewFuelLogContent() {
                                     />
                                 )}
 
+                                {/* Ticket Number & Date */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <FormField
+                                        control={form.control}
+                                        name="ticket_number"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-zinc-500 font-bold uppercase text-[10px] tracking-wider ml-1">N# de Ticket</FormLabel>
+                                                <FormControl>
+                                                    <Input 
+                                                        placeholder="Generado automáticamente" 
+                                                        readOnly={true}
+                                                        className="h-14 rounded-2xl border-zinc-200 text-lg font-bold focus:ring-indigo-500 bg-zinc-100 cursor-not-allowed text-zinc-500" 
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="fuel_date"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-col">
+                                                <FormLabel className="text-zinc-500 font-bold uppercase text-[10px] tracking-wider ml-1 mb-2">Fecha de Carga</FormLabel>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button
+                                                                variant={"outline"}
+                                                                className={cn(
+                                                                    "w-full h-14 pl-4 text-left font-bold text-lg rounded-2xl border-zinc-200 bg-zinc-50/50",
+                                                                    !field.value && "text-muted-foreground"
+                                                                )}
+                                                            >
+                                                                <CalendarIcon className="mr-2 h-5 w-5 text-indigo-500" />
+                                                                {field.value ? format(field.value, "PPP") : <span>Seleccionar fecha</span>}
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0 rounded-3xl overflow-hidden" align="start">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={field.value}
+                                                            onSelect={field.onChange}
+                                                            disabled={(date) => date > new Date()}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                </Popover>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
                                 {/* Data Input */}
                                 <div className="grid grid-cols-2 gap-4">
                                     <FormField
@@ -497,8 +494,8 @@ function NewFuelLogContent() {
                                                 <FormLabel className="text-zinc-500 font-bold uppercase text-[10px] tracking-wider ml-1">Litros Cargados</FormLabel>
                                                 <FormControl>
                                                     <div className="relative">
-                                                        <Fuel className="absolute left-4 top-[18px] h-5 w-5 text-emerald-500" />
-                                                        <Input type="number" step="0.01" min="0" className="pl-12 h-14 rounded-2xl border-zinc-200 bg-zinc-50/50 font-black text-xl" {...field} />
+                                                        <Fuel className="absolute left-3 top-[18px] h-5 w-5 text-emerald-500" />
+                                                        <Input type="number" step="0.01" min="0" className="pl-10 h-14 rounded-2xl border-zinc-200 bg-zinc-50/50 font-bold text-base sm:text-lg" {...field} />
                                                     </div>
                                                 </FormControl>
                                                 <FormMessage />
@@ -514,8 +511,8 @@ function NewFuelLogContent() {
                                                 <FormLabel className="text-zinc-500 font-bold uppercase text-[10px] tracking-wider ml-1">Nuevo Kilometraje</FormLabel>
                                                 <FormControl>
                                                     <div className="relative">
-                                                        <div className="absolute left-4 top-[18px] h-5 w-5 flex items-center justify-center text-indigo-500 font-black text-xs">KM</div>
-                                                        <Input type="number" min="0" className="pl-12 h-14 rounded-2xl border-zinc-200 bg-zinc-50/50 font-black text-xl" {...field} />
+                                                        <div className="absolute left-3 top-[18px] h-5 w-5 flex items-center justify-center text-indigo-500 font-black text-xs">KM</div>
+                                                        <Input type="number" min="0" className="pl-10 h-14 rounded-2xl border-zinc-200 bg-zinc-50/50 font-bold text-base sm:text-lg" {...field} />
                                                     </div>
                                                 </FormControl>
                                                 <FormMessage />
