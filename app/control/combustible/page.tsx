@@ -23,7 +23,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { toast } from "sonner"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { Calendar } from "@/components/ui/calendar"
-import { LogoutButton } from "@/components/ui/logout-button"
 
 import { getFuelLogs, getVehicles, getTodayStats, annulFuelLog, getDailyReports } from "./actions"
 
@@ -226,7 +225,6 @@ export default function FuelControlPage() {
                             <span className="hidden sm:inline">Nuevo ticket</span>
                             <span className="sm:hidden">Nuevo</span>
                         </Link>
-                        <LogoutButton />
                     </div>
                 </div>
             </header>

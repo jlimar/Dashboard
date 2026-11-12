@@ -8,7 +8,6 @@ import { LiveFleetDashboard } from "./components/live-fleet-dashboard"
 import { RealtimeNotifications } from "./components/realtime-notifications"
 import { NotificationBell } from "./components/notification-bell"
 import { ArrowLeft } from "lucide-react"
-import { LogoutButton } from "@/components/ui/logout-button"
 
 export const dynamic = "force-dynamic"
 
@@ -39,7 +38,6 @@ export default async function GerenciaDashboard() {
                             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                             Inicio
                         </Link>
-                        <LogoutButton />
                     </div>
                 </div>
 

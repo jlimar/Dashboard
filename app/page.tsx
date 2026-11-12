@@ -1,4 +1,3 @@
-import { LogoutButton } from "@/components/ui/logout-button"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { DashboardMenu } from "@/components/dashboard-menu"
@@ -33,12 +32,9 @@ export default async function Home() {
 
         {/* HEADER UNIFORME */}
         <header className="pb-6 border-b border-neutral-100 space-y-4">
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-xs text-neutral-400">
-              Portal de operaciones
-            </span>
-            <LogoutButton />
-          </div>
+          <span className="text-xs text-neutral-400 block">
+            Portal de operaciones
+          </span>
 
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-neutral-900">

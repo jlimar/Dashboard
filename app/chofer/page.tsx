@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { QrCode, ArrowUpRight, ArrowDownLeft, AlertCircle, Car, ChevronRight } from "lucide-react"
-import { LogoutButton } from "@/components/ui/logout-button"
 import QRCode from "react-qr-code"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -54,11 +53,6 @@ export default function ChoferPage() {
         setLoading(false)
     }
 
-    const handleLogout = async () => {
-        await supabase.auth.signOut()
-        router.push('/login')
-    }
-
     if (loading) {
         return <div className="min-h-screen flex items-center justify-center bg-white text-sm text-neutral-400">Cargando panel...</div>
     }
@@ -79,7 +73,6 @@ export default function ChoferPage() {
                     <p className="text-xs text-neutral-400">Panel de control</p>
                     <h1 className="text-2xl font-light text-neutral-900 tracking-tight">Hola, {profile?.first_name || 'Conductor'}</h1>
                 </div>
-                <LogoutButton />
             </header>
 
             {/* Main Content */}

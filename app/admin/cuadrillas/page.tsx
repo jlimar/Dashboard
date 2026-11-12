@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server"
 import CuadrillasManager from "@/components/CuadrillasManager"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { LogoutButton } from "@/components/ui/logout-button"
 
 export default async function AdminCuadrillasPage() {
   const supabase = await createClient()
@@ -38,7 +37,6 @@ export default async function AdminCuadrillasPage() {
               <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
               Volver al panel
             </Link>
-            <LogoutButton />
           </div>
 
           <div className="space-y-1">

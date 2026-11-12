@@ -6,7 +6,6 @@ import { Html5Qrcode } from "html5-qrcode"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
-import { LogoutButton } from "@/components/ui/logout-button"
 
 export default function ScanPage() {
     const router = useRouter()
@@ -132,7 +131,6 @@ export default function ScanPage() {
                         <p className="text-xs text-neutral-500 mt-0.5">Escanea el código QR del chofer para autorizar.</p>
                     </div>
                 </div>
-                <LogoutButton />
             </div>
 
             <div className="overflow-hidden bg-black relative min-h-[300px] flex items-center justify-center">

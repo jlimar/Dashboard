@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
-import { LogoutButton } from "@/components/ui/logout-button"
 import { LinkedAccounts } from "./linked-accounts"
 import { LocalAccountSetup } from "./local-account-setup"
 
@@ -46,7 +45,6 @@ export default async function ProfilePage() {
               <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
               Inicio
             </Link>
-            <LogoutButton />
           </div>
 
           <div className="space-y-1">

@@ -2,7 +2,6 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { LogoutButton } from "@/components/ui/logout-button"
 import EquipmentControlFormLogic from "@/components/EquipmentControlFormLogic"
 
 export default async function ControlEquipamientoPage() {
@@ -47,7 +46,6 @@ export default async function ControlEquipamientoPage() {
           <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
           Volver a supervisión
         </Link>
-        <LogoutButton />
       </div>
 
       {/* Aquí inyectamos el componente modular */}

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { ArrowLeft, ArrowUpRight, ArrowDownLeft, AlertCircle, ChevronRight, Car, Fuel, QrCode } from "lucide-react"
-import { LogoutButton } from "@/components/ui/logout-button"
 import { useSearchParams, useRouter } from "next/navigation"
 import { SalidaFormDialog } from "@/components/salida-form-dialog"
 import { EntradaFormDialog } from "@/components/entrada-form-dialog"
@@ -174,12 +173,6 @@ export default function TransportePage() {
         }
     }
 
-    // --- SHARED ACTIONS ---
-    const handleLogout = async () => {
-        await supabase.auth.signOut()
-        router.push('/login')
-    }
-
     // --- POOL MODE HANDLERS ---
     const startFaultReportingPool = () => {
         setVehicleSelectOpen(true)
@@ -313,7 +306,6 @@ export default function TransportePage() {
                             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                             Inicio
                         </Link>
-                        <LogoutButton />
                     </div>
 
                     <div className="space-y-1">

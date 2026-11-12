@@ -23,7 +23,6 @@ import {
     Download,
 } from "lucide-react"
 import Link from "next/link"
-import { LogoutButton } from "@/components/ui/logout-button"
 import Image from "next/image"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
@@ -339,7 +338,6 @@ function VehiculosContent() {
                             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                             Inicio
                         </Link>
-                        <LogoutButton />
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">

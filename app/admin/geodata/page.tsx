@@ -7,7 +7,6 @@ import { ArrowLeft, ChevronRight, Loader2, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
-import { LogoutButton } from "@/components/ui/logout-button";
 
 interface Geodata {
   estado: string;
@@ -119,7 +118,6 @@ export default function GeodataManagement() {
               <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
               Volver al panel
             </Link>
-            <LogoutButton />
           </div>
 
           {/* Breadcrumb */}

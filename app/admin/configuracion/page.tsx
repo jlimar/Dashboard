@@ -8,7 +8,6 @@ import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 import { getSystemSettings } from "../settings-actions"
-import { LogoutButton } from "@/components/ui/logout-button"
 
 export default function AdminConfigModulesPage() {
     const [settings, setSettings] = useState<Record<string, boolean>>({})
@@ -117,7 +116,6 @@ export default function AdminConfigModulesPage() {
                             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                             Volver al panel
                         </Link>
-                        <LogoutButton />
                     </div>
 
                     <div className="space-y-1">

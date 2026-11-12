@@ -4,7 +4,6 @@ import SupervisionFormLogic from "@/components/SupervisionFormLogic"
 
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { LogoutButton } from "@/components/ui/logout-button"
 
 export default async function ReporteDiarioPage() {
   const supabase = await createClient()
@@ -49,7 +48,6 @@ export default async function ReporteDiarioPage() {
             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
             Volver a supervisión
           </Link>
-          <LogoutButton />
         </div>
 
         <div className="flex items-center gap-6">

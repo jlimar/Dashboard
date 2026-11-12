@@ -36,7 +36,6 @@ import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
-import { LogoutButton } from "@/components/ui/logout-button"
 
 import { createFuelLog, getVehicles, getVehicleDetailsAction, getActiveDriverAction, registerVoidedTicket } from "../actions"
 
@@ -247,7 +246,6 @@ function NewFuelLogContent() {
                             <p className="text-xs text-neutral-500 mt-1">Registro de combustible</p>
                         </div>
                     </div>
-                    <LogoutButton />
                 </div>
             </header>
 

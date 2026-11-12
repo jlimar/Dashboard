@@ -2,7 +2,6 @@
 
 import { ArrowLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
-import { LogoutButton } from "@/components/ui/logout-button"
 
 const ADMIN_SECTIONS = [
     {
@@ -51,7 +50,6 @@ export default function AdminDashboard() {
                             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                             Inicio
                         </Link>
-                        <LogoutButton />
                     </div>
 
                     <div className="space-y-1">

@@ -28,7 +28,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { DEPARTMENTS, JOB_TITLES_BY_DEPARTMENT } from "@/lib/constants"
 import { CustomDropdown } from "@/components/ui/custom-dropdown"
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog"
-import { LogoutButton } from "@/components/ui/logout-button"
 
 type Profile = {
     id: string
@@ -332,7 +331,6 @@ export default function AdminUsersPage() {
                             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                             Inicio
                         </Link>
-                        <LogoutButton />
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">

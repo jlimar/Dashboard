@@ -2,7 +2,6 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
 import { ArrowLeft, ChevronRight } from "lucide-react"
-import { LogoutButton } from "@/components/ui/logout-button"
 
 export default async function SupervisionHubPage() {
   const supabase = await createClient()
@@ -43,7 +42,6 @@ export default async function SupervisionHubPage() {
               <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
               Inicio
             </Link>
-            <LogoutButton />
           </div>
 
           <div className="space-y-1">

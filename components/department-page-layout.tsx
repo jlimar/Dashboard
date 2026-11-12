@@ -1,6 +1,5 @@
 import { ArrowLeft, LucideIcon } from "lucide-react"
 import Link from "next/link"
-import { LogoutButton } from "@/components/ui/logout-button"
 
 interface DepartmentPageProps {
     title: string
@@ -27,7 +26,6 @@ export function DepartmentPageLayout({ title, description, icon: Icon }: Departm
                             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                             Inicio
                         </Link>
-                        <LogoutButton />
                     </div>
                 </div>
 

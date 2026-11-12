@@ -11,7 +11,6 @@ import { MaintenanceRegistrationDialog } from "@/components/maintenance-registra
 import { CustomDropdown } from "@/components/ui/custom-dropdown"
 import { VehicleHistoryDialog } from "@/components/vehicle-history-dialog"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { LogoutButton } from "@/components/ui/logout-button"
 
 type Fault = {
     id: string
@@ -295,7 +294,6 @@ export default function TallerPage() {
                             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                             <span className="hidden sm:inline">Inicio</span>
                         </Link>
-                        <LogoutButton />
                     </div>
                 </div>
             </header>

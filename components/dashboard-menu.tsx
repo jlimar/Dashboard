@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
+import { LogoutButton } from "@/components/ui/logout-button"
 import { useUser } from "@/components/providers/user-provider"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -101,27 +102,33 @@ export function DashboardMenu() {
     ]
 
     return (
-        <div className="divide-y divide-neutral-100 border-b border-neutral-100">
-            {items.map((item) => (
-                <Link
-                    key={item.href}
-                    href={item.href}
-                    className="group flex items-center justify-between gap-4 py-4 sm:py-5 px-2.5 -mx-2.5 rounded-md hover:bg-neutral-50/80 active:scale-[0.99] transition-all duration-150"
-                >
-                    <div className="min-w-0 pr-2">
-                        <h2 className="text-sm sm:text-base font-medium text-neutral-900 group-hover:text-neutral-700 transition-colors">
-                            {item.title}
-                        </h2>
-                        <p className="text-xs sm:text-sm text-neutral-500 mt-0.5 leading-relaxed measure-copy">
-                            {item.description}
-                        </p>
-                    </div>
-                    <ChevronRight
-                        className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0"
-                        strokeWidth={1.25}
-                    />
-                </Link>
-            ))}
+        <div className="space-y-4">
+            <div className="divide-y divide-neutral-100 border-b border-neutral-100">
+                {items.map((item) => (
+                    <Link
+                        key={item.href}
+                        href={item.href}
+                        className="group flex items-center justify-between gap-4 py-4 sm:py-5 px-2.5 -mx-2.5 rounded-md hover:bg-neutral-50/80 active:scale-[0.99] transition-all duration-150"
+                    >
+                        <div className="min-w-0 pr-2">
+                            <h2 className="text-sm sm:text-base font-medium text-neutral-900 group-hover:text-neutral-700 transition-colors">
+                                {item.title}
+                            </h2>
+                            <p className="text-xs sm:text-sm text-neutral-500 mt-0.5 leading-relaxed measure-copy">
+                                {item.description}
+                            </p>
+                        </div>
+                        <ChevronRight
+                            className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0"
+                            strokeWidth={1.25}
+                        />
+                    </Link>
+                ))}
+            </div>
+
+            <div className="pt-2 px-2.5">
+                <LogoutButton />
+            </div>
         </div>
     )
 }

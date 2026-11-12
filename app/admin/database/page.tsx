@@ -2,7 +2,6 @@
 
 import { ArrowLeft, Loader2, CheckCircle2, X } from "lucide-react"
 import Link from "next/link"
-import { LogoutButton } from "@/components/ui/logout-button"
 import { useState } from "react"
 import { toast } from "sonner"
 import { resetFuelLogsAction } from "./actions"
@@ -87,7 +86,6 @@ export default function DatabaseManagementPage() {
                             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
                             Volver al panel
                         </Link>
-                        <LogoutButton />
                     </div>
 
                     <div className="space-y-1">
