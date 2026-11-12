@@ -36,24 +36,21 @@ export default async function ControlEquipamientoPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F2F2F7] p-6 md:p-12 relative overflow-hidden">
-      {/* Background Gradients */}
-      <div className="absolute top-0 left-0 w-full h-96 bg-blue-600/5 blur-[120px] pointer-events-none" />
-      
+    <main className="min-h-screen bg-white text-neutral-900 px-6 py-10 md:py-14">
       {/* Navegación y Volver */}
-      <div className="flex justify-start mb-8 relative z-10 max-w-5xl mx-auto">
-        <Link 
+      <div className="flex justify-start mb-8 pb-4 border-b border-neutral-100 max-w-5xl mx-auto">
+        <Link
           href="/supervision"
-          className="flex items-center px-4 py-2 bg-white rounded-xl text-sm font-semibold text-gray-700 hover:text-gray-900 shadow-sm border border-gray-200 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
           Volver a Supervisión
         </Link>
       </div>
 
       {/* Aquí inyectamos el componente modular */}
-      <EquipmentControlFormLogic 
-        usuarioActual={usuarioActual} 
+      <EquipmentControlFormLogic
+        usuarioActual={usuarioActual}
       />
     </main>
   )

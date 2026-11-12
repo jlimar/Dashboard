@@ -1,13 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { KeyRound, ShieldAlert } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { setupLocalUser } from "./actions"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 
 interface LocalAccountSetupProps {
   email?: string
@@ -21,32 +17,30 @@ export function LocalAccountSetup({ email }: LocalAccountSetupProps) {
   const isGoogleUser = email && !email.includes("@dashboard.local")
 
   return (
-    <div className="space-y-4 mt-8 pt-6 border-t border-zinc-100">
+    <div className="space-y-4 pt-6 border-t border-neutral-100">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3 text-zinc-900">
-          <KeyRound className="h-5 w-5 text-zinc-500" />
-          <span className="font-medium">
-            {isGoogleUser ? "Configurar Acceso Local" : "Cambiar Contraseña"}
-          </span>
-        </div>
+        <span className="text-sm font-medium text-neutral-900">
+          {isGoogleUser ? "Configurar acceso local" : "Cambiar contraseña"}
+        </span>
         {!isOpen && (
-          <Button variant="outline" size="sm" onClick={() => setIsOpen(true)}>
-            {isGoogleUser ? "Asignar Usuario/Clave" : "Modificar"}
-          </Button>
+          <button
+            type="button"
+            onClick={() => setIsOpen(true)}
+            className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
+          >
+            {isGoogleUser ? "Asignar usuario/clave" : "Modificar"}
+          </button>
         )}
       </div>
 
       {isGoogleUser && !isOpen && (
-        <div className="pl-8 text-xs text-amber-600 flex items-start gap-2">
-          <ShieldAlert className="w-4 h-4 shrink-0" />
-          <p>
-            Actualmente inicias sesión mediante Google. Si deseas poder iniciar sesión escribiendo un usuario y contraseña, configúralo aquí. (Podrás seguir usando Google).
-          </p>
-        </div>
+        <p className="text-xs text-neutral-500 leading-relaxed">
+          Actualmente inicias sesión mediante Google. Si deseas poder iniciar sesión escribiendo un usuario y contraseña, configúralo aquí. Podrás seguir usando Google.
+        </p>
       )}
 
       {isOpen && (
-        <form 
+        <form
           action={async (formData) => {
             setLoading(true)
             const result = await setupLocalUser(formData)
@@ -59,40 +53,49 @@ export function LocalAccountSetup({ email }: LocalAccountSetupProps) {
               toast.error(result.message)
             }
           }}
-          className="pl-8 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300"
+          className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300"
         >
-          <div className="grid gap-4 p-4 rounded-2xl bg-zinc-50 border border-zinc-200">
+          <div className="space-y-4 pt-1">
             {isGoogleUser && (
               <div className="space-y-1">
-                <Label className="text-xs text-zinc-500 ml-1">Nuevo Usuario</Label>
-                <Input 
-                  name="username" 
-                  placeholder="Ej: jlima" 
-                  className="bg-white" 
-                  required 
+                <label className="text-xs text-neutral-500 block">Nuevo usuario</label>
+                <input
+                  name="username"
+                  type="text"
+                  placeholder="Ej: jlima"
+                  className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
+                  required
                 />
               </div>
             )}
-            
+
             <div className="space-y-1">
-              <Label className="text-xs text-zinc-500 ml-1">Nueva Contraseña</Label>
-              <Input 
-                name="password" 
-                type="password" 
-                placeholder="••••••••" 
-                className="bg-white" 
-                required 
+              <label className="text-xs text-neutral-500 block">Nueva contraseña</label>
+              <input
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
+                required
                 minLength={6}
               />
             </div>
 
-            <div className="flex flex-col gap-2 pt-2">
-              <Button type="submit" disabled={loading} className="w-full">
-                {loading ? "Guardando..." : "Guardar Credenciales"}
-              </Button>
-              <Button type="button" variant="ghost" onClick={() => setIsOpen(false)} className="w-full">
+            <div className="flex items-center justify-end gap-5 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+              >
                 Cancelar
-              </Button>
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
+              >
+                {loading ? "Guardando..." : "Guardar credenciales"}
+              </button>
             </div>
           </div>
         </form>

@@ -1,10 +1,9 @@
 "use client"
 
 import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
 import { Chrome } from "lucide-react"
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -90,134 +89,111 @@ export default function LoginPage() {
     }
 
     return (
-        <main className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden bg-[#F2F2F7]">
-            {/* Background Gradients - Subtle Silver/Gray */}
-            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-gray-200/50 blur-[100px]" />
-            <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-slate-200/50 blur-[100px]" />
-
-            {/* Glass Card - Light Mode iOS Style */}
-            <div className="w-full max-w-md relative z-10 backdrop-blur-xl bg-white/70 border border-white/40 rounded-[2.5rem] p-8 shadow-xl shadow-black/5 ring-1 ring-white/60">
-                <div className="flex flex-col items-center text-center space-y-8 py-8">
-                    {/* Logo Area */}
-                    <div className="w-24 h-24 bg-gradient-to-br from-white to-gray-100 rounded-2xl flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] mb-2 animate-in zoom-in duration-500 border border-white/60">
-                        <Image src="/logo.png" alt="Logo" width={64} height={64} className="w-16 h-16 object-contain" />
-                    </div>
-
-                    <div className="space-y-2 animate-in slide-in-from-bottom-4 duration-700 fade-in fill-mode-both delay-100">
-                        <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
-                            {isRegistering ? "Crear Cuenta" : "Bienvenido"}
+        <main className="min-h-screen w-full flex items-center justify-center px-6 py-12 bg-background">
+            <div className="w-full max-w-sm space-y-10">
+                <div className="flex flex-col items-center text-center space-y-4">
+                    <Image src="/logo.png" alt="Logo" width={48} height={48} className="w-12 h-12 object-contain" />
+                    <div className="space-y-1">
+                        <h1 className="text-2xl font-light tracking-tight text-neutral-900">
+                            {isRegistering ? "Crear cuenta" : "Bienvenido"}
                         </h1>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-xs text-neutral-500">
                             {isRegistering ? "Elige un nombre de usuario y contraseña" : "Acceso seguro restringido"}
                         </p>
                     </div>
+                </div>
 
-                    <div className="w-full space-y-4 pt-4 animate-in slide-in-from-bottom-8 duration-700 fade-in fill-mode-both delay-200">
+                <form onSubmit={handleEmailLogin} className="space-y-6">
+                    <div className="space-y-1 text-left">
+                        <Label className="text-xs text-neutral-500 font-normal">Usuario</Label>
+                        <Input
+                            type="text"
+                            value={username}
+                            onChange={e => setUsername(e.target.value)}
+                            placeholder="usuario.ejemplo"
+                            required
+                        />
+                    </div>
+                    <div className="space-y-1 text-left">
+                        <Label className="text-xs text-neutral-500 font-normal">Contraseña</Label>
+                        <Input
+                            type="password"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            placeholder="••••••••"
+                            required
+                        />
+                    </div>
 
-                        {/* Manual Login/Register Form */}
-                        <form onSubmit={handleEmailLogin} className="space-y-3 mb-6">
-                            <div className="space-y-1 text-left">
-                                <Label className="text-xs text-gray-500 ml-1">Usuario</Label>
-                                <Input
-                                    type="text"
-                                    value={username}
-                                    onChange={e => setUsername(e.target.value)}
-                                    className="rounded-xl border-gray-200 bg-gray-50/50"
-                                    placeholder="usuario.ejemplo"
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-1 text-left">
-                                <Label className="text-xs text-gray-500 ml-1">Contraseña</Label>
-                                <Input
-                                    type="password"
-                                    value={password}
-                                    onChange={e => setPassword(e.target.value)}
-                                    className="rounded-xl border-gray-200 bg-gray-50/50"
-                                    placeholder="••••••••"
-                                    required
-                                />
-                            </div>
-                            <Button
-                                type="submit"
-                                variant="outline"
-                                className="w-full rounded-xl h-11 border-gray-200 text-gray-700 hover:bg-gray-50 mb-2"
-                                disabled={loading || !username || !password}
+                    <div className="flex flex-col items-center gap-4 pt-2">
+                        <button
+                            type="submit"
+                            className="text-sm font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
+                            disabled={loading || !username || !password}
+                        >
+                            {loading ? "Procesando..." : (isRegistering ? "Registrarse" : "Iniciar sesión")}
+                        </button>
+
+                        {!isRegistering && (
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    if (!username) {
+                                        toast.error("Ingresa tu Usuario primero para recuperar la contraseña");
+                                        return;
+                                    }
+                                    setLoading(true);
+                                    try {
+                                        const { recoverPassword } = await import("./actions");
+                                        const result = await recoverPassword(username);
+                                        if (result.success) {
+                                            toast.success(result.message, { duration: 8000 });
+                                        } else {
+                                            toast.error(result.message, { duration: 8000 });
+                                        }
+                                    } catch (e) {
+                                        toast.error("Error al procesar la solicitud");
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }}
+                                className="text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
+                                disabled={loading}
                             >
-                                {loading ? "Procesando..." : (isRegistering ? "Registrarse" : "Iniciar Sesión")}
-                            </Button>
+                                ¿Olvidaste tu contraseña?
+                            </button>
+                        )}
 
-                            <div className="text-center space-y-4">
-                                {!isRegistering && (
-                                    <button
-                                        type="button"
-                                        onClick={async () => {
-                                            if (!username) {
-                                                toast.error("Ingresa tu Usuario primero para recuperar la contraseña");
-                                                return;
-                                            }
-                                            setLoading(true);
-                                            try {
-                                                const { recoverPassword } = await import("./actions");
-                                                const result = await recoverPassword(username);
-                                                if (result.success) {
-                                                    toast.success(result.message, { duration: 8000 });
-                                                } else {
-                                                    toast.error(result.message, { duration: 8000 });
-                                                }
-                                            } catch (e) {
-                                                toast.error("Error al procesar la solicitud");
-                                            } finally {
-                                                setLoading(false);
-                                            }
-                                        }}
-                                        className="text-xs text-blue-600 hover:underline block w-full"
-                                        disabled={loading}
-                                    >
-                                        ¿Olvidaste tu contraseña?
-                                    </button>
-                                )}
+                        <button
+                            type="button"
+                            onClick={() => setIsRegistering(!isRegistering)}
+                            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                        >
+                            {isRegistering ? "¿Ya tienes cuenta? Inicia sesión" : "¿No tienes cuenta? Regístrate aquí"}
+                        </button>
+                    </div>
+                </form>
 
-                                <button
-                                    type="button"
-                                    onClick={() => setIsRegistering(!isRegistering)}
-                                    className="text-sm font-medium text-gray-600 hover:text-black transition-colors"
-                                >
-                                    {isRegistering ? "¿Ya tienes cuenta? Inicia sesión" : "¿No tienes cuenta? Regístrate aquí"}
-                                </button>
-                            </div>
-                        </form>
+                <div className="space-y-6">
+                    <div className="bg-gradient-to-r from-transparent via-neutral-200 to-transparent h-[1px]" />
 
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-gray-200" />
-                            </div>
-                            <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-white px-2 text-gray-400">O continúa con</span>
-                            </div>
-                        </div>
-                        <Button
+                    <div className="flex justify-center">
+                        <button
+                            type="button"
                             onClick={handleLogin}
-                            className="w-full h-14 rounded-full text-base font-medium bg-gray-900 text-white hover:bg-black transition-all duration-300 shadow-lg shadow-gray-900/10 hover:scale-[1.02] active:scale-[0.98]"
+                            className="inline-flex items-center gap-2 text-xs text-neutral-600 hover:text-neutral-900 transition-colors disabled:opacity-40"
                             disabled={loading}
                         >
-                            {loading ? (
-                                <span className="animate-pulse">Conectando...</span>
-                            ) : (
-                                <div className="flex items-center justify-center gap-3">
-                                    <Chrome className="w-5 h-5 text-white" />
-                                    <span>Continuar con Google</span>
-                                </div>
-                            )}
-                        </Button>
-
-                        <p className="text-xs text-center text-gray-400">
-                            Acceso seguro restringido a personal autorizado
-                        </p>
+                            <Chrome className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                            <span>{loading ? "Conectando..." : "Continuar con Google"}</span>
+                        </button>
                     </div>
+
+                    <p className="text-[11px] text-center text-neutral-400">
+                        Acceso seguro restringido a personal autorizado
+                    </p>
                 </div>
             </div>
         </main>
-
     )
 }

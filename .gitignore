@@ -47,3 +47,10 @@ certificates
 
 # Firebase Secrets
 asistente-483918-firebase-adminsdk-fbsvc-d650aebb54.json
+
+# Database backups (contains operational/PII data)
+/backups
+/scratch
+
+# Google OAuth client secrets
+client_secret_*.json

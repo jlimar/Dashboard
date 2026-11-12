@@ -1,21 +1,30 @@
 "use client"
 
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { Suspense, useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { VehicleFormDialog } from "@/components/vehicle-form-dialog"
 import { VehicleDetailsDialog } from "@/components/vehicle-details-dialog"
 import { MileageCorrectionDialog } from "@/components/mileage-correction-dialog"
 import { TalonarioCorrectionDialog } from "@/components/talonario-correction-dialog"
-import { Plus, Search, Car, Bike, Truck, MoreVertical, Pencil, Trash2, Home as HomeIcon, MapPin, Zap, Wrench, FileDigit, AlertTriangle, CheckCircle, Fuel, Clock, User as UserIcon, XCircle, Download } from "lucide-react"
-
-
+import {
+    Plus,
+    Search,
+    Car,
+    Bike,
+    Truck,
+    MoreVertical,
+    PenLine,
+    X,
+    Home as HomeIcon,
+    Wrench,
+    FileDigit,
+    XCircle,
+    Download,
+} from "lucide-react"
 import { LogoutButton } from "@/components/ui/logout-button"
 import Image from "next/image"
 import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import {
     DropdownMenu,
@@ -23,16 +32,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog"
 
 type Vehicle = {
     id: string
@@ -86,7 +86,7 @@ function VehiculosContent() {
         setExporting(true)
         try {
             const supabase = createClient()
-            
+
             // 1. Obtener todos los vehículos
             const { data: vehiculosData, error: vehError } = await supabase
                 .from('vehiculos')
@@ -100,14 +100,12 @@ function VehiculosContent() {
                 .select('*')
                 .neq('estado', 'Reparado')
                 .neq('estado', 'Descartado')
-            
+
             if (fallasError) throw fallasError
 
-            // Formatear booleano a texto
             const formatCheck = (val: boolean | undefined | null) => val ? 'Sí' : 'No'
 
             const excelDataPromises = vehiculosData.map(async (v) => {
-                // Obtener el último reporte de cada vehículo
                 const { data: lr } = await supabase
                     .from('reportes')
                     .select('*')
@@ -115,9 +113,9 @@ function VehiculosContent() {
                     .order('created_at', { ascending: false })
                     .limit(1)
                     .single()
-                
+
                 const fallas = fallasData.filter(f => f.vehiculo_id === v.id).map(f => `[${f.prioridad}] ${f.tipo_falla}: ${f.descripcion}`).join(' | ')
-                
+
                 const isSalida = lr && !lr.km_entrada;
                 const status = isSalida ? 'En Ruta' : 'Disponible / En Base';
                 const driver = isSalida ? lr.conductor : (lr?.conductor || 'Ninguno');
@@ -134,7 +132,7 @@ function VehiculosContent() {
                     "Kilometraje Actual": v.kilometraje || lr?.km_entrada || lr?.km_salida || 0,
                     "Nivel Gasolina (%)": v.current_fuel_level || 0,
                     "Fallas Activas": fallas || 'Ninguna',
-                    
+
                     // Chequeo Técnico
                     "Aceite (Últ. Reporte)": formatCheck(isSalida ? lr?.aceite_salida : lr?.aceite_entrada),
                     "Iluminación": formatCheck(isSalida ? lr?.luces_salida : lr?.luces_entrada),
@@ -155,15 +153,15 @@ function VehiculosContent() {
                     "Escalera Telescópica": isMoto ? 'N/A' : formatCheck(isSalida ? lr?.escalera_salida : lr?.escalera_entrada),
                     "Escalera de Tijera": isMoto ? 'N/A' : formatCheck(isSalida ? lr?.escalera_tijera_salida : lr?.escalera_tijera_entrada),
                     "Carpeta de Permisos": isMoto ? 'N/A' : formatCheck(isSalida ? lr?.carpeta_salida : lr?.carpeta_entrada),
-                    
+
                     // Moto Specific
                     "Casco (Moto)": isMoto ? formatCheck(isSalida ? lr?.casco_salida : lr?.casco_entrada) : 'N/A',
                     "Herramientas Moto": isMoto ? formatCheck(isSalida ? lr?.herramientas_salida : lr?.herramientas_entrada) : 'N/A',
-                    
+
                     // Dispositivos y Notas
                     "UPS": isMoto ? 'N/A' : formatCheck(isSalida ? lr?.ups_salida : lr?.ups_entrada),
                     "Observaciones (Viaje)": isSalida ? (lr?.observaciones_salida || 'Ninguna') : (lr?.observaciones_entrada || 'Ninguna'),
-                    
+
                     "Departamento (Últ. Viaje)": lr?.departamento || 'N/A',
                     "Último Reporte ID": lr?.id || 'N/A',
                     "Fecha Último Reporte": lr ? new Date(lr.created_at).toLocaleString() : 'N/A'
@@ -176,7 +174,7 @@ function VehiculosContent() {
             const worksheet = XLSX.utils.json_to_sheet(excelData)
             const workbook = XLSX.utils.book_new()
             XLSX.utils.book_append_sheet(workbook, worksheet, "Flota")
-            
+
             XLSX.writeFile(workbook, `Reporte_Flota_${new Date().toISOString().split('T')[0]}.xlsx`)
             toast.success("Excel generado con éxito")
         } catch (error) {
@@ -187,7 +185,6 @@ function VehiculosContent() {
         }
     }
 
-    // Calculate filteredVehicles based on manual search
     const filteredVehicles = vehicles.filter(v =>
         v.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
         v.modelo.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -197,7 +194,6 @@ function VehiculosContent() {
     // HANDLE DEEP LINK (Voice Command)
     useEffect(() => {
         if (!loading && initialSearch && vehicles.length > 0) {
-            // Find specific vehicle requested via URL
             const targetVehicle = vehicles.find(v =>
                 v.placa.toLowerCase().includes(initialSearch.toLowerCase()) ||
                 v.modelo.toLowerCase().includes(initialSearch.toLowerCase()) ||
@@ -207,24 +203,19 @@ function VehiculosContent() {
             if (targetVehicle) {
                 setDetailsVehicle(targetVehicle)
                 setDetailsOpen(true)
-
-                // VISUAL FIX: Also filter the grid so user sees what was found
                 setSearchTerm(initialSearch)
 
-                // Clean URL to prevent re-opening loops and allow closing
                 const newUrl = new URL(window.location.href)
                 newUrl.searchParams.delete("q")
                 window.history.replaceState({}, "", newUrl.toString())
             } else if (initialSearch) {
-                // If loaded but not found, warn user
                 toast.warning(`No encontré vehículos coincidiendo con "${initialSearch}"`)
-                // Also clean URL so toast doesn't persist
                 const newUrl = new URL(window.location.href)
                 newUrl.searchParams.delete("q")
                 window.history.replaceState({}, "", newUrl.toString())
             }
         }
-    }, [loading, initialSearch, vehicles]) // Only runs when data is loaded or URL changes
+    }, [loading, initialSearch, vehicles])
 
     useEffect(() => {
         loadVehicles()
@@ -234,7 +225,6 @@ function VehiculosContent() {
         try {
             const supabase = createClient()
 
-            // 1. Fetch Basic Vehicle Data
             const { data: vehiclesData, error: vehiclesError } = await supabase
                 .from('vehiculos')
                 .select('*')
@@ -242,12 +232,10 @@ function VehiculosContent() {
 
             if (vehiclesError) throw vehiclesError
 
-            // 2. Fetch Latest Mileage View
             const { data: mileageData, error: mileageError } = await supabase
                 .from('vista_ultimos_kilometrajes')
                 .select('vehiculo_id, ultimo_kilometraje')
 
-            // 3. Fetch Active Faults
             const { data: faultsData, error: faultsError } = await supabase
                 .from('fallas')
                 .select('vehiculo_id, prioridad, tipo_falla')
@@ -257,15 +245,12 @@ function VehiculosContent() {
             if (mileageError) console.error('Error fetching mileages:', JSON.stringify(mileageError, null, 2))
             if (faultsError) console.error('Error fetching defaults:', JSON.stringify(faultsError, null, 2))
 
-            // 4. Merge Data
             const mergedVehicles = vehiclesData?.map(vehicle => {
                 const mileageRecord = mileageData?.find(m => m.vehiculo_id === vehicle.id)
-                // Find highest priority fault if multiple
                 const activeFaults = faultsData?.filter(f => f.vehiculo_id === vehicle.id) || []
                 let mainFault = null
 
                 if (activeFaults.length > 0) {
-                    // Simple priority check: Critical > Alta > Media > Baja
                     const priorityOrder = ['Crítica', 'Alta', 'Media', 'Baja']
                     mainFault = activeFaults.sort((a, b) => {
                         return priorityOrder.indexOf(a.prioridad) - priorityOrder.indexOf(b.prioridad)
@@ -281,7 +266,6 @@ function VehiculosContent() {
 
             setVehicles(mergedVehicles)
 
-            // 5. Fetch Open Trips (no km_entrada)
             const { data: tripsData } = await supabase
                 .from('reportes')
                 .select('id, vehiculo_id, conductor, km_salida, fecha_salida, user_id')
@@ -335,234 +319,212 @@ function VehiculosContent() {
 
     const getIcon = (tipo: string) => {
         switch (tipo?.toLowerCase()) {
-            case 'moto': return <Bike size={20} />;
-            case 'carga': return <Truck size={20} />;
-            default: return <Car size={20} />;
-        }
-    }
-
-    // Helper for Fault Icons
-    const getFaultIcon = (type: string) => {
-        switch (type) {
-            case 'Mecánica': return <Wrench size={16} />
-            case 'Eléctrica': return <Zap size={16} />
-            case 'Cauchos': return <CheckCircle size={16} />
-            default: return <AlertTriangle size={16} />
-        }
-    }
-
-    const getPriorityColor = (priority: string) => {
-        switch (priority) {
-            case 'Crítica': return 'text-red-500 bg-red-50 border-red-200'
-            case 'Alta': return 'text-orange-500 bg-orange-50 border-orange-200'
-            case 'Media': return 'text-yellow-600 bg-yellow-50 border-yellow-200'
-            case 'Baja': return 'text-blue-500 bg-blue-50 border-blue-200'
-            default: return 'text-zinc-500 bg-zinc-50 border-zinc-200'
+            case 'moto': return <Bike className="w-4 h-4" strokeWidth={1.5} />
+            case 'carga': return <Truck className="w-4 h-4" strokeWidth={1.5} />
+            default: return <Car className="w-4 h-4" strokeWidth={1.5} />
         }
     }
 
     return (
-        <main className="min-h-screen bg-zinc-50 pb-20">
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-12">
+        <main className="min-h-screen bg-white text-neutral-900 pb-20">
+            <div className="max-w-5xl mx-auto px-6 pt-10">
                 {/* HEADER */}
-                <div className="flex justify-between items-end mb-8">
+                <header className="pb-6 mb-8 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Flota de Vehículos</h1>
-                        <p className="text-zinc-500 font-medium mt-1">Panel de Administración</p>
-                    </div>
-                    <div className="flex gap-2">
                         <a
                             href="/"
-                            className="p-2 text-zinc-400 hover:text-zinc-900 transition-colors rounded-full hover:bg-zinc-100 flex items-center justify-center"
+                            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors mb-4"
                             title="Ir al inicio"
                         >
-                            <HomeIcon size={24} />
+                            <HomeIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            Inicio
                         </a>
+                        <h1 className="text-2xl font-light tracking-tight text-neutral-900">
+                            Flota de vehículos
+                        </h1>
+                        <p className="text-sm text-neutral-500 mt-1">
+                            Panel de administración
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-5">
+                        <button
+                            type="button"
+                            onClick={exportToExcel}
+                            disabled={exporting}
+                            className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-900 transition-colors disabled:opacity-40"
+                        >
+                            <Download className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            {exporting ? "Exportando..." : "Exportar"}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setEditingVehicle(null)
+                                setDialogOpen(true)
+                            }}
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
+                        >
+                            <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            Agregar vehículo
+                        </button>
                         <LogoutButton />
                     </div>
-                </div>
+                </header>
 
-                {/* CONTROLS */}
-                <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-4 top-4 text-zinc-400" size={20} />
+                {/* SEARCH */}
+                <div className="mb-8 max-w-md">
+                    <div className="relative flex items-center">
+                        <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-0 pointer-events-none" strokeWidth={1.5} />
                         <input
                             type="text"
                             placeholder="Buscar por placa, modelo o código..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full h-14 pl-12 pr-4 bg-white border border-zinc-200 rounded-2xl text-lg text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all shadow-sm"
+                            className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 pl-6 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
                             suppressHydrationWarning
                         />
                     </div>
-                    <button
-                        onClick={exportToExcel}
-                        disabled={exporting}
-                        className="h-14 px-6 bg-emerald-600 text-white font-semibold rounded-2xl flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all active:scale-[0.98] shadow-sm disabled:opacity-50"
-                    >
-                        {exporting ? (
-                            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-                        ) : (
-                            <Download size={20} />
-                        )}
-                        Exportar
-                    </button>
-                    <button
-                        onClick={() => {
-                            setEditingVehicle(null)
-                            setDialogOpen(true)
-                        }}
-                        className="h-14 px-8 bg-black text-white font-semibold rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-lg shadow-zinc-200"
-                    >
-                        <Plus size={24} />
-                        Agregar Vehículo
-                    </button>
                 </div>
 
-                {/* GRID */}
+                {/* LIST */}
                 {loading ? (
-                    <div className="text-center py-20">
-                        <div className="animate-spin w-8 h-8 border-4 border-zinc-200 border-t-black rounded-full mx-auto mb-4"></div>
-                        <p className="text-zinc-400">Cargando flota...</p>
+                    <div className="py-20 text-center text-xs text-neutral-400">
+                        Cargando flota...
                     </div>
                 ) : filteredVehicles.length === 0 ? (
-                    <div className="text-center py-20 px-6 bg-white rounded-3xl border border-zinc-200 shadow-sm">
-                        <p className="text-zinc-400 text-lg mb-6">No se encontraron vehículos</p>
+                    <div className="py-16 text-center border-t border-b border-neutral-100">
+                        <p className="text-neutral-400 text-sm">No se encontraron vehículos</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="divide-y divide-neutral-100 border-t border-b border-neutral-100">
                         {filteredVehicles.map((vehicle) => {
-                            const openTrip = openTrips.find(t => t.vehiculo_id === vehicle.id);
+                            const openTrip = openTrips.find(t => t.vehiculo_id === vehicle.id)
+                            const fuelLevel = vehicle.current_fuel_level || 0
                             return (
-                                <div key={vehicle.id} className={`bg-white rounded-[24px] border ${openTrip ? 'border-amber-400 shadow-amber-100' : 'border-zinc-200'} p-4 shadow-sm hover:shadow-md transition-all group overflow-hidden relative`}>
-
-                                {/* Image Aspect Ratio Container - CLICKABLE */}
                                 <div
-                                    className="aspect-video relative rounded-xl bg-zinc-100 mb-4 overflow-hidden cursor-pointer active:scale-95 transition-transform"
-                                    onClick={() => {
-                                        setDetailsVehicle(vehicle)
-                                        setDetailsOpen(true)
-                                    }}
+                                    key={vehicle.id}
+                                    className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 px-2 -mx-2 hover:bg-neutral-50/50 transition-colors"
                                 >
-                                    {vehicle.foto_url ? (
-                                        <Image
-                                            src={vehicle.foto_url}
-                                            alt={vehicle.modelo}
-                                            fill
-                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                        />
-                                    ) : (
-                                        <div className="flex items-center justify-center h-full text-zinc-300">
-                                            {getIcon(vehicle.tipo)}
-                                        </div>
-                                    )}
-
-                                    {/* Badge Tipo */}
-                                    <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
-                                        {getIcon(vehicle.tipo)}
-                                        {vehicle.tipo || 'Vehículo'}
-                                    </div>
-
-                                    {/* Badge Viaje Abierto */}
-                                    {openTrip && (
-                                        <div className="absolute top-2 right-2 bg-amber-500/90 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm border border-amber-400">
-                                            <Clock size={12} />
-                                            En Ruta ({openTrip.hoursActive}h)
-                                        </div>
-                                    )}
-
-                                    {/* Badge Kilometraje */}
-                                    <div className="absolute bottom-2 right-2 bg-white/90 backdrop-blur-md text-zinc-900 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm border border-white/50">
-                                        <MapPin size={12} className="text-zinc-500" />
-                                        {(vehicle.kilometraje || 0).toLocaleString()} km
-                                    </div>
-                                </div>
-
-                                <div className="mb-2 flex justify-between items-start">
-                                    <div>
-                                        <h3 className="font-bold text-zinc-900 text-lg leading-tight">{vehicle.modelo}</h3>
-                                        <p className="text-zinc-500 font-mono text-sm">{vehicle.placa}</p>
-                                    </div>
-                                    {vehicle.falla_activa && (
-                                        <div className={`p-1.5 rounded-full border ${getPriorityColor(vehicle.falla_activa.prioridad)} shadow-sm`}>
-                                            {getFaultIcon(vehicle.falla_activa.tipo_falla)}
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-2 text-sm text-zinc-600 mt-4 border-t border-zinc-50 pt-3">
-                                    <div>
-                                        <span className="block text-xs text-zinc-400 font-medium">Año</span>
-                                        {vehicle.año || '-'}
-                                    </div>
-                                    <div>
-                                        <span className="block text-xs text-zinc-400 font-medium">Color</span>
-                                        {vehicle.color || '-'}
-                                    </div>
-                                    <div className="col-span-2 mt-3 flex justify-between items-center">
-                                        <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-bold ml-auto ${(vehicle.current_fuel_level || 0) <= 25 ? "bg-red-50 text-red-600" :
-                                            (vehicle.current_fuel_level || 0) <= 50 ? "bg-yellow-50 text-yellow-700" :
-                                                "bg-emerald-50 text-emerald-700"
-                                            }`}>
-                                            <Fuel size={14} />
-                                            <span>{vehicle.current_fuel_level || 0}%</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Actions */}
-                                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity" >
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <button className="w-8 h-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-zinc-900 shadow-sm hover:bg-white">
-                                                <MoreVertical size={16} />
-                                            </button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="rounded-xl border-zinc-200">
-                                            <DropdownMenuItem onClick={() => {
-                                                setEditingVehicle(vehicle)
-                                                setDialogOpen(true)
-                                            }}>
-                                                <Pencil className="mr-2 h-4 w-4" /> Editar
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => setDeletingVehicle(vehicle)} className="text-red-600 focus:text-red-700 focus:bg-red-50">
-                                                <Trash2 className="mr-2 h-4 w-4" /> Eliminar
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => setCorrectionVehicle(vehicle)}>
-                                                <div className="flex items-center w-full">
-                                                    <Wrench className="mr-2 h-4 w-4" />
-                                                    <span>Corregir Kilometraje</span>
-                                                </div>
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => setTalonarioVehicle(vehicle)}>
-                                                <div className="flex items-center w-full">
-                                                    <FileDigit className="mr-2 h-4 w-4" />
-                                                    <span>Corregir Talonario</span>
-                                                </div>
-                                            </DropdownMenuItem>
-                                            {openTrip && (
-                                                <DropdownMenuItem onClick={() => {
-                                                    setTripToClose(openTrip)
-                                                    setForceCloseKm(openTrip.km_salida?.toString() || "")
-                                                    setForceCloseNote("")
-                                                    setForceCloseDialog(true)
-                                                }}>
-                                                    <div className="flex items-center w-full text-amber-600 font-bold">
-                                                        <XCircle className="mr-2 h-4 w-4" />
-                                                        <span>Forzar Entrada</span>
-                                                    </div>
-                                                </DropdownMenuItem>
+                                    <div
+                                        className="flex items-center gap-4 min-w-0 flex-1 cursor-pointer"
+                                        onClick={() => {
+                                            setDetailsVehicle(vehicle)
+                                            setDetailsOpen(true)
+                                        }}
+                                    >
+                                        <div className="w-14 h-10 relative rounded-md bg-neutral-100 overflow-hidden shrink-0 flex items-center justify-center text-neutral-400">
+                                            {vehicle.foto_url ? (
+                                                <Image
+                                                    src={vehicle.foto_url}
+                                                    alt={vehicle.modelo}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            ) : (
+                                                getIcon(vehicle.tipo)
                                             )}
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </div>
+                                        </div>
 
-                            </div>
+                                        <div className="min-w-0">
+                                            <div className="flex items-center gap-2.5 flex-wrap">
+                                                <h3 className="text-sm font-medium text-neutral-900 truncate">
+                                                    {vehicle.modelo}
+                                                </h3>
+                                                <span className="text-xs font-mono text-neutral-500">
+                                                    {vehicle.placa}
+                                                </span>
+                                                {openTrip && (
+                                                    <span className="text-xs font-medium text-neutral-900">
+                                                        · En ruta ({openTrip.hoursActive}h)
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-3 text-xs text-neutral-400 mt-0.5 flex-wrap">
+                                                <span>{vehicle.tipo || 'Vehículo'}</span>
+                                                {vehicle.año && <span>· {vehicle.año}</span>}
+                                                {vehicle.color && <span>· {vehicle.color}</span>}
+                                                {vehicle.falla_activa && (
+                                                    <span className={vehicle.falla_activa.prioridad === 'Crítica' ? 'text-red-600' : 'text-neutral-500'}>
+                                                        · Falla {vehicle.falla_activa.tipo_falla.toLowerCase()} ({vehicle.falla_activa.prioridad.toLowerCase()})
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between sm:justify-end gap-6 shrink-0">
+                                        <div className="flex items-center gap-5 text-xs">
+                                            <span className="text-neutral-600 tabular-nums">
+                                                {(vehicle.kilometraje || 0).toLocaleString()} km
+                                            </span>
+                                            <span className={fuelLevel <= 25 ? "text-red-600 tabular-nums" : "text-neutral-500 tabular-nums"}>
+                                                {fuelLevel}% comb.
+                                            </span>
+                                        </div>
+
+                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setEditingVehicle(vehicle)
+                                                    setDialogOpen(true)
+                                                }}
+                                                title="Editar"
+                                                className="text-neutral-400 hover:text-neutral-900 transition-colors"
+                                            >
+                                                <PenLine className="w-3.5 h-3.5" strokeWidth={1.25} />
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => setDeletingVehicle(vehicle)}
+                                                title="Eliminar"
+                                                className="text-neutral-400 hover:text-neutral-900 transition-colors"
+                                            >
+                                                <X className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                            </button>
+
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <button
+                                                        type="button"
+                                                        title="Más opciones"
+                                                        className="text-neutral-400 hover:text-neutral-900 transition-colors"
+                                                    >
+                                                        <MoreVertical className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                                    </button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-xs border border-neutral-200/70 rounded-lg shadow-sm">
+                                                    <DropdownMenuItem onClick={() => setCorrectionVehicle(vehicle)}>
+                                                        <Wrench className="mr-2 h-3.5 w-3.5 text-neutral-500" strokeWidth={1.5} />
+                                                        <span className="text-xs">Corregir kilometraje</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => setTalonarioVehicle(vehicle)}>
+                                                        <FileDigit className="mr-2 h-3.5 w-3.5 text-neutral-500" strokeWidth={1.5} />
+                                                        <span className="text-xs">Corregir talonario</span>
+                                                    </DropdownMenuItem>
+                                                    {openTrip && (
+                                                        <DropdownMenuItem
+                                                            onClick={() => {
+                                                                setTripToClose(openTrip)
+                                                                setForceCloseKm(openTrip.km_salida?.toString() || "")
+                                                                setForceCloseNote("")
+                                                                setForceCloseDialog(true)
+                                                            }}
+                                                        >
+                                                            <XCircle className="mr-2 h-3.5 w-3.5 text-neutral-500" strokeWidth={1.5} />
+                                                            <span className="text-xs">Forzar entrada</span>
+                                                        </DropdownMenuItem>
+                                                    )}
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
+                                    </div>
+                                </div>
                             )
                         })}
                     </div>
-                )
-                }
+                )}
             </div>
 
             <VehicleFormDialog
@@ -596,70 +558,71 @@ function VehiculosContent() {
                 onUpdate={loadVehicles}
             />
 
-            <AlertDialog open={!!deletingVehicle} onOpenChange={(open) => !open && setDeletingVehicle(null)}>
-                <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle className="text-xl font-bold text-zinc-900">¿Eliminar Vehículo?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-zinc-500 text-base">
-                            Se eliminará el vehículo <strong>{deletingVehicle?.modelo}</strong> ({deletingVehicle?.placa}).
-                            Esta acción podría fallar si existen reportes asociados.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel className="rounded-xl h-12 border-zinc-200 text-zinc-900 font-medium">Cancelar</AlertDialogCancel>
-                        <AlertDialogAction onClick={executeDelete} className="rounded-xl h-12 bg-red-600 hover:bg-red-700 text-white font-medium">
-                            Eliminar
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <DeleteConfirmDialog
+                open={!!deletingVehicle}
+                onOpenChange={(open) => !open && setDeletingVehicle(null)}
+                title="¿Eliminar vehículo?"
+                description={
+                    <>
+                        Se eliminará el vehículo <strong className="font-medium text-neutral-900">{deletingVehicle?.modelo}</strong> ({deletingVehicle?.placa}). Esta acción podría fallar si existen reportes asociados.
+                    </>
+                }
+                confirmLabel="Eliminar"
+                onConfirm={executeDelete}
+            />
 
             {/* FORCE CLOSE TRIP DIALOG */}
             <Dialog open={forceCloseDialog} onOpenChange={(open) => { if (!open) setForceCloseDialog(false) }}>
-                <DialogContent className="max-w-md rounded-3xl border-none shadow-2xl bg-white p-6">
+                <DialogContent className="max-w-md">
                     <DialogHeader>
-                        <div className="mx-auto bg-amber-100 w-16 h-16 rounded-full flex items-center justify-center mb-4 text-amber-600">
-                            <XCircle size={32} />
-                        </div>
-                        <DialogTitle className="text-center text-xl font-bold text-zinc-900">Forzar Cierre de Viaje</DialogTitle>
-                        <DialogDescription className="text-center text-zinc-500">
-                            Cerrarás administrativamente el viaje de <strong>{tripToClose?.vehicleModel}</strong> ({tripToClose?.vehiclePlaca}) — Conductor: {tripToClose?.conductor || 'Desconocido'}
+                        <DialogTitle className="text-base font-medium text-neutral-900">
+                            Forzar cierre de viaje
+                        </DialogTitle>
+                        <DialogDescription className="text-xs text-neutral-500">
+                            Cerrarás administrativamente el viaje de <span className="font-medium text-neutral-900">{tripToClose?.vehicleModel}</span> ({tripToClose?.vehiclePlaca}) — Conductor: {tripToClose?.conductor || 'Desconocido'}
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-4 mt-4">
-                        <div>
-                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2 block">KM Estimado de Entrada</label>
-                            <Input
+                    <div className="space-y-5 mt-2">
+                        <div className="space-y-1">
+                            <label className="text-xs text-neutral-500 block">
+                                Kilometraje estimado de entrada
+                            </label>
+                            <input
                                 type="number"
                                 min={tripToClose?.km_salida || 0}
                                 value={forceCloseKm}
                                 onChange={e => setForceCloseKm(e.target.value)}
                                 placeholder="Ej. 45320"
-                                className="h-14 rounded-2xl font-mono font-bold text-lg"
+                                className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm font-mono text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
                             />
-                            <p className="text-[10px] text-zinc-400 mt-1">KM de salida registrado: {tripToClose?.km_salida?.toLocaleString() || 0}</p>
+                            <p className="text-[11px] text-neutral-400">
+                                Kilometraje de salida registrado: {tripToClose?.km_salida?.toLocaleString() || 0}
+                            </p>
                         </div>
-                        <div>
-                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2 block">Nota de Cierre</label>
-                            <Textarea
+                        <div className="space-y-1">
+                            <label className="text-xs text-neutral-500 block">
+                                Nota de cierre
+                            </label>
+                            <textarea
                                 value={forceCloseNote}
                                 onChange={e => setForceCloseNote(e.target.value)}
                                 placeholder="Motivo del cierre administrativo..."
-                                className="resize-none h-24 rounded-2xl"
+                                className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors resize-none h-20"
                             />
                         </div>
                     </div>
 
-                    <DialogFooter className="flex-col sm:flex-row gap-3 mt-6">
-                        <Button
-                            variant="outline"
+                    <DialogFooter className="mt-4 flex flex-row items-center justify-end gap-5">
+                        <button
+                            type="button"
                             onClick={() => setForceCloseDialog(false)}
-                            className="rounded-2xl h-12 border-zinc-200"
+                            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
                         >
                             Cancelar
-                        </Button>
-                        <Button
+                        </button>
+                        <button
+                            type="button"
                             disabled={closingTrip || !forceCloseKm}
                             onClick={async () => {
                                 if (!tripToClose || !forceCloseKm) return
@@ -676,7 +639,6 @@ function VehiculosContent() {
                                         .eq('id', tripToClose.id)
                                     if (error) throw error
 
-                                    // [NEW] Update Vehicle Master Record to match forced entry
                                     await supabase
                                         .from('vehiculos')
                                         .update({ kilometraje: parseInt(forceCloseKm) })
@@ -692,14 +654,13 @@ function VehiculosContent() {
                                     setClosingTrip(false)
                                 }
                             }}
-                            className="rounded-2xl h-12 bg-amber-600 text-white hover:bg-amber-700 font-bold shadow-lg shadow-amber-200"
+                            className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
                         >
-                            {closingTrip ? 'Cerrando...' : 'Confirmar Cierre'}
-                        </Button>
+                            {closingTrip ? 'Cerrando...' : 'Confirmar cierre'}
+                        </button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-
         </main>
     )
 }
@@ -707,8 +668,8 @@ function VehiculosContent() {
 export default function AdminVehiculosPage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
-                <div className="animate-spin w-8 h-8 border-4 border-zinc-200 border-t-black rounded-full"></div>
+            <div className="min-h-screen bg-white flex items-center justify-center text-xs text-neutral-400">
+                Cargando flota...
             </div>
         }>
             <VehiculosContent />

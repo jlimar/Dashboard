@@ -1,11 +1,20 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { crearSalida, registrarEntrada } from '@/app/transporte/actions';
-import { Sun, Moon, Wrench, Shield, Zap, MessageCircle } from 'lucide-react';
+import { Sun, Moon, ArrowLeft, ChevronRight } from 'lucide-react';
+import { toast } from 'sonner';
+import { CustomDropdown } from '@/components/ui/custom-dropdown';
 
-type Vehiculo = { id: string; placa: string; modelo: string; codigo: string };
+type Vehiculo = { id: string; placa: string; modelo: string; codigo: string; tipo?: string };
+
+type VehiculoRel = {
+    codigo: string;
+    placa: string;
+    modelo: string;
+    tipo?: string;
+};
 
 type Reporte = {
     id: string;
@@ -15,16 +24,36 @@ type Reporte = {
     km_salida: number;
     vehiculo_id: string;
     // Soporte para array o objeto (Supabase a veces devuelve array si no se detecta la relación 1:1)
-    vehiculos: {
-        codigo: string;
-        placa: string;
-        modelo: string;
-    } | {
-        codigo: string;
-        placa: string;
-        modelo: string;
-    }[];
+    vehiculos: VehiculoRel | VehiculoRel[];
 };
+
+const DEPARTAMENTO_OPTIONS = [
+    { value: 'Instalación', label: 'Instalación' },
+    { value: 'Afectaciones', label: 'Afectaciones' },
+    { value: 'Distribución', label: 'Distribución' },
+    { value: 'Comercialización', label: 'Comercialización' },
+    { value: 'Transporte', label: 'Transporte' },
+    { value: 'Operaciones', label: 'Operaciones' },
+];
+
+const GASOLINA_OPTIONS = [
+    { value: 'Full', label: 'Full' },
+    { value: '3/4', label: '3/4' },
+    { value: '1/2', label: '1/2' },
+    { value: '1/4', label: '1/4' },
+    { value: 'Reserva', label: 'Reserva' },
+];
+
+const CAUCHOS_OPTIONS = [
+    { value: '100% al 80% Estado Óptimo', label: '100% al 80% Estado Óptimo' },
+    { value: '79% al 50% Desgaste Medio', label: '79% al 50% Desgaste Medio' },
+    { value: '49% al 20% Planificar Cambio', label: '49% al 20% Planificar Cambio' },
+    { value: '19% al 1% Riesgo Crítico', label: '19% al 1% Riesgo Crítico' },
+];
+
+const inputClass =
+    'w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 outline-none transition-colors placeholder:text-neutral-400';
+const labelClass = 'block text-xs text-neutral-500 mb-1';
 
 export default function ReporteManager({
     vehiculos,
@@ -56,22 +85,40 @@ export default function ReporteManager({
     }, []);
 
     // Estado para la lógica condicional en SALIDA
+    const [vehiculoId, setVehiculoId] = useState<string>('');
     const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState<Vehiculo | null>(null);
     const [departamento, setDepartamento] = useState<string>('');
+    const [gasolinaSalida, setGasolinaSalida] = useState<string>('Full');
+    const [estadoCauchosSalida, setEstadoCauchosSalida] = useState<string>('');
     const [ultimoKm, setUltimoKm] = useState<number>(0);
     const [errorKmSalida, setErrorKmSalida] = useState<string | null>(null);
 
     // Estado para lógica condicional en ENTRADA (leemos del reporte pendiente)
+    const [reporteEntradaId, setReporteEntradaId] = useState<string>('');
     const [reporteEntrada, setReporteEntrada] = useState<Reporte | null>(null);
+    const [gasolinaEntrada, setGasolinaEntrada] = useState<string>('Full');
+    const [estadoCauchosEntrada, setEstadoCauchosEntrada] = useState<string>('');
     const [errorKm, setErrorKm] = useState<string | null>(null);
 
     // Helpers para detectar tipo
     const esMoto = (v: { codigo: string; modelo: string } | null | undefined) => v?.codigo.startsWith('M-') || v?.modelo.includes('MOTO');
     const esInstalacionODistribucion = (d: string) => d === 'Instalación' || d === 'Distribución' || d === 'Afectaciones';
 
-    // Refs para WhatsApp
-    const salidaFormRef = useRef<HTMLFormElement>(null);
-    const entradaFormRef = useRef<HTMLFormElement>(null);
+    const resetModo = () => {
+        setModo(null);
+        setVehiculoId('');
+        setVehiculoSeleccionado(null);
+        setDepartamento('');
+        setGasolinaSalida('Full');
+        setEstadoCauchosSalida('');
+        setUltimoKm(0);
+        setErrorKmSalida(null);
+        setReporteEntradaId('');
+        setReporteEntrada(null);
+        setGasolinaEntrada('Full');
+        setEstadoCauchosEntrada('');
+        setErrorKm(null);
+    };
 
     // --- GENERADORES DE TEXTO (PLAIN TEXT) ---
     const formatSalidaText = (data: any, vehiculoObj: Vehiculo | null | undefined) => {
@@ -130,7 +177,6 @@ export default function ReporteManager({
         msg += `Observaciones: ${data.observaciones_salida || 'Ninguna'}`;
         return msg;
     };
-
 
     const formatEntradaText = (entradaData: any, reporteOriginal: Reporte) => {
         const check = (val: boolean | number) => usePlainText ? (val ? '[SI]' : '[NO]') : (val ? '✅' : '❌');
@@ -200,10 +246,22 @@ export default function ReporteManager({
         return msg;
     };
 
-
     // --- HANDLERS UNIFICADOS ---
 
     const handleSalidaSubmit = async (formData: FormData) => {
+        if (!vehiculoId) {
+            toast.error('Selecciona un vehículo');
+            return;
+        }
+        if (!departamento) {
+            toast.error('Selecciona un departamento');
+            return;
+        }
+        if (!estadoCauchosSalida) {
+            toast.error('Selecciona el estado de los cauchos');
+            return;
+        }
+
         setSubmitting(true);
         const res = await crearSalida(formData);
 
@@ -220,6 +278,8 @@ export default function ReporteManager({
                 agua_salida: raw.agua_salida === 'on',
                 // ...otros booleanos
                 luces_salida: raw.luces_salida === 'on',
+                frenos_salida: raw.frenos_salida === 'on',
+                corneta_salida: raw.corneta_salida === 'on',
                 cinturones_salida: raw.cinturones_salida === 'on',
                 conos_salida: raw.conos_salida === 'on',
                 extintor_salida: raw.extintor_salida === 'on',
@@ -242,15 +302,24 @@ export default function ReporteManager({
             window.open(url, '_blank');
 
             // 3. Reset UI
-            setModo(null);
-            alert('Salida registrada con éxito. Se ha abierto WhatsApp.');
+            resetModo();
+            toast.success('Salida registrada con éxito. Se ha abierto WhatsApp.');
         } else {
-            alert('Error al guardar: ' + res?.error);
+            toast.error('Error al guardar: ' + res?.error);
         }
         setSubmitting(false);
     };
 
     const handleEntradaSubmit = async (formData: FormData) => {
+        if (!reporteEntradaId || !reporteEntrada) {
+            toast.error('Selecciona el vehículo en ruta');
+            return;
+        }
+        if (!estadoCauchosEntrada) {
+            toast.error('Selecciona el estado de los cauchos');
+            return;
+        }
+
         setSubmitting(true);
         const res = await registrarEntrada(formData);
 
@@ -263,6 +332,8 @@ export default function ReporteManager({
                 aceite_entrada: raw.aceite_entrada === 'on',
                 agua_entrada: raw.agua_entrada === 'on',
                 luces_entrada: raw.luces_entrada === 'on',
+                frenos_entrada: raw.frenos_entrada === 'on',
+                corneta_entrada: raw.corneta_entrada === 'on',
                 cinturones_entrada: raw.cinturones_entrada === 'on',
                 conos_entrada: raw.conos_entrada === 'on',
                 extintor_entrada: raw.extintor_entrada === 'on',
@@ -277,72 +348,79 @@ export default function ReporteManager({
                 escalera_tijera_entrada: raw.escalera_tijera_entrada === 'on',
             };
 
-            const text = formatEntradaText(processed, reporteEntrada!);
+            const text = formatEntradaText(processed, reporteEntrada);
             const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
             window.open(url, '_blank');
 
-            setModo(null);
-            alert('Entrada registrada con éxito. Se ha abierto WhatsApp.');
+            resetModo();
+            toast.success('Entrada registrada con éxito. Se ha abierto WhatsApp.');
         } else {
-            alert('Error al guardar: ' + res?.error);
+            toast.error('Error al guardar: ' + res?.error);
         }
         setSubmitting(false);
     };
+
+    const vehiculoOptions = vehiculos.map(v => ({
+        value: v.id,
+        label: `${v.modelo} - ${v.placa}`,
+    }));
+
+    const pendienteOptions = pendientes.map(p => {
+        const v = Array.isArray(p.vehiculos) ? p.vehiculos[0] : p.vehiculos;
+        const label = v ? `${v.modelo} - ${v.placa}` : `Vehículo (ID: ${p.vehiculo_id})`;
+        return { value: p.id, label };
+    });
+
+    const vehiculoEntradaObj = reporteEntrada
+        ? (Array.isArray(reporteEntrada.vehiculos) ? reporteEntrada.vehiculos[0] : reporteEntrada.vehiculos)
+        : null;
 
     return (
         <div className="w-full max-w-lg mx-auto pb-20">
 
             {/* PESTAÑAS (Solo visibles si no hay modo seleccionado) */}
             {!modo && (
-                <div className="flex flex-col gap-4 mt-6">
+                <div className="divide-y divide-neutral-100 mt-6">
                     <button
+                        type="button"
                         onClick={() => setModo('salida')}
-                        className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-200 flex items-center justify-between active:scale-[0.98] transition-all group"
+                        className="w-full py-5 flex items-center justify-between text-left group hover:bg-neutral-50/50 px-1 transition-colors"
                     >
-                        <div className="flex items-center gap-5">
-                            <div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-900 group-hover:bg-black group-hover:text-white transition-colors">
-                                <Sun size={36} strokeWidth={1.5} />
-                            </div>
-                            <div className="text-left">
-                                <span className="block text-xl font-bold text-zinc-900 tracking-tight">Mañana (Salida)</span>
-                                <span className="text-zinc-500 text-base">Registrar inicio de ruta</span>
+                        <div className="flex items-center gap-4">
+                            <Sun className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors" strokeWidth={1.5} />
+                            <div>
+                                <span className="block text-base font-medium text-neutral-900">Mañana (Salida)</span>
+                                <span className="text-neutral-500 text-xs">Registrar inicio de ruta</span>
                             </div>
                         </div>
-                        <div className="text-zinc-300">
-                            <svg width="12" height="20" viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M2 2L10 10L2 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                        </div>
+                        <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 transition-colors" strokeWidth={1.5} />
                     </button>
 
                     <button
+                        type="button"
                         onClick={() => setModo('entrada')}
-                        className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-200 flex items-center justify-between active:scale-[0.98] transition-all group"
+                        className="w-full py-5 flex items-center justify-between text-left group hover:bg-neutral-50/50 px-1 transition-colors"
                     >
-                        <div className="flex items-center gap-5">
-                            <div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-900 group-hover:bg-black group-hover:text-white transition-colors">
-                                <Moon size={36} strokeWidth={1.5} />
-                            </div>
-                            <div className="text-left">
-                                <span className="block text-xl font-bold text-zinc-900 tracking-tight">Tarde (Entrada)</span>
-                                <span className="text-zinc-500 text-base">Cerrar ruta y novedades</span>
+                        <div className="flex items-center gap-4">
+                            <Moon className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors" strokeWidth={1.5} />
+                            <div>
+                                <span className="block text-base font-medium text-neutral-900">Tarde (Entrada)</span>
+                                <span className="text-neutral-500 text-xs">Cerrar ruta y novedades</span>
                             </div>
                         </div>
-                        <div className="text-zinc-300">
-                            <svg width="12" height="20" viewBox="0 0 12 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M2 2L10 10L2 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                        </div>
+                        <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 transition-colors" strokeWidth={1.5} />
                     </button>
                 </div>
             )}
 
             {(modo === 'salida' || modo === 'entrada') && (
                 <div className="mb-6">
-                    <button onClick={() => setModo(null)} className="text-base text-zinc-500 hover:text-black flex items-center gap-2 font-medium px-2 py-3">
-                        <svg width="10" height="16" viewBox="0 0 12 20" fill="none" className="rotate-180" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M2 2L10 10L2 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
+                    <button
+                        type="button"
+                        onClick={resetModo}
+                        className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors inline-flex items-center gap-1.5"
+                    >
+                        <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
                         Volver al menú
                     </button>
                 </div>
@@ -353,385 +431,394 @@ export default function ReporteManager({
                 {/* ---------------- FORMULARIO SALIDA ---------------- */}
                 {modo === 'salida' && (
                     <form action={handleSalidaSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="px-2">
-                            <h2 className="text-3xl font-bold tracking-tight text-zinc-900">Salida</h2>
-                            <p className="text-zinc-500 text-lg mt-1">Complete los datos de la mañana.</p>
+                        <div className="pb-4 border-b border-neutral-100">
+                            <h2 className="text-2xl font-semibold tracking-tight text-neutral-900">Salida</h2>
+                            <p className="text-neutral-500 text-sm mt-0.5">Complete los datos de la mañana.</p>
                         </div>
 
                         {/* GRUPO 1 INFO */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden">
-                            <div className="divide-y divide-zinc-100 pl-6">
-                                <div className="py-5 pr-6">
-                                    <label className="label">Vehículo</label>
-                                    <div className="relative mt-2">
-                                        <select
-                                            name="vehiculo_id" required className="input appearance-none bg-zinc-50 font-medium"
-                                            onChange={(e) => {
-                                                const v = vehiculos.find(x => x.id === e.target.value);
-                                                setVehiculoSeleccionado(v || null);
-                                                if (v && lastKmMap[v.id]) {
-                                                    setUltimoKm(lastKmMap[v.id]);
-                                                } else {
-                                                    setUltimoKm(0);
-                                                }
-                                            }}
-                                            defaultValue=""
-                                        >
-                                            <option value="" disabled>Seleccionar vehículo...</option>
-                                            {vehiculos.map(v => (
-                                                <option key={v.id} value={v.id}>{v.modelo} - {v.placa}</option>
-                                            ))}
-                                        </select>
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">▼</div>
-                                    </div>
-                                </div>
-                                <div className="py-5 pr-6">
-                                    <label className="label">Conductor</label>
-                                    <input name="conductor" required type="text" className="input mt-2 bg-zinc-50 font-medium" placeholder="Su nombre completo" />
-                                </div>
-                                <div className="py-5 pr-6">
-                                    <label className="label">Departamento</label>
-                                    <div className="relative mt-2">
-                                        <select
-                                            name="departamento" required className="input appearance-none bg-zinc-50 font-medium"
-                                            onChange={(e) => setDepartamento(e.target.value)}
-                                        >
-                                            <option value="">Seleccionar departamento...</option>
-                                            <option>Instalación</option>
-                                            <option>Afectaciones</option>
-                                            <option>Distribución</option>
-                                            <option>Comercialización</option>
-                                            <option>Transporte</option>
-                                            <option>Operaciones</option>
-                                        </select>
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">▼</div>
-                                    </div>
-                                </div>
+                        <div className="space-y-5 pb-6 border-b border-neutral-100">
+                            <div>
+                                <label className={labelClass}>Vehículo</label>
+                                <CustomDropdown
+                                    name="vehiculo_id"
+                                    required
+                                    searchable
+                                    value={vehiculoId}
+                                    onChange={(val) => {
+                                        setVehiculoId(val);
+                                        const v = vehiculos.find(x => x.id === val);
+                                        setVehiculoSeleccionado(v || null);
+                                        if (v && lastKmMap[v.id]) {
+                                            setUltimoKm(lastKmMap[v.id]);
+                                        } else {
+                                            setUltimoKm(0);
+                                        }
+                                    }}
+                                    options={vehiculoOptions}
+                                    placeholder="Seleccionar vehículo..."
+                                />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Conductor</label>
+                                <input name="conductor" required type="text" className={inputClass} placeholder="Su nombre completo" />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Departamento</label>
+                                <CustomDropdown
+                                    name="departamento"
+                                    required
+                                    value={departamento}
+                                    onChange={setDepartamento}
+                                    options={DEPARTAMENTO_OPTIONS}
+                                    placeholder="Seleccionar departamento..."
+                                />
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden">
-                            <div className="divide-y divide-zinc-100 pl-6">
-                                <div className="py-5 pr-6">
-                                    <label className="label">Kilometraje Actual</label>
-                                    <input
-                                        name="km_salida" required type="number"
-                                        className={`input mt-2 bg-zinc-50 text-xl font-medium tracking-wide ${errorKmSalida ? 'border-red-500 ring-1 ring-red-500' : ''}`}
-                                        defaultValue={ultimoKm > 0 ? ultimoKm : ''}
-                                        min={ultimoKm}
-                                        placeholder="0"
-                                        onChange={(e) => {
-                                            const val = Number(e.target.value);
-                                            if (ultimoKm > 0) {
-                                                if (val < ultimoKm) {
-                                                    setErrorKmSalida(`Error: Menor al último (${ultimoKm})`);
-                                                } else if (val > ultimoKm + 10) {
-                                                    setErrorKmSalida(`Error: Mayor a límite permitido (${ultimoKm + 10})`);
-                                                } else {
-                                                    setErrorKmSalida(null);
-                                                }
+                        <div className="space-y-5 pb-6 border-b border-neutral-100">
+                            <div>
+                                <label className={labelClass}>Kilometraje actual</label>
+                                <input
+                                    name="km_salida"
+                                    required
+                                    type="number"
+                                    className={`${inputClass} ${errorKmSalida ? 'border-red-500 focus:border-red-600' : ''}`}
+                                    defaultValue={ultimoKm > 0 ? ultimoKm : ''}
+                                    min={ultimoKm}
+                                    placeholder="0"
+                                    onChange={(e) => {
+                                        const val = Number(e.target.value);
+                                        if (ultimoKm > 0) {
+                                            if (val < ultimoKm) {
+                                                setErrorKmSalida(`Error: Menor al último (${ultimoKm})`);
+                                            } else if (val > ultimoKm + 10) {
+                                                setErrorKmSalida(`Error: Mayor a límite permitido (${ultimoKm + 10})`);
+                                            } else {
+                                                setErrorKmSalida(null);
                                             }
-                                        }}
-                                    />
-                                    {ultimoKm > 0 && <p className="text-sm text-zinc-400 mt-2">Último cierre: <strong>{ultimoKm} km</strong></p>}
-                                    {errorKmSalida && <p className="text-sm text-red-600 mt-1 font-medium">{errorKmSalida}</p>}
-                                </div>
-                                <div className="py-5 pr-6">
-                                    <label className="label">Nivel de Gasolina</label>
-                                    <div className="relative mt-2">
-                                        <select name="gasolina_salida" className="input appearance-none bg-zinc-50 font-medium">
-                                            <option>Full</option> <option>3/4</option> <option>1/2</option> <option>1/4</option> <option>Reserva</option>
-                                        </select>
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">▼</div>
-                                    </div>
-                                </div>
+                                        }
+                                    }}
+                                />
+                                {ultimoKm > 0 && <p className="text-xs text-neutral-400 mt-1.5">Último cierre: <strong className="font-medium text-neutral-600">{ultimoKm} km</strong></p>}
+                                {errorKmSalida && <p className="text-xs text-red-600 mt-1">{errorKmSalida}</p>}
+                            </div>
+                            <div>
+                                <label className={labelClass}>Nivel de gasolina</label>
+                                <CustomDropdown
+                                    name="gasolina_salida"
+                                    value={gasolinaSalida}
+                                    onChange={setGasolinaSalida}
+                                    options={GASOLINA_OPTIONS}
+                                    placeholder="Seleccionar..."
+                                />
                             </div>
                         </div>
 
-                        <h3 className="text-xl font-bold text-zinc-900 px-2 pt-2">Chequeos</h3>
-
-                        {/* 2. Chequeos Condicionales */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden divide-y divide-zinc-100">
+                        <div className="space-y-6">
+                            <h3 className="text-base font-medium text-neutral-900">Chequeos</h3>
 
                             {/* TÉCNICO */}
-                            <div className="p-5 bg-zinc-50 border-b border-zinc-100">
-                                <h4 className="font-bold text-zinc-500 uppercase text-xs tracking-wider flex items-center gap-2"><Wrench size={16} /> Técnico</h4>
-                            </div>
-                            <div className="pl-6">
-                                <label className="check-row pr-6 py-5 border-b border-zinc-100 last:border-0">
-                                    <span className="text-lg font-medium text-zinc-900">Nivel de Aceite</span>
-                                    <input name="aceite_salida" type="checkbox" className="checkbox" />
-                                </label>
-                                <label className="check-row pr-6 py-5 border-b border-zinc-100 last:border-0">
-                                    <span className="text-lg font-medium text-zinc-900">Sistema de iluminación</span>
-                                    <input name="luces_salida" type="checkbox" className="checkbox" />
-                                </label>
-                                <label className="check-row pr-6 py-5 border-b border-zinc-100 last:border-0">
-                                    <span className="text-lg font-medium text-zinc-900">Sistema de frenos</span>
-                                    <input name="frenos_salida" type="checkbox" className="checkbox" />
-                                </label>
-                                <label className="check-row pr-6 py-5 border-b border-zinc-100 last:border-0">
-                                    <span className="text-lg font-medium text-zinc-900">Cauchos</span>
-                                    <select name="estado_cauchos_salida" required defaultValue={selectedReport?.estado_cauchos_salida || ''} className="h-10 rounded-lg border border-zinc-200 px-3 bg-white ml-auto max-w-[200px]">
-                                        <option value="">Seleccionar</option>
-                                        <option value="100% al 80% Estado Óptimo">100% al 80% Estado Óptimo</option>
-                                        <option value="79% al 50% Desgaste Medio">79% al 50% Desgaste Medio</option>
-                                        <option value="49% al 20% Planificar Cambio">49% al 20% Planificar Cambio</option>
-                                        <option value="19% al 1% Riesgo Crítico">19% al 1% Riesgo Crítico</option>
-                                    </select>
-                                </label>
-                                <label className="check-row pr-6 py-5 border-b border-zinc-100 last:border-0">
-                                    <span className="text-lg font-medium text-zinc-900">Corneta</span>
-                                    <input name="corneta_salida" type="checkbox" className="checkbox" />
-                                </label>
-                                <label className="check-row pr-6 py-5">
-                                    <span className="text-lg font-medium text-zinc-900">Agua / Refrigerante</span>
-                                    <input name="agua_salida" type="checkbox" className="checkbox" />
-                                </label>
+                            <div>
+                                <h4 className="text-xs font-medium text-neutral-400 pb-2 border-b border-neutral-100">Técnico</h4>
+                                <div className="divide-y divide-neutral-100">
+                                    <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                        <span className="text-sm text-neutral-900">Nivel de aceite</span>
+                                        <input name="aceite_salida" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
+                                    </label>
+                                    <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                        <span className="text-sm text-neutral-900">Sistema de iluminación</span>
+                                        <input name="luces_salida" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
+                                    </label>
+                                    <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                        <span className="text-sm text-neutral-900">Sistema de frenos</span>
+                                        <input name="frenos_salida" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
+                                    </label>
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 gap-3">
+                                        <span className="text-sm text-neutral-900">Cauchos</span>
+                                        <div className="w-full sm:w-56">
+                                            <CustomDropdown
+                                                name="estado_cauchos_salida"
+                                                required
+                                                value={estadoCauchosSalida}
+                                                onChange={setEstadoCauchosSalida}
+                                                options={CAUCHOS_OPTIONS}
+                                                placeholder="Seleccionar"
+                                            />
+                                        </div>
+                                    </div>
+                                    <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                        <span className="text-sm text-neutral-900">Corneta</span>
+                                        <input name="corneta_salida" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
+                                    </label>
+                                    <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                        <span className="text-sm text-neutral-900">Agua / Refrigerante</span>
+                                        <input name="agua_salida" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
+                                    </label>
+                                </div>
                             </div>
 
                             {/* SEGURIDAD */}
                             {!esMoto(vehiculoSeleccionado) && (
-                                <>
-                                    <div className="p-5 bg-zinc-50 border-b border-zinc-100 border-t">
-                                        <h4 className="font-bold text-zinc-500 uppercase text-xs tracking-wider flex items-center gap-2"><Shield size={16} /> Seguridad</h4>
-                                    </div>
-                                    <div className="pl-6">
-                                        {[{ k: 'cinturones_salida', l: 'Cinturones de seguridad' }, { k: 'conos_salida', l: 'Conos de tráfico' }, { k: 'extintor_salida', l: 'Extintor de incendios' }, { k: 'botiquin_salida', l: 'Botiquín de primeros auxilios' }, { k: 'gato_salida', l: 'Gato' }, { k: 'cruz_salida', l: 'Llave Cruz' }, { k: 'triangulo_salida', l: 'Triángulo' }, { k: 'caucho_salida', l: 'Caucho de repuesto' }, { k: 'carpeta_salida', l: 'Carpeta de Permisos' }].map((item) => (
-                                            <label key={item.k} className="check-row pr-6 py-5 border-b border-zinc-100 last:border-0">
-                                                <span className="text-lg font-medium text-zinc-900">{item.l}</span>
-                                                <input name={item.k} type="checkbox" className="checkbox" />
+                                <div>
+                                    <h4 className="text-xs font-medium text-neutral-400 pb-2 border-b border-neutral-100">Seguridad</h4>
+                                    <div className="divide-y divide-neutral-100">
+                                        {[
+                                            { k: 'cinturones_salida', l: 'Cinturones de seguridad' },
+                                            { k: 'conos_salida', l: 'Conos de tráfico' },
+                                            { k: 'extintor_salida', l: 'Extintor de incendios' },
+                                            { k: 'botiquin_salida', l: 'Botiquín de primeros auxilios' },
+                                            { k: 'gato_salida', l: 'Gato' },
+                                            { k: 'cruz_salida', l: 'Llave cruz' },
+                                            { k: 'triangulo_salida', l: 'Triángulo' },
+                                            { k: 'caucho_salida', l: 'Caucho de repuesto' },
+                                            { k: 'carpeta_salida', l: 'Carpeta de permisos' }
+                                        ].map((item) => (
+                                            <label key={item.k} className="flex items-center justify-between py-3.5 cursor-pointer">
+                                                <span className="text-sm text-neutral-900">{item.l}</span>
+                                                <input name={item.k} type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
                                             </label>
                                         ))}
                                     </div>
-                                </>
+                                </div>
                             )}
 
                             {/* EQUIPOS */}
                             {esInstalacionODistribucion(departamento) && (
-                                <>
-                                    <div className="p-5 bg-zinc-50 border-b border-zinc-100 border-t">
-                                        <h4 className="font-bold text-zinc-500 uppercase text-xs tracking-wider flex items-center gap-2"><Zap size={16} /> Equipos</h4>
-                                    </div>
-                                    <div className="pl-6">
+                                <div>
+                                    <h4 className="text-xs font-medium text-neutral-400 pb-2 border-b border-neutral-100">Equipos</h4>
+                                    <div className="divide-y divide-neutral-100">
                                         {departamento === 'Instalación' && (
-                                            <label className="check-row pr-6 py-5 border-b border-zinc-100">
-                                                <span className="text-lg font-medium text-zinc-900">Mini-UPS</span>
-                                                <input name="ups_salida" type="checkbox" className="checkbox" />
+                                            <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                                <span className="text-sm text-neutral-900">Mini-UPS</span>
+                                                <input name="ups_salida" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
                                             </label>
                                         )}
-                                        <label className="check-row pr-6 py-5">
-                                            <span className="text-lg font-medium text-zinc-900">Escalera telescópica</span>
-                                            <input name="escalera_salida" type="checkbox" className="checkbox" />
+                                        <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                            <span className="text-sm text-neutral-900">Escalera telescópica</span>
+                                            <input name="escalera_salida" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
                                         </label>
                                     </div>
-                                </>
+                                </div>
                             )}
-                            {(selectedReport?.vehiculos?.tipo?.toLowerCase() === 'carga' || selectedReport?.vehiculos?.modelo?.toLowerCase().includes('carga')) && (
-                                <>
-                                    <div className="p-5 bg-zinc-50 border-b border-zinc-100 border-t">
-                                        <h4 className="font-bold text-zinc-500 uppercase text-xs tracking-wider flex items-center gap-2"><Zap size={16} /> Equipos de Carga</h4>
-                                    </div>
-                                    <div className="pl-6">
-                                        <label className="check-row pr-6 py-5">
-                                            <span className="text-lg font-medium text-zinc-900">Escalera de Tijera</span>
-                                            <input name="escalera_tijera_salida" type="checkbox" className="checkbox" />
+
+                            {(vehiculoSeleccionado?.tipo?.toLowerCase() === 'carga' || vehiculoSeleccionado?.modelo?.toLowerCase().includes('carga')) && (
+                                <div>
+                                    <h4 className="text-xs font-medium text-neutral-400 pb-2 border-b border-neutral-100">Equipos de carga</h4>
+                                    <div className="divide-y divide-neutral-100">
+                                        <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                            <span className="text-sm text-neutral-900">Escalera de tijera</span>
+                                            <input name="escalera_tijera_salida" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
                                         </label>
                                     </div>
-                                </>
+                                </div>
                             )}
                         </div>
 
-                        <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden p-6">
-                            <label className="label">Observaciones</label>
-                            <textarea name="observaciones_salida" rows={3} className="input mt-2 bg-zinc-50 resize-none text-lg" placeholder="Golpes, rayones..."></textarea>
+                        <div className="pt-2">
+                            <label className={labelClass}>Observaciones</label>
+                            <textarea
+                                name="observaciones_salida"
+                                rows={3}
+                                className={`${inputClass} resize-none`}
+                                placeholder="Golpes, rayones..."
+                            ></textarea>
                         </div>
 
-                        <div className="pt-4 pb-12">
-                            <button disabled={submitting || !!errorKmSalida} className={`btn-primary w-full shadow-xl shadow-zinc-300 transform active:scale-[0.98] transition-all ${!!errorKmSalida ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                <span>{submitting ? 'Enviando...' : 'Enviar Reporte'}</span>
+                        <div className="pt-4 pb-12 flex justify-end">
+                            <button
+                                type="submit"
+                                disabled={submitting || !!errorKmSalida}
+                                className="text-sm font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                {submitting ? 'Enviando...' : 'Enviar reporte'}
                             </button>
                         </div>
                     </form>
                 )}
 
-
                 {/* ---------------- FORMULARIO ENTRADA ---------------- */}
                 {modo === 'entrada' && (
                     <form action={handleEntradaSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="px-2">
-                            <h2 className="text-3xl font-bold tracking-tight text-zinc-900">Entrada</h2>
-                            <p className="text-zinc-500 text-lg mt-1">Cierre de ruta y novedades.</p>
+                        <div className="pb-4 border-b border-neutral-100">
+                            <h2 className="text-2xl font-semibold tracking-tight text-neutral-900">Entrada</h2>
+                            <p className="text-neutral-500 text-sm mt-0.5">Cierre de ruta y novedades.</p>
                         </div>
 
-                        <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden p-6">
-                            <label className="label mb-2">Vehículo en Ruta</label>
-                            <div className="relative">
-                                <select
-                                    name="reporte_id" required className="input appearance-none bg-zinc-50 text-lg py-4 font-medium" defaultValue=""
-                                    onChange={(e) => {
-                                        const r = pendientes.find(p => p.id === e.target.value);
-                                        setReporteEntrada(r || null);
-                                    }}
-                                >
-                                    <option value="" disabled>Seleccionar vehículo...</option>
-                                    {pendientes.map((p) => {
-                                        const v = Array.isArray(p.vehiculos) ? p.vehiculos[0] : p.vehiculos;
-                                        const label = v ? `${v.modelo} - ${v.placa}` : `Vehículo (ID: ${p.vehiculo_id})`;
-                                        return (
-                                            <option key={p.id} value={p.id}>
-                                                {label}
-                                            </option>
-                                        );
-                                    })}
-                                </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">▼</div>
-                            </div>
+                        <div className="pb-6 border-b border-neutral-100">
+                            <label className={labelClass}>Vehículo en ruta</label>
+                            <CustomDropdown
+                                name="reporte_id"
+                                required
+                                searchable
+                                value={reporteEntradaId}
+                                onChange={(val) => {
+                                    setReporteEntradaId(val);
+                                    const r = pendientes.find(p => p.id === val);
+                                    setReporteEntrada(r || null);
+                                }}
+                                options={pendienteOptions}
+                                placeholder="Seleccionar vehículo..."
+                            />
                         </div>
 
                         {reporteEntrada && (
                             <>
-                                <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden">
-                                    <div className="divide-y divide-zinc-100 pl-6">
-                                        <div className="py-5 pr-6">
-                                            <label className="label">Kilometraje Llegada</label>
-                                            <input
-                                                name="km_entrada" required type="number"
-                                                className={`input mt-2 bg-zinc-50 text-xl font-medium tracking-wide ${errorKm ? 'border-red-500 ring-1 ring-red-500' : ''}`}
-                                                placeholder={reporteEntrada.km_salida.toString()}
-                                                onChange={(e) => {
-                                                    const val = Number(e.target.value);
-                                                    const min = reporteEntrada.km_salida;
-                                                    const max = min + 600;
+                                <div className="space-y-5 pb-6 border-b border-neutral-100">
+                                    <div>
+                                        <label className={labelClass}>Kilometraje llegada</label>
+                                        <input
+                                            name="km_entrada"
+                                            required
+                                            type="number"
+                                            className={`${inputClass} ${errorKm ? 'border-red-500 focus:border-red-600' : ''}`}
+                                            placeholder={reporteEntrada.km_salida.toString()}
+                                            onChange={(e) => {
+                                                const val = Number(e.target.value);
+                                                const min = reporteEntrada.km_salida;
+                                                const max = min + 600;
 
-                                                    if (val < min) {
-                                                        setErrorKm(`Error: Menor a salida (${min})`);
-                                                    } else if (val > max) {
-                                                        setErrorKm(`Alerta: Kilometraje excesivo`);
-                                                    } else {
-                                                        setErrorKm(null);
-                                                    }
-                                                }}
-                                            />
-                                            {errorKm && <p className="text-sm text-red-600 mt-2 font-medium">{errorKm}</p>}
-                                        </div>
-                                        <div className="py-5 pr-6">
-                                            <label className="label">Nivel Gasolina</label>
-                                            <div className="relative mt-2">
-                                                <select name="gasolina_entrada" className="input appearance-none bg-zinc-50 font-medium">
-                                                    <option>Full</option> <option>3/4</option> <option>1/2</option> <option>1/4</option> <option>Reserva</option>
-                                                </select>
-                                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">▼</div>
-                                            </div>
-                                        </div>
+                                                if (val < min) {
+                                                    setErrorKm(`Error: Menor a salida (${min})`);
+                                                } else if (val > max) {
+                                                    setErrorKm('Alerta: Kilometraje excesivo');
+                                                } else {
+                                                    setErrorKm(null);
+                                                }
+                                            }}
+                                        />
+                                        {errorKm && <p className="text-xs text-red-600 mt-1">{errorKm}</p>}
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>Nivel gasolina</label>
+                                        <CustomDropdown
+                                            name="gasolina_entrada"
+                                            value={gasolinaEntrada}
+                                            onChange={setGasolinaEntrada}
+                                            options={GASOLINA_OPTIONS}
+                                            placeholder="Seleccionar..."
+                                        />
                                     </div>
                                 </div>
 
-                                <h3 className="text-xl font-bold text-zinc-900 px-2 pt-2">Estado Llegada</h3>
+                                <div className="space-y-6">
+                                    <h3 className="text-base font-medium text-neutral-900">Estado llegada</h3>
 
-                                <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden divide-y divide-zinc-100">
                                     {/* TÉCNICO */}
-                                    <div className="p-5 bg-zinc-50 border-b border-zinc-100">
-                                        <h4 className="font-bold text-zinc-500 uppercase text-xs tracking-wider flex items-center gap-2"><Wrench size={16} /> Técnico</h4>
-                                    </div>
-                                    <div className="pl-6">
-                                        <label className="check-row pr-6 py-5 border-b border-zinc-100 last:border-0">
-                                            <span className="text-lg font-medium text-zinc-900">Nivel de Aceite</span>
-                                            <input name="aceite_entrada" type="checkbox" className="checkbox" />
-                                        </label>
-                                        <label className="check-row pr-6 py-5 border-b border-zinc-100 last:border-0">
-                                            <span className="text-lg font-medium text-zinc-900">Sistema de iluminación</span>
-                                            <input name="luces_entrada" type="checkbox" className="checkbox" />
-                                        </label>
-                                        <label className="check-row pr-6 py-5 border-b border-zinc-100 last:border-0">
-                                            <span className="text-lg font-medium text-zinc-900">Sistema de frenos</span>
-                                            <input name="frenos_entrada" type="checkbox" className="checkbox" />
-                                        </label>
-                                        <label className="check-row pr-6 py-5 border-b border-zinc-100 last:border-0">
-                                            <span className="text-lg font-medium text-zinc-900">Cauchos</span>
-                                            <select name="estado_cauchos_entrada" required defaultValue={selectedReport?.estado_cauchos_entrada || ''} className="h-10 rounded-lg border border-zinc-200 px-3 bg-white ml-auto max-w-[200px]">
-                                                <option value="">Seleccionar</option>
-                                                <option value="100% al 80% Estado Óptimo">100% al 80% Estado Óptimo</option>
-                                                <option value="79% al 50% Desgaste Medio">79% al 50% Desgaste Medio</option>
-                                                <option value="49% al 20% Planificar Cambio">49% al 20% Planificar Cambio</option>
-                                                <option value="19% al 1% Riesgo Crítico">19% al 1% Riesgo Crítico</option>
-                                            </select>
-                                        </label>
-                                        <label className="check-row pr-6 py-5 border-b border-zinc-100 last:border-0">
-                                            <span className="text-lg font-medium text-zinc-900">Corneta</span>
-                                            <input name="corneta_entrada" type="checkbox" className="checkbox" />
-                                        </label>
-                                        <label className="check-row pr-6 py-5">
-                                            <span className="text-lg font-medium text-zinc-900">Agua / Refrigerante</span>
-                                            <input name="agua_entrada" type="checkbox" className="checkbox" />
-                                        </label>
+                                    <div>
+                                        <h4 className="text-xs font-medium text-neutral-400 pb-2 border-b border-neutral-100">Técnico</h4>
+                                        <div className="divide-y divide-neutral-100">
+                                            <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                                <span className="text-sm text-neutral-900">Nivel de aceite</span>
+                                                <input name="aceite_entrada" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
+                                            </label>
+                                            <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                                <span className="text-sm text-neutral-900">Sistema de iluminación</span>
+                                                <input name="luces_entrada" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
+                                            </label>
+                                            <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                                <span className="text-sm text-neutral-900">Sistema de frenos</span>
+                                                <input name="frenos_entrada" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
+                                            </label>
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 gap-3">
+                                                <span className="text-sm text-neutral-900">Cauchos</span>
+                                                <div className="w-full sm:w-56">
+                                                    <CustomDropdown
+                                                        name="estado_cauchos_entrada"
+                                                        required
+                                                        value={estadoCauchosEntrada}
+                                                        onChange={setEstadoCauchosEntrada}
+                                                        options={CAUCHOS_OPTIONS}
+                                                        placeholder="Seleccionar"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                                <span className="text-sm text-neutral-900">Corneta</span>
+                                                <input name="corneta_entrada" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
+                                            </label>
+                                            <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                                <span className="text-sm text-neutral-900">Agua / Refrigerante</span>
+                                                <input name="agua_entrada" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
+                                            </label>
+                                        </div>
                                     </div>
 
                                     {/* SEGURIDAD */}
-                                    {!esMoto(Array.isArray(reporteEntrada.vehiculos) ? reporteEntrada.vehiculos[0] : reporteEntrada.vehiculos) && (
-                                        <>
-                                            <div className="p-5 bg-zinc-50 border-b border-zinc-100 border-t">
-                                                <h4 className="font-bold text-zinc-500 uppercase text-xs tracking-wider flex items-center gap-2"><Shield size={16} /> Herramientas</h4>
-                                            </div>
-                                            <div className="pl-6">
-                                                {[{ k: 'cinturones_entrada', l: 'Cinturones de seguridad' }, { k: 'conos_entrada', l: 'Conos de tráfico' }, { k: 'extintor_entrada', l: 'Extintor de incendios' }, { k: 'botiquin_entrada', l: 'Botiquín de primeros auxilios' }, { k: 'gato_entrada', l: 'Gato' }, { k: 'cruz_entrada', l: 'Llave Cruz' }, { k: 'triangulo_entrada', l: 'Triángulo' }, { k: 'caucho_entrada', l: 'Caucho de repuesto' }, { k: 'carpeta_entrada', l: 'Carpeta de Permisos' }].map((item) => (
-                                                    <label key={item.k} className="check-row pr-6 py-5 border-b border-zinc-100 last:border-0">
-                                                        <span className="text-lg font-medium text-zinc-900">{item.l}</span>
-                                                        <input name={item.k} type="checkbox" className="checkbox" />
+                                    {!esMoto(vehiculoEntradaObj) && (
+                                        <div>
+                                            <h4 className="text-xs font-medium text-neutral-400 pb-2 border-b border-neutral-100">Herramientas</h4>
+                                            <div className="divide-y divide-neutral-100">
+                                                {[
+                                                    { k: 'cinturones_entrada', l: 'Cinturones de seguridad' },
+                                                    { k: 'conos_entrada', l: 'Conos de tráfico' },
+                                                    { k: 'extintor_entrada', l: 'Extintor de incendios' },
+                                                    { k: 'botiquin_entrada', l: 'Botiquín de primeros auxilios' },
+                                                    { k: 'gato_entrada', l: 'Gato' },
+                                                    { k: 'cruz_entrada', l: 'Llave cruz' },
+                                                    { k: 'triangulo_entrada', l: 'Triángulo' },
+                                                    { k: 'caucho_entrada', l: 'Caucho de repuesto' },
+                                                    { k: 'carpeta_entrada', l: 'Carpeta de permisos' }
+                                                ].map((item) => (
+                                                    <label key={item.k} className="flex items-center justify-between py-3.5 cursor-pointer">
+                                                        <span className="text-sm text-neutral-900">{item.l}</span>
+                                                        <input name={item.k} type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
                                                     </label>
                                                 ))}
                                             </div>
-                                        </>
+                                        </div>
                                     )}
 
                                     {/* EQUIPOS */}
                                     {esInstalacionODistribucion(reporteEntrada.departamento) && (
-                                        <>
-                                            <div className="p-5 bg-zinc-50 border-b border-zinc-100 border-t">
-                                                <h4 className="font-bold text-zinc-500 uppercase text-xs tracking-wider flex items-center gap-2"><Zap size={16} /> Equipos</h4>
-                                            </div>
-                                            <div className="pl-6">
+                                        <div>
+                                            <h4 className="text-xs font-medium text-neutral-400 pb-2 border-b border-neutral-100">Equipos</h4>
+                                            <div className="divide-y divide-neutral-100">
                                                 {reporteEntrada.departamento === 'Instalación' && (
-                                                    <label className="check-row pr-6 py-5 border-b border-zinc-100">
-                                                        <span className="text-lg font-medium text-zinc-900">Mini-UPS</span>
-                                                        <input name="ups_entrada" type="checkbox" className="checkbox" />
+                                                    <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                                        <span className="text-sm text-neutral-900">Mini-UPS</span>
+                                                        <input name="ups_entrada" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
                                                     </label>
                                                 )}
-                                                <label className="check-row pr-6 py-5">
-                                                    <span className="text-lg font-medium text-zinc-900">Escalera telescópica</span>
-                                                    <input name="escalera_entrada" type="checkbox" className="checkbox" />
+                                                <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                                    <span className="text-sm text-neutral-900">Escalera telescópica</span>
+                                                    <input name="escalera_entrada" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
                                                 </label>
                                             </div>
-                                        </>
+                                        </div>
                                     )}
 
                                     {/* EQUIPOS CARGA */}
-                                    {(reporteEntrada.vehiculos?.tipo?.toLowerCase() === 'carga' || reporteEntrada.vehiculos?.modelo?.toLowerCase().includes('carga')) && (
-                                        <>
-                                            <div className="p-5 bg-zinc-50 border-b border-zinc-100 border-t">
-                                                <h4 className="font-bold text-zinc-500 uppercase text-xs tracking-wider flex items-center gap-2"><Zap size={16} /> Equipos de Carga</h4>
-                                            </div>
-                                            <div className="pl-6">
-                                                <label className="check-row pr-6 py-5">
-                                                    <span className="text-lg font-medium text-zinc-900">Escalera de Tijera</span>
-                                                    <input name="escalera_tijera_entrada" type="checkbox" className="checkbox" />
+                                    {(vehiculoEntradaObj?.tipo?.toLowerCase() === 'carga' || vehiculoEntradaObj?.modelo?.toLowerCase().includes('carga')) && (
+                                        <div>
+                                            <h4 className="text-xs font-medium text-neutral-400 pb-2 border-b border-neutral-100">Equipos de carga</h4>
+                                            <div className="divide-y divide-neutral-100">
+                                                <label className="flex items-center justify-between py-3.5 cursor-pointer">
+                                                    <span className="text-sm text-neutral-900">Escalera de tijera</span>
+                                                    <input name="escalera_tijera_entrada" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
                                                 </label>
                                             </div>
-                                        </>
+                                        </div>
                                     )}
                                 </div>
 
-                                <div className="bg-white rounded-2xl shadow-sm border border-zinc-200 overflow-hidden p-6">
-                                    <label className="label">Observaciones</label>
-                                    <textarea name="observaciones_entrada" rows={3} className="input mt-2 bg-zinc-50 resize-none text-lg" placeholder="Novedades..."></textarea>
+                                <div className="pt-2">
+                                    <label className={labelClass}>Observaciones</label>
+                                    <textarea
+                                        name="observaciones_entrada"
+                                        rows={3}
+                                        className={`${inputClass} resize-none`}
+                                        placeholder="Novedades..."
+                                    ></textarea>
                                 </div>
 
-                                <div className="pt-4 pb-12">
+                                <div className="pt-4 pb-12 flex justify-end">
                                     <button
+                                        type="submit"
                                         disabled={!!errorKm || submitting}
-                                        className={`btn-primary w-full shadow-xl shadow-zinc-300 transform active:scale-[0.98] transition-all ${errorKm ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        className="text-sm font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                     >
-                                        <span>{submitting ? 'Enviando...' : 'Enviar Reporte'}</span>
+                                        {submitting ? 'Enviando...' : 'Enviar reporte'}
                                     </button>
                                 </div>
                             </>
@@ -739,15 +826,6 @@ export default function ReporteManager({
                     </form>
                 )}
             </div>
-
-            <style jsx>{`
-        .input { width: 100%; padding: 1rem 1.25rem; border-radius: 0.75rem; border: 1px solid transparent; outline: none; font-size: 1.1rem; color: #18181b; transition: all 0.2s; }
-        .input:focus { background: white; border-color: #000; box-shadow: 0 0 0 1px #000; }
-        .label { font-size: 0.8rem; font-weight: 700; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em; }
-        .btn-primary { background: #000; color: white; padding: 1.25rem; border-radius: 1rem; font-weight: 600; font-size: 1.1rem; border: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-        .check-row { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-        .checkbox { width: 1.5rem; height: 1.5rem; accent-color: black; border-radius: 0.375rem; }
-      `}</style>
         </div>
     );
 }

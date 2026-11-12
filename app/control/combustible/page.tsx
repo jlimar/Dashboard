@@ -4,20 +4,24 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns"
 import { es } from "date-fns/locale"
-import { ArrowLeft, Fuel, Plus, FileSpreadsheet, Filter, QrCode, Truck, User as UserIcon, X, Trash2, AlertTriangle, CheckCircle, Image as ImageIcon, CalendarDays, ChevronRight, RotateCcw, Send } from "lucide-react"
+import { ArrowLeft, Fuel, Plus, FileSpreadsheet, Filter, QrCode, Truck, X, Image as ImageIcon, RotateCcw, Send } from "lucide-react"
 import { DateRange } from "react-day-picker"
 import { DailyReportDialog } from "./daily-report-dialog"
 import * as XLSX from "xlsx"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
+import {
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { CustomDropdown } from "@/components/ui/custom-dropdown"
 import { cn } from "@/lib/utils"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { toast } from "sonner"
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "@/components/ui/drawer"
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { Calendar } from "@/components/ui/calendar"
 
 import { getFuelLogs, getVehicles, getTodayStats, annulFuelLog, getDailyReports } from "./actions"
@@ -189,205 +193,221 @@ export default function FuelControlPage() {
         XLSX.writeFile(workbook, `combustible_${format(new Date(), "yyyy-MM-dd")}.xlsx`)
     }
 
+    const vehicleOptions = [
+        { value: "all", label: "Toda la flota" },
+        ...vehicles.map((v) => ({
+            value: v.id,
+            label: v.modelo,
+            description: v.codigo,
+        })),
+    ]
+
     return (
-        <main className="min-h-screen bg-zinc-50 pb-28 md:pb-12 font-sans text-zinc-900">
+        <main className="min-h-screen bg-white pb-24 md:pb-12 font-sans text-neutral-900">
             {/* Header */}
-            <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-zinc-200 px-4 py-4">
+            <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-xs border-b border-neutral-100 px-4 py-4">
                 <div className="max-w-6xl mx-auto flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                        <Link href="/">
-                            <Button variant="ghost" size="icon" className="rounded-xl hover:bg-zinc-100 shrink-0">
-                                <ArrowLeft size={20} />
-                            </Button>
+                        <Link href="/" className="text-neutral-400 hover:text-neutral-900 transition-colors">
+                            <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
                         </Link>
                         <div>
-                            <h1 className="text-xl font-bold text-zinc-900 leading-none">Combustible</h1>
-                            <p className="text-xs text-zinc-500 font-medium mt-1">Control de Cargas</p>
+                            <h1 className="text-xl font-light text-neutral-900 leading-none tracking-tight">Combustible</h1>
+                            <p className="text-xs text-neutral-500 mt-1">Control de cargas</p>
                         </div>
                     </div>
-                    <div className="flex gap-2">
-                         <Link href="/control/combustible/new">
-                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-10 px-4 shadow-md shadow-indigo-100">
-                                <Plus size={18} className="mr-[6px]" />
-                                <span className="hidden sm:inline">Nuevo Ticket</span>
-                                <span className="sm:hidden">Nuevo</span>
-                            </Button>
+                    <div className="flex items-center gap-4">
+                        <Link
+                            href="/control/combustible/new"
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
+                        >
+                            <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            <span className="hidden sm:inline">Nuevo ticket</span>
+                            <span className="sm:hidden">Nuevo</span>
                         </Link>
                     </div>
                 </div>
             </header>
 
-            <div className="max-w-6xl mx-auto px-4 mt-6">
+            <div className="max-w-6xl mx-auto px-4 mt-8">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    {/* Stats Summary Row */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                        <Card className="rounded-[24px] border-zinc-200 shadow-sm bg-white overflow-hidden">
-                            <CardContent className="p-4">
-                                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1">Litros Hoy</p>
-                                <h3 className="text-xl font-black text-zinc-900">{todayStats.totalLiters.toFixed(1)} L</h3>
-                                <div className="flex items-center gap-1 mt-1 text-[10px] font-bold text-emerald-600">
-                                    <CheckCircle size={10} /> {todayStats.count} cargas
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card className="rounded-[24px] border-zinc-200 shadow-sm bg-indigo-600 text-white overflow-hidden">
-                            <CardContent className="p-4">
-                                <p className="text-[10px] font-bold text-indigo-200 uppercase tracking-wider mb-1">Actividad</p>
-                                <h3 className="text-xl font-black">En Línea</h3>
-                                <div className="flex items-center gap-1 mt-1 text-[10px] font-bold text-indigo-100">
-                                    <div className="w-[6px] h-[6px] bg-white rounded-full animate-pulse" /> Supervisor Activo
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Link href="/control/combustible/scan" className="col-span-1">
-                            <Card className="rounded-[24px] border-zinc-200 shadow-sm bg-white hover:bg-zinc-50 transition-colors h-full flex flex-col justify-center items-center cursor-pointer p-4">
-                                <QrCode size={24} className="text-zinc-400 mb-1" />
-                                <span className="text-xs font-bold text-zinc-600">Escanear</span>
-                            </Card>
-                        </Link>
-                        <div onClick={exportToExcel} className="col-span-1">
-                            <Card className="rounded-[24px] border-zinc-200 shadow-sm bg-white hover:bg-zinc-50 transition-colors h-full flex flex-col justify-center items-center cursor-pointer p-4">
-                                <FileSpreadsheet size={24} className="text-emerald-500 mb-1" />
-                                <span className="text-xs font-bold text-zinc-600">Exportar</span>
-                            </Card>
+                    {/* Stats Summary Row (Open Canvas) */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pb-6 border-b border-neutral-100 mb-6">
+                        <div className="flex flex-col">
+                            <span className="text-xs text-neutral-500 font-normal">Litros hoy</span>
+                            <span className="text-2xl font-light tracking-tight text-neutral-900 mt-0.5 tabular-nums">
+                                {todayStats.totalLiters.toFixed(1)} L
+                            </span>
+                            <span className="text-xs text-neutral-400 mt-1">{todayStats.count} cargas</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-xs text-neutral-500 font-normal">Actividad</span>
+                            <span className="text-2xl font-light tracking-tight text-neutral-900 mt-0.5">En línea</span>
+                            <span className="text-xs text-neutral-400 mt-1 flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                                Supervisor activo
+                            </span>
+                        </div>
+                        <div className="flex flex-col justify-center">
+                            <Link
+                                href="/control/combustible/scan"
+                                className="inline-flex items-center gap-2 text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                            >
+                                <QrCode className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                                <span>Escanear QR</span>
+                            </Link>
+                        </div>
+                        <div className="flex flex-col justify-center">
+                            <button
+                                type="button"
+                                onClick={exportToExcel}
+                                className="inline-flex items-center gap-2 text-xs text-neutral-500 hover:text-neutral-900 transition-colors text-left"
+                            >
+                                <FileSpreadsheet className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                                <span>Exportar Excel</span>
+                            </button>
                         </div>
                     </div>
 
-                    <TabsList className="grid w-full grid-cols-2 bg-white border border-zinc-200 p-1 rounded-[22px] h-14 shadow-sm mb-6">
-                        <TabsTrigger value="logs" className="rounded-2xl text-xs sm:text-sm data-[state=active]:bg-zinc-100 data-[state=active]:text-zinc-900 data-[state=active]:font-black transition-all">
-                            <Fuel size={14} className="mr-2 hidden sm:inline" />
-                            Historial de Cargas
+                    <TabsList className="flex w-full justify-start gap-6 bg-transparent border-b border-neutral-100 p-0 rounded-none h-auto mb-6">
+                        <TabsTrigger
+                            value="logs"
+                            className="rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-2.5 px-0 text-sm font-normal text-neutral-400 data-[state=active]:text-neutral-900 data-[state=active]:font-medium transition-colors gap-2"
+                        >
+                            <Fuel className="w-3.5 h-3.5 hidden sm:inline" strokeWidth={1.5} />
+                            Historial de cargas
                         </TabsTrigger>
-                        <TabsTrigger value="reports" className="rounded-2xl text-xs sm:text-sm data-[state=active]:bg-zinc-100 data-[state=active]:text-zinc-900 data-[state=active]:font-black transition-all">
-                            <FileSpreadsheet size={14} className="mr-2 hidden sm:inline" />
-                            Cierres y Reportes
+                        <TabsTrigger
+                            value="reports"
+                            className="rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-2.5 px-0 text-sm font-normal text-neutral-400 data-[state=active]:text-neutral-900 data-[state=active]:font-medium transition-colors gap-2"
+                        >
+                            <FileSpreadsheet className="w-3.5 h-3.5 hidden sm:inline" strokeWidth={1.5} />
+                            Cierres y reportes
                         </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="logs" className="mt-0 space-y-4 outline-none">
+                    <TabsContent value="logs" className="mt-0 space-y-6 outline-none">
                         {/* Filter Trigger + Quick Presets */}
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                onClick={() => setFilterDrawerOpen(true)}
-                                className={cn(
-                                    "h-10 px-3 shrink-0 rounded-[14px] border-zinc-200 bg-white hover:bg-zinc-50 font-bold text-xs gap-1.5 shadow-sm transition-all",
-                                    hasActiveFilters && "border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
-                                )}
-                            >
-                                <Filter size={14} />
-                                <span className="hidden sm:inline">Filtros</span>
-                                {activeFilterCount > 0 && (
-                                    <span className="h-4 w-4 rounded-full bg-indigo-600 text-white text-[9px] font-black flex items-center justify-center">
-                                        {activeFilterCount}
-                                    </span>
-                                )}
-                            </Button>
+                        <div className="flex items-center justify-between gap-4 pb-3 border-b border-neutral-100">
+                            <div className="flex items-center gap-5">
+                                <button
+                                    type="button"
+                                    onClick={() => setFilterDrawerOpen(true)}
+                                    className={cn(
+                                        "inline-flex items-center gap-1.5 text-xs transition-colors",
+                                        hasActiveFilters ? "text-neutral-900 font-medium" : "text-neutral-500 hover:text-neutral-900"
+                                    )}
+                                >
+                                    <Filter className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                    <span>Filtros</span>
+                                    {activeFilterCount > 0 && (
+                                        <span className="text-[11px] text-neutral-500 tabular-nums">({activeFilterCount})</span>
+                                    )}
+                                </button>
 
-                            <div className="flex flex-1 gap-1 bg-zinc-100/80 p-1 rounded-[16px] border border-zinc-200/50">
-                                {[{ id: "today", label: "Hoy" }, { id: "week", label: "Sem." }, { id: "month", label: "Mes" }].map(p => (
-                                    <button
-                                        key={p.id}
-                                        onClick={() => activePreset === p.id ? clearFilters() : applyPreset(p.id)}
-                                        className={cn(
-                                            "h-8 flex-1 rounded-[12px] text-xs font-bold transition-all",
-                                            activePreset === p.id
-                                                ? "bg-white text-zinc-900 shadow-sm"
-                                                : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50"
-                                        )}
-                                    >
-                                        {p.label}
-                                    </button>
-                                ))}
+                                <div className="flex items-center gap-4">
+                                    {[{ id: "today", label: "Hoy" }, { id: "week", label: "Semana" }, { id: "month", label: "Mes" }].map(p => (
+                                        <button
+                                            key={p.id}
+                                            type="button"
+                                            onClick={() => activePreset === p.id ? clearFilters() : applyPreset(p.id)}
+                                            className={cn(
+                                                "text-xs transition-colors pb-0.5 border-b",
+                                                activePreset === p.id
+                                                    ? "text-neutral-900 font-medium border-neutral-900"
+                                                    : "text-neutral-400 hover:text-neutral-700 border-transparent"
+                                            )}
+                                        >
+                                            {p.label}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
                             {hasActiveFilters && (
-                                <button onClick={clearFilters} className="h-10 w-10 shrink-0 rounded-[14px] border border-zinc-200 bg-white hover:bg-red-50 text-zinc-400 hover:text-red-500 flex items-center justify-center transition-colors shadow-sm">
-                                    <RotateCcw size={14} />
+                                <button
+                                    type="button"
+                                    onClick={clearFilters}
+                                    className="inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
+                                >
+                                    <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                    <span className="hidden sm:inline">Limpiar</span>
                                 </button>
                             )}
                         </div>
 
                         {/* Active Filter Chips */}
                         {hasActiveFilters && (
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-4 text-xs text-neutral-600">
                                 {selectedVehicle !== "all" && selectedVehicleName && (
-                                    <Badge variant="secondary" className="rounded-full px-3 py-1 gap-1 bg-indigo-50 text-indigo-700 border border-indigo-100 font-bold text-xs hover:bg-indigo-100">
-                                        <Truck size={12} />
-                                        {selectedVehicleName.codigo}
-                                        <button onClick={() => { setSelectedVehicle("all"); handleFilter("all") }} className="ml-1 hover:text-indigo-900">
-                                            <X size={12} />
+                                    <span className="inline-flex items-center gap-1.5 border-b border-neutral-200 pb-0.5">
+                                        <span>{selectedVehicleName.codigo}</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => { setSelectedVehicle("all"); handleFilter("all") }}
+                                            className="text-neutral-400 hover:text-neutral-900 transition-colors"
+                                        >
+                                            <X className="w-3 h-3" strokeWidth={1.5} />
                                         </button>
-                                    </Badge>
+                                    </span>
                                 )}
                                 {dateRange?.from && (
-                                    <Badge variant="secondary" className="rounded-full px-3 py-1 gap-1 bg-indigo-50 text-indigo-700 border border-indigo-100 font-bold text-xs hover:bg-indigo-100" suppressHydrationWarning>
-                                        <CalendarDays size={12} />
-                                        {format(dateRange.from, "dd MMM", { locale: es })}
-                                        {dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime() && ` - ${format(dateRange.to, "dd MMM", { locale: es })}`}
-                                        <button onClick={() => { setDateRange(undefined); setActivePreset(null); handleFilter(undefined, undefined) }} className="ml-1 hover:text-indigo-900">
-                                            <X size={12} />
+                                    <span className="inline-flex items-center gap-1.5 border-b border-neutral-200 pb-0.5" suppressHydrationWarning>
+                                        <span>
+                                            {format(dateRange.from, "dd MMM", { locale: es })}
+                                            {dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime() && ` - ${format(dateRange.to, "dd MMM", { locale: es })}`}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => { setDateRange(undefined); setActivePreset(null); handleFilter(undefined, undefined) }}
+                                            className="text-neutral-400 hover:text-neutral-900 transition-colors"
+                                        >
+                                            <X className="w-3 h-3" strokeWidth={1.5} />
                                         </button>
-                                    </Badge>
+                                    </span>
                                 )}
                             </div>
                         )}
 
-                        {/* FILTER DRAWER (Mobile-first bottom sheet) */}
+                        {/* FILTER DRAWER */}
                         <Drawer open={filterDrawerOpen} onOpenChange={setFilterDrawerOpen}>
-                            <DrawerContent className="rounded-t-[32px] max-h-[85vh]">
+                            <DrawerContent className="max-h-[85vh] bg-white/95 backdrop-blur-xs border-t border-neutral-200/70">
                                 <DrawerHeader className="pb-2">
                                     <div className="flex items-center justify-between">
-                                        <DrawerTitle className="text-xl font-black text-zinc-900">Filtros</DrawerTitle>
+                                        <DrawerTitle className="text-base font-medium text-neutral-900">Filtros</DrawerTitle>
                                         {hasActiveFilters && (
-                                            <button onClick={clearFilters} className="text-xs font-bold text-red-500 hover:text-red-600 flex items-center gap-1">
-                                                <RotateCcw size={12} /> Limpiar
+                                            <button
+                                                type="button"
+                                                onClick={clearFilters}
+                                                className="text-xs text-neutral-500 hover:text-neutral-900 flex items-center gap-1 transition-colors"
+                                            >
+                                                <RotateCcw className="w-3 h-3" strokeWidth={1.5} /> Limpiar
                                             </button>
                                         )}
                                     </div>
                                 </DrawerHeader>
                                 <div className="px-4 pb-6 space-y-6 overflow-y-auto">
-                                    {/* Vehicle Selection */}
-                                    <div>
-                                        <p className="text-[10px] font-black uppercase text-zinc-400 tracking-wider mb-3 ml-1">Vehículo</p>
-                                        <div className="grid grid-cols-1 gap-[6px] max-h-48 overflow-y-auto rounded-2xl border border-zinc-100 p-2 bg-zinc-50/50">
-                                            <button
-                                                onClick={() => setSelectedVehicle("all")}
-                                                className={cn(
-                                                    "flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all text-sm",
-                                                    selectedVehicle === "all"
-                                                        ? "bg-zinc-900 text-white font-black shadow-sm"
-                                                        : "bg-white text-zinc-700 font-medium hover:bg-zinc-100 border border-zinc-100"
-                                                )}
-                                            >
-                                                <Truck size={16} className={selectedVehicle === "all" ? "text-white" : "text-zinc-400"} />
-                                                Toda la Flota
-                                            </button>
-                                            {vehicles.map(v => (
-                                                <button
-                                                    key={v.id}
-                                                    onClick={() => setSelectedVehicle(v.id)}
-                                                    className={cn(
-                                                        "flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all text-sm",
-                                                        selectedVehicle === v.id
-                                                            ? "bg-indigo-600 text-white font-black shadow-sm"
-                                                            : "bg-white text-zinc-700 font-medium hover:bg-zinc-100 border border-zinc-100"
-                                                    )}
-                                                >
-                                                    <span className={cn("font-mono text-xs px-2 py-[2px] rounded-lg", selectedVehicle === v.id ? "bg-white/20" : "bg-zinc-100")}>{v.codigo}</span>
-                                                    <span className="truncate">{v.modelo}</span>
-                                                </button>
-                                            ))}
-                                        </div>
+                                    {/* Vehicle Selection with CustomDropdown */}
+                                    <div className="space-y-1.5">
+                                        <p className="text-xs text-neutral-500">Vehículo</p>
+                                        <CustomDropdown
+                                            value={selectedVehicle}
+                                            onChange={(val) => setSelectedVehicle(val)}
+                                            options={vehicleOptions}
+                                            searchable
+                                            placeholder="Toda la flota"
+                                            searchPlaceholder="Buscar vehículo..."
+                                        />
                                     </div>
 
                                     {/* Date Presets */}
-                                    <div>
-                                        <p className="text-[10px] font-black uppercase text-zinc-400 tracking-wider mb-3 ml-1">Período</p>
-                                        <div className="grid grid-cols-3 gap-2 mb-4">
-                                            {[{ id: "today", label: "Hoy" }, { id: "week", label: "Esta Semana" }, { id: "month", label: "Este Mes" }].map(p => (
+                                    <div className="space-y-3">
+                                        <p className="text-xs text-neutral-500">Período</p>
+                                        <div className="flex items-center gap-6 pb-2 border-b border-neutral-100">
+                                            {[{ id: "today", label: "Hoy" }, { id: "week", label: "Esta semana" }, { id: "month", label: "Este mes" }].map(p => (
                                                 <button
                                                     key={p.id}
+                                                    type="button"
                                                     onClick={() => {
                                                         if (activePreset === p.id) {
                                                             setDateRange(undefined)
@@ -403,10 +423,10 @@ export default function FuelControlPage() {
                                                         }
                                                     }}
                                                     className={cn(
-                                                        "py-3 rounded-2xl text-sm font-bold transition-all border",
+                                                        "text-xs pb-1 border-b transition-colors",
                                                         activePreset === p.id
-                                                            ? "bg-zinc-900 text-white border-zinc-900"
-                                                            : "bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50"
+                                                            ? "text-neutral-900 font-medium border-neutral-900"
+                                                            : "text-neutral-400 hover:text-neutral-700 border-transparent"
                                                     )}
                                                 >
                                                     {p.label}
@@ -415,7 +435,7 @@ export default function FuelControlPage() {
                                         </div>
 
                                         {/* Calendar for custom range */}
-                                        <div className="bg-white rounded-2xl border border-zinc-100 p-2 flex justify-center">
+                                        <div className="flex justify-center pt-2">
                                             <Calendar
                                                 mode="range"
                                                 selected={dateRange}
@@ -427,159 +447,133 @@ export default function FuelControlPage() {
                                         </div>
                                     </div>
 
-                                    {/* Apply Button */}
-                                    <Button
-                                        onClick={() => handleFilter()}
-                                        className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base shadow-lg shadow-indigo-200"
-                                    >
-                                        <Filter size={18} className="mr-2" />
-                                        Aplicar Filtros
-                                    </Button>
+                                    {/* Apply Action */}
+                                    <div className="flex justify-end pt-2 border-t border-neutral-100">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleFilter()}
+                                            className="text-sm font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
+                                        >
+                                            Aplicar filtros
+                                        </button>
+                                    </div>
                                 </div>
                             </DrawerContent>
                         </Drawer>
 
                         {loading ? (
-                            <div className="py-20 text-center text-zinc-400">
-                                <Loader2 className="animate-spin w-8 h-8 mx-auto mb-4" />
+                            <div className="py-20 text-center text-sm text-neutral-400">
+                                <Loader2 className="animate-spin w-5 h-5 mx-auto mb-2" />
                                 Cargando registros...
                             </div>
                         ) : logs.length === 0 ? (
-                            <div className="py-20 text-center bg-white rounded-[32px] border border-zinc-200 border-dashed">
-                                <Fuel size={48} className="mx-auto text-zinc-200 mb-4" />
-                                <p className="text-zinc-500 font-bold">No hay registros de carga encontrados.</p>
+                            <div className="py-20 text-center">
+                                <Fuel className="w-6 h-6 mx-auto text-neutral-300 mb-2" strokeWidth={1.25} />
+                                <p className="text-sm text-neutral-400">No hay registros de carga encontrados.</p>
                             </div>
                         ) : (
-                            <div className="space-y-4">
+                            <div className="divide-y divide-neutral-100">
                                 {logs.map((log) => (
-                                    <Card 
-                                        key={log.id} 
+                                    <div
+                                        key={log.id}
                                         className={cn(
-                                            "border-zinc-200 shadow-sm rounded-[28px] bg-white overflow-hidden transition-all hover:shadow-md cursor-pointer",
-                                            log.status === 'annulled' && "opacity-60 grayscale"
+                                            "group py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-neutral-50/50 transition-colors px-1",
+                                            log.status === 'annulled' && "opacity-60"
                                         )}
                                         onClick={() => setSelectedLog(log)}
                                     >
-                                        <CardContent className="p-5">
-                                            <div className="flex justify-between items-start mb-3">
-                                                <div className="flex gap-3 items-center">
-                                                    <div className={cn(
-                                                        "h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm",
-                                                        log.status === 'annulled' ? "bg-zinc-100 text-zinc-400" : "bg-indigo-50 text-indigo-600"
-                                                    )}>
-                                                        <Fuel size={24} />
-                                                    </div>
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
-                                                            <h3 className="font-black text-zinc-900 leading-none">{log.vehicle?.modelo}</h3>
-                                                            {log.status === 'annulled' && <Badge variant="destructive" className="text-[8px] h-4">ANULADO</Badge>}
-                                                        </div>
-                                                        <p className="text-xs text-zinc-500 font-mono mt-1">{log.vehicle?.placa} • Ticket #{log.ticket_number}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-tighter" suppressHydrationWarning>
-                                                        {format(new Date(log.fuel_date), "dd MMM", { locale: es })}
-                                                    </p>
-                                                    <p className="text-lg font-black text-zinc-900 leading-none" suppressHydrationWarning>
-                                                        {format(new Date(log.fuel_date), "HH:mm")}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-3 py-3 border-t border-zinc-100">
-                                                <div>
-                                                    <span className="text-[10px] uppercase font-bold text-zinc-400 block mb-[2px]">Litros</span>
-                                                    <div className="text-xl font-black text-emerald-600">{log.liters} L</div>
-                                                </div>
-                                                <div>
-                                                    <span className="text-[10px] uppercase font-bold text-zinc-400 block mb-[2px]">Kilometraje</span>
-                                                    <div className="text-xl font-black text-zinc-900">{log.mileage?.toLocaleString()} <span className="text-xs font-normal">km</span></div>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center justify-between pt-3 border-t border-zinc-100">
+                                        <div className="flex items-start gap-3 min-w-0">
+                                            <Fuel className="w-4 h-4 text-neutral-400 mt-1 shrink-0" strokeWidth={1.5} />
+                                            <div className="min-w-0">
                                                 <div className="flex items-center gap-2">
-                                                    <div className="h-6 w-6 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-500">
-                                                        <UserIcon size={12} />
-                                                    </div>
-                                                    <span className="text-xs font-bold text-zinc-600 truncate max-w-[120px]">{log.driver_name}</span>
+                                                    <h3 className="font-medium text-sm text-neutral-900 truncate">{log.vehicle?.modelo}</h3>
+                                                    {log.status === 'annulled' && (
+                                                        <span className="text-xs text-red-600 font-medium">Anulado</span>
+                                                    )}
                                                 </div>
-                                                <div className="flex items-center gap-1 text-[10px] font-bold text-zinc-400">
-                                                    <AlertTriangle size={10} /> Por: {log.supervisor?.first_name}
-                                                </div>
+                                                <p className="text-xs text-neutral-500 font-mono mt-0.5">
+                                                    {log.vehicle?.placa} · Ticket #{log.ticket_number}
+                                                </p>
+                                                <p className="text-xs text-neutral-400 mt-1">
+                                                    {log.driver_name} · Por: {log.supervisor?.first_name}
+                                                </p>
                                             </div>
-                                        </CardContent>
-                                    </Card>
+                                        </div>
+
+                                        <div className="flex items-center justify-between sm:justify-end gap-8 pl-7 sm:pl-0">
+                                            <div className="flex flex-col sm:items-end">
+                                                <span className="text-xs text-neutral-400">Litros</span>
+                                                <span className="text-base font-light text-emerald-600 tabular-nums">{log.liters} L</span>
+                                            </div>
+                                            <div className="flex flex-col sm:items-end">
+                                                <span className="text-xs text-neutral-400">Kilometraje</span>
+                                                <span className="text-base font-light text-neutral-900 tabular-nums">
+                                                    {log.mileage?.toLocaleString()} <span className="text-xs text-neutral-400">km</span>
+                                                </span>
+                                            </div>
+                                            <div className="text-right shrink-0">
+                                                <p className="text-xs text-neutral-400" suppressHydrationWarning>
+                                                    {format(new Date(log.fuel_date), "dd MMM", { locale: es })}
+                                                </p>
+                                                <p className="text-xs text-neutral-600 tabular-nums" suppressHydrationWarning>
+                                                    {format(new Date(log.fuel_date), "HH:mm")}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         )}
                     </TabsContent>
 
-                    <TabsContent value="reports" className="mt-0 outline-none space-y-6">
-                        <Card className="rounded-[32px] border-zinc-200 shadow-sm bg-white overflow-hidden p-6 text-center">
-                            <div className="max-w-md mx-auto py-6">
-                                <FileSpreadsheet size={48} className="mx-auto text-indigo-100 mb-4" />
-                                <h2 className="text-xl font-black text-zinc-900 mb-2">Nuevo Cierre Diario</h2>
-                                <p className="text-zinc-500 text-xs font-medium mb-6">Genera o actualiza el resumen oficial de consumos para la fecha seleccionada.</p>
-                                <DailyReportDialog onSuccess={() => loadInitialData()} />
+                    <TabsContent value="reports" className="mt-0 outline-none space-y-8">
+                        <div className="py-6 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <h2 className="text-base font-medium text-neutral-900">Nuevo cierre diario</h2>
+                                <p className="text-xs text-neutral-500 mt-1">Genera o actualiza el resumen oficial de consumos para la fecha seleccionada.</p>
                             </div>
-                        </Card>
+                            <DailyReportDialog onSuccess={() => loadInitialData()} />
+                        </div>
 
                         <div className="space-y-4">
-                            <div className="flex justify-between items-center px-1">
-                                <h4 className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Historial de Reportes</h4>
-                                <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    onClick={() => loadInitialData()} 
-                                    className="h-6 text-[10px] font-black text-zinc-400 hover:text-zinc-900 gap-1 uppercase"
+                            <div className="flex justify-between items-center pb-2 border-b border-neutral-100">
+                                <h4 className="text-xs font-medium text-neutral-500">Historial de reportes</h4>
+                                <button
+                                    type="button"
+                                    onClick={() => loadInitialData()}
+                                    className="inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
                                 >
-                                    <RotateCcw size={10} /> Refrescar
-                                </Button>
+                                    <RotateCcw className="w-3 h-3" strokeWidth={1.5} />
+                                    Refrescar
+                                </button>
                             </div>
                             {dailyReports.length === 0 ? (
-                                <div className="py-12 text-center bg-white rounded-[32px] border border-zinc-100 border-dashed">
-                                    <p className="text-zinc-400 text-sm font-bold">No hay reportes archivados aún.</p>
+                                <div className="py-12 text-center">
+                                    <p className="text-sm text-neutral-400">No hay reportes archivados aún.</p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="divide-y divide-neutral-100">
                                     {dailyReports.map((report) => (
-                                        <Card 
-                                            key={report.id} 
-                                            className="border-zinc-200 shadow-sm rounded-[28px] bg-white overflow-hidden hover:shadow-md transition-all cursor-pointer"
+                                        <div
+                                            key={report.id}
+                                            className="py-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-neutral-50/50 transition-colors px-1"
                                             onClick={() => setSelectedDailyReport(report)}
                                         >
-                                            <CardContent className="p-5">
-                                                <div className="flex justify-between items-center mb-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="h-10 w-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-                                                            <FileSpreadsheet size={20} />
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-[10px] font-black text-zinc-400 uppercase tracking-tighter" suppressHydrationWarning>
-                                                                {format(new Date(report.report_date + 'T12:00:00'), "MMMM yyyy", { locale: es })}
-                                                            </p>
-                                                            <h3 className="font-black text-zinc-900 text-lg leading-none" suppressHydrationWarning>
-                                                                {format(new Date(report.report_date + 'T12:00:00'), "EEEE dd", { locale: es })}
-                                                            </h3>
-                                                        </div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <p className="text-[10px] font-black text-zinc-400 uppercase">Total Litros</p>
-                                                        <p className="text-xl font-black text-emerald-600">{Number(report.total_liters).toFixed(1)} L</p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center justify-between pt-3 border-t border-zinc-100">
-                                                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400">
-                                                        <Truck size={10} /> {report.details?.length || 0} Vehículos
-                                                    </div>
-                                                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400">
-                                                        <UserIcon size={10} /> {report.supervisor?.first_name}
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
+                                            <div>
+                                                <h3 className="font-medium text-sm text-neutral-900 capitalize" suppressHydrationWarning>
+                                                    {format(new Date(report.report_date + 'T12:00:00'), "EEEE dd 'de' MMMM yyyy", { locale: es })}
+                                                </h3>
+                                                <p className="text-xs text-neutral-400 mt-1">
+                                                    {report.details?.length || 0} vehículos · {report.supervisor?.first_name}
+                                                </p>
+                                            </div>
+                                            <div className="text-right shrink-0">
+                                                <span className="text-xs text-neutral-400 block">Total litros</span>
+                                                <span className="text-lg font-light text-emerald-600 tabular-nums">
+                                                    {Number(report.total_liters).toFixed(1)} L
+                                                </span>
+                                            </div>
+                                        </div>
                                     ))}
                                 </div>
                             )}
@@ -590,213 +584,221 @@ export default function FuelControlPage() {
 
             {/* DETAIL DIALOG */}
             <AlertDialog open={!!selectedLog} onOpenChange={(val) => !val && setSelectedLog(null)}>
-                <AlertDialogContent className="max-w-4xl p-0 overflow-hidden bg-transparent border-none shadow-none backdrop-blur-none">
-                    <div className="bg-white/95 backdrop-blur-xl border border-zinc-200 shadow-2xl rounded-[32px] overflow-hidden flex flex-col max-h-[90vh] w-full max-w-md mx-auto">
-                        {/* Image Section (Top) */}
-                        <div className="w-full bg-zinc-100 relative h-72 shrink-0 flex items-center justify-center overflow-hidden p-4">
+                <AlertDialogContent className="max-w-md bg-white/95 backdrop-blur-xs border border-neutral-200/70 shadow-sm p-6 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="space-y-5 max-h-[80vh] overflow-y-auto">
+                        <AlertDialogHeader className="text-left space-y-1">
+                            <div className="flex justify-between items-start gap-4">
+                                <div>
+                                    <AlertDialogTitle className="text-base font-medium text-neutral-900">Detalle de ticket</AlertDialogTitle>
+                                    <AlertDialogDescription className="text-xs text-neutral-500 mt-0.5">
+                                        N# {selectedLog?.ticket_number}
+                                    </AlertDialogDescription>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedLog(null)}
+                                    className="text-neutral-400 hover:text-neutral-900 transition-colors"
+                                    aria-label="Cerrar"
+                                >
+                                    <X className="w-4 h-4" strokeWidth={1.5} />
+                                </button>
+                            </div>
+                        </AlertDialogHeader>
+
+                        {/* Image Section */}
+                        <div className="w-full bg-neutral-50 h-56 flex items-center justify-center overflow-hidden">
                             {selectedLog?.ticket_url ? (
                                 <img
                                     src={selectedLog.ticket_url}
                                     alt="Ticket"
-                                    className="w-full h-full object-contain rounded-2xl shadow-sm"
+                                    className="w-full h-full object-contain"
                                 />
                             ) : (
-                                <div className="text-zinc-300 flex flex-col items-center gap-2">
-                                    <ImageIcon size={64} strokeWidth={1} />
-                                    <span className="font-bold">Sin foto adjunta</span>
-                                </div>
-                            )}
-                            <Button
-                                size="icon"
-                                variant="ghost"
-                                className="absolute top-4 right-4 rounded-full bg-white/50 backdrop-blur-md text-zinc-900"
-                                onClick={() => setSelectedLog(null)}
-                            >
-                                <X size={20} />
-                            </Button>
-                        </div>
-
-                        {/* Details Section */}
-                        <div className="p-8 space-y-6 overflow-y-auto">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h2 className="text-2xl font-black text-zinc-900 leading-none">Detalle de Ticket</h2>
-                                    <p className="text-zinc-500 font-bold mt-2">N# {selectedLog?.ticket_number}</p>
-                                </div>
-                                {/* El botón de anular fue removido por regla de negocio: los supervisores no pueden eliminar tickets ya cargados */}
-                            </div>
-
-                            {selectedLog?.status === 'annulled' && (
-                                <div className="bg-red-50 border border-red-100 p-4 rounded-2xl text-red-800">
-                                    <p className="text-xs font-black uppercase mb-1">Motivo de Anulación</p>
-                                    <p className="text-sm font-bold italic">"{selectedLog.void_reason}"</p>
-                                </div>
-                            )}
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
-                                    <p className="text-[10px] font-black text-zinc-400 uppercase mb-1">Fecha</p>
-                                    <p className="font-bold">{selectedLog && format(new Date(selectedLog.fuel_date), "dd/MM/yyyy")}</p>
-                                </div>
-                                <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
-                                    <p className="text-[10px] font-black text-zinc-400 uppercase mb-1">Hora</p>
-                                    <p className="font-bold">{selectedLog && format(new Date(selectedLog.fuel_date), "HH:mm")}</p>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="h-12 w-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0">
-                                        <Truck size={24} />
-                                    </div>
-                                    <div>
-                                        <p className="font-black text-lg text-zinc-900">{selectedLog?.vehicle?.modelo}</p>
-                                        <p className="text-xs text-zinc-500 font-mono">{selectedLog?.vehicle?.placa}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="h-12 w-12 bg-zinc-100 text-zinc-500 rounded-2xl flex items-center justify-center shrink-0">
-                                        <UserIcon size={24} />
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-zinc-900">{selectedLog?.driver_name}</p>
-                                        <p className="text-xs text-zinc-500">Conductor</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-5 bg-emerald-600 text-white rounded-[24px] shadow-lg shadow-emerald-100">
-                                    <p className="text-[10px] font-bold uppercase opacity-80 mb-1">Litros</p>
-                                    <p className="text-3xl font-black">{selectedLog?.liters}</p>
-                                </div>
-                                <div className="p-5 bg-zinc-900 text-white rounded-[24px] shadow-lg shadow-zinc-200">
-                                    <p className="text-[10px] font-bold uppercase opacity-80 mb-1">Kilometraje</p>
-                                    <p className="text-2xl font-black">{selectedLog?.mileage?.toLocaleString()}</p>
-                                </div>
-                            </div>
-
-                            {selectedLog?.notes && (
-                                <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl">
-                                    <p className="text-[10px] font-black text-amber-700 uppercase mb-1">Notas</p>
-                                    <p className="text-sm font-medium text-amber-900">{selectedLog.notes}</p>
+                                <div className="text-neutral-300 flex flex-col items-center gap-1.5">
+                                    <ImageIcon className="w-8 h-8" strokeWidth={1.25} />
+                                    <span className="text-xs text-neutral-400">Sin foto adjunta</span>
                                 </div>
                             )}
                         </div>
+
+                        {selectedLog?.status === 'annulled' && (
+                            <div className="border-l-2 border-red-500 pl-3 py-0.5">
+                                <p className="text-xs font-medium text-red-600">Motivo de anulación</p>
+                                <p className="text-sm text-neutral-700 italic mt-0.5">"{selectedLog.void_reason}"</p>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-6 py-3 border-y border-neutral-100">
+                            <div>
+                                <p className="text-xs text-neutral-400">Fecha</p>
+                                <p className="text-sm font-medium text-neutral-900 mt-0.5">
+                                    {selectedLog && format(new Date(selectedLog.fuel_date), "dd/MM/yyyy")}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-neutral-400">Hora</p>
+                                <p className="text-sm font-medium text-neutral-900 mt-0.5">
+                                    {selectedLog && format(new Date(selectedLog.fuel_date), "HH:mm")}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <p className="text-xs text-neutral-400">Vehículo</p>
+                                <p className="text-sm font-medium text-neutral-900 mt-0.5">{selectedLog?.vehicle?.modelo}</p>
+                                <p className="text-xs text-neutral-500 font-mono">{selectedLog?.vehicle?.placa}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-neutral-400">Conductor</p>
+                                <p className="text-sm font-medium text-neutral-900 mt-0.5">{selectedLog?.driver_name}</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-6 pt-3 border-t border-neutral-100">
+                            <div>
+                                <p className="text-xs text-neutral-400">Litros</p>
+                                <p className="text-2xl font-light text-emerald-600 tabular-nums mt-0.5">{selectedLog?.liters}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-neutral-400">Kilometraje</p>
+                                <p className="text-2xl font-light text-neutral-900 tabular-nums mt-0.5">{selectedLog?.mileage?.toLocaleString()}</p>
+                            </div>
+                        </div>
+
+                        {selectedLog?.notes && (
+                            <div className="border-t border-neutral-100 pt-3">
+                                <p className="text-xs text-neutral-400">Notas</p>
+                                <p className="text-sm text-neutral-700 mt-0.5">{selectedLog.notes}</p>
+                            </div>
+                        )}
                     </div>
                 </AlertDialogContent>
             </AlertDialog>
 
             {/* DAILY REPORT DETAIL DIALOG */}
             <AlertDialog open={!!selectedDailyReport} onOpenChange={(val) => !val && setSelectedDailyReport(null)}>
-                <AlertDialogContent className="max-w-md p-0 overflow-hidden bg-white border-none shadow-2xl rounded-[32px]">
-                    <div className="p-6 border-b border-zinc-100">
-                        <div className="flex justify-between items-start">
+                <AlertDialogContent className="max-w-md bg-white/95 backdrop-blur-xs border border-neutral-200/70 shadow-sm p-6 animate-in fade-in zoom-in-95 duration-150">
+                    <AlertDialogHeader className="text-left pb-3 border-b border-neutral-100">
+                        <div className="flex justify-between items-start gap-4">
                             <div>
-                                <h2 className="text-2xl font-black text-zinc-900 leading-none">Resumen Diario</h2>
-                                <p className="text-zinc-500 font-bold mt-2 uppercase text-[10px] tracking-widest" suppressHydrationWarning>
+                                <AlertDialogTitle className="text-base font-medium text-neutral-900">Resumen diario</AlertDialogTitle>
+                                <AlertDialogDescription className="text-xs text-neutral-500 mt-0.5 capitalize" suppressHydrationWarning>
                                     {selectedDailyReport && format(new Date(selectedDailyReport.report_date + 'T12:00:00'), "PPPP", { locale: es })}
-                                </p>
+                                </AlertDialogDescription>
                             </div>
-                            <Button size="icon" variant="ghost" onClick={() => setSelectedDailyReport(null)} className="rounded-full">
-                                <X size={20} />
-                            </Button>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedDailyReport(null)}
+                                className="text-neutral-400 hover:text-neutral-900 transition-colors"
+                                aria-label="Cerrar"
+                            >
+                                <X className="w-4 h-4" strokeWidth={1.5} />
+                            </button>
                         </div>
-                    </div>
-                    <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                        <div className="bg-emerald-600 rounded-3xl p-5 text-white shadow-lg shadow-emerald-100 flex justify-between items-center">
-                            <div>
-                                <p className="text-[10px] font-bold uppercase opacity-80 mb-1">Consumo Total</p>
-                                <p className="text-3xl font-black">{Number(selectedDailyReport?.total_liters).toFixed(1)} L</p>
-                            </div>
-                            <FileSpreadsheet size={40} className="opacity-20" />
+                    </AlertDialogHeader>
+
+                    <div className="space-y-5 max-h-[60vh] overflow-y-auto py-2">
+                        <div className="pb-4 border-b border-neutral-100">
+                            <p className="text-xs text-neutral-500">Consumo total</p>
+                            <p className="text-2xl font-light text-neutral-900 tabular-nums mt-0.5">
+                                {Number(selectedDailyReport?.total_liters).toFixed(1)} L
+                            </p>
                         </div>
 
-                        <div className="space-y-3">
-                            <h4 className="text-[10px] font-black uppercase text-zinc-400 tracking-widest ml-1">Desglose por Vehículo</h4>
-                            {selectedDailyReport?.details?.map((item: any, idx: number) => (
-                                <div key={idx} className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h5 className="font-black text-zinc-900 text-sm leading-tight">{item.model}</h5>
-                                        <Badge variant="outline" className="bg-white border-zinc-200 text-emerald-600 font-black">
+                        <div className="space-y-2">
+                            <h4 className="text-xs text-neutral-500">Desglose por vehículo</h4>
+                            <div className="divide-y divide-neutral-100">
+                                {selectedDailyReport?.details?.map((item: any, idx: number) => (
+                                    <div key={idx} className="py-3 flex items-center justify-between gap-4">
+                                        <div>
+                                            <h5 className="text-sm font-medium text-neutral-900">{item.model}</h5>
+                                            <div className="flex items-center gap-3 text-xs text-neutral-400 mt-0.5">
+                                                <span>{item.count} cargas</span>
+                                                <span>·</span>
+                                                <span className="tabular-nums">{item.startKm?.toLocaleString()} - {item.endKm?.toLocaleString()} km</span>
+                                            </div>
+                                        </div>
+                                        <span className="text-sm font-medium text-emerald-600 tabular-nums shrink-0">
                                             {item.liters.toFixed(1)} L
-                                        </Badge>
+                                        </span>
                                     </div>
-                                    <div className="flex items-center gap-4 text-[10px] font-bold text-zinc-400">
-                                        <span className="flex items-center gap-1"><RotateCcw size={10} /> {item.count} cargas</span>
-                                        <span className="flex items-center gap-1"><Truck size={10} /> {item.startKm?.toLocaleString()} - {item.endKm?.toLocaleString()} km</span>
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     </div>
-                    <div className="p-6 border-t border-zinc-100 flex flex-col gap-3">
-                        <Button 
-                            className="w-full h-14 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold shadow-lg shadow-green-100"
+
+                    <AlertDialogFooter className="pt-3 border-t border-neutral-100 flex flex-row items-center justify-end gap-5">
+                        <button
+                            type="button"
+                            onClick={() => setSelectedDailyReport(null)}
+                            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                        >
+                            Cerrar
+                        </button>
+                        <button
+                            type="button"
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
                             onClick={() => {
-                                // Re-use WhatsApp formatting from Success Data if possible, 
-                                // but for simplicity here we just trigger the generic one
                                 const vehiclesList = selectedDailyReport.details?.map((v: any, index: number) =>
                                     `${index + 1}. ${v.model} / ${v.liters.toFixed(2)} L (${v.startKm}-${v.endKm} km)`
                                 ).join("\n")
-                        
+
                                 const message = `*Reporte de Combustible Diario*\n\n*Fecha:* ${selectedDailyReport.report_date}\n*Supervisor:* ${selectedDailyReport.supervisor?.first_name || "N/A"}\n\n*Vehículos:*\n${vehiclesList}\n\n*Total:* ${Number(selectedDailyReport.total_liters).toFixed(2)} L`
-                        
+
                                 window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank')
                             }}
                         >
-                            <Send size={20} className="mr-2" />
-                            Compartir Resumen
-                        </Button>
-                    </div>
+                            <Send className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            Compartir resumen
+                        </button>
+                    </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-            
+
             {/* ANNUL DIALOG */}
             <AlertDialog open={annulDialogOpen} onOpenChange={setAnnulDialogOpen}>
-                <AlertDialogContent className="rounded-[32px] border-none shadow-2xl bg-white p-8">
-                    <AlertDialogHeader>
-                        <div className="mx-auto bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mb-6 text-red-600">
-                            <Trash2 size={40} />
-                        </div>
-                        <AlertDialogTitle className="text-center text-2xl font-black text-zinc-900">Anular Ticket</AlertDialogTitle>
-                        <AlertDialogDescription className="text-center text-zinc-500 text-lg">
+                <AlertDialogContent className="max-w-sm bg-white/95 backdrop-blur-xs border border-neutral-200/70 shadow-sm p-6 animate-in fade-in zoom-in-95 duration-150">
+                    <AlertDialogHeader className="text-left space-y-1.5">
+                        <AlertDialogTitle className="text-base font-medium text-neutral-900">Anular ticket</AlertDialogTitle>
+                        <AlertDialogDescription className="text-sm text-neutral-500 leading-relaxed">
                             ¿Estás seguro de que deseas anular este registro? Esta acción no se puede deshacer y quedará auditada.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    
+
                     <div className="mt-4">
-                        <Input 
-                            placeholder="Indique el motivo de la anulación..." 
-                            className="h-14 rounded-2xl border-zinc-200 bg-zinc-50"
+                        <input
+                            type="text"
+                            placeholder="Indique el motivo de la anulación..."
+                            className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 outline-none transition-colors"
                             value={annulReason}
                             onChange={(e) => setAnnulReason(e.target.value)}
                         />
                     </div>
 
-                    <AlertDialogFooter className="flex-col sm:flex-row gap-3 mt-8">
-                        <AlertDialogCancel
+                    <AlertDialogFooter className="mt-6 flex flex-row items-center justify-end gap-5">
+                        <button
+                            type="button"
                             onClick={() => {
                                 setAnnulDialogOpen(false)
                                 setLogToAnnul(null)
                                 setAnnulReason("")
                             }}
-                            className="rounded-2xl h-14 border-zinc-200 text-zinc-600 font-bold hover:bg-zinc-50"
+                            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
                         >
                             Cancelar
-                        </AlertDialogCancel>
-                        <AlertDialogAction
+                        </button>
+                        <button
+                            type="button"
                             onClick={handleAnnul}
                             disabled={annulling}
-                            className="rounded-2xl h-14 bg-red-600 text-white font-black hover:bg-red-700 shadow-lg shadow-red-200"
+                            className="text-xs font-medium text-red-600 hover:text-red-700 transition-colors disabled:opacity-50"
                         >
-                            {annulling ? "Anulando..." : "Sí, Anular Ticket"}
-                        </AlertDialogAction>
+                            {annulling ? "Anulando..." : "Sí, anular ticket"}
+                        </button>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-
-
         </main>
     )
 }

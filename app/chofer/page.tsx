@@ -2,11 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { FileText, QrCode, LogOut, Fuel, MapPin, AlertTriangle, CheckCircle, Car, ArrowRight } from "lucide-react"
-import Image from "next/image"
+import { FileText, QrCode, LogOut, AlertTriangle, Car, ArrowRight } from "lucide-react"
 import QRCode from "react-qr-code"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -62,7 +59,7 @@ export default function ChoferPage() {
     }
 
     if (loading) {
-        return <div className="min-h-screen flex items-center justify-center bg-zinc-50 text-zinc-400">Cargando panel...</div>
+        return <div className="min-h-screen flex items-center justify-center bg-white text-sm text-neutral-400">Cargando panel...</div>
     }
 
     const qrData = JSON.stringify({
@@ -74,138 +71,134 @@ export default function ChoferPage() {
     })
 
     return (
-        <div className="min-h-screen bg-[#F2F2F7] flex flex-col font-sans mb-10">
-            {/* iOS Header */}
-            <div className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200 pt-12 pb-4 px-6 flex justify-between items-center transition-all duration-300">
+        <div className="min-h-screen bg-white text-neutral-900 flex flex-col font-sans pb-10">
+            {/* Header */}
+            <header className="bg-white/95 backdrop-blur-xs sticky top-0 z-50 border-b border-neutral-100 pt-10 pb-4 px-6 flex justify-between items-center">
                 <div>
-                    <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Panel de Control</h2>
-                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Hola, {profile?.first_name || 'Conductor'}</h1>
+                    <p className="text-xs text-neutral-400">Panel de control</p>
+                    <h1 className="text-2xl font-light text-neutral-900 tracking-tight">Hola, {profile?.first_name || 'Conductor'}</h1>
                 </div>
-                <Button
-                    variant="ghost"
-                    size="icon"
+                <button
+                    type="button"
                     onClick={handleLogout}
-                    className="rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-red-600 transition-colors"
+                    aria-label="Cerrar sesión"
+                    className="text-neutral-400 hover:text-neutral-900 transition-colors p-1"
                 >
-                    <LogOut size={20} />
-                </Button>
-            </div>
+                    <LogOut className="w-4 h-4" strokeWidth={1.5} />
+                </button>
+            </header>
 
-            {/* Main Content Scrollable */}
-            <div className="flex-1 p-6 space-y-6">
-
+            {/* Main Content */}
+            <div className="flex-1 max-w-lg w-full mx-auto px-6 py-8 space-y-8">
                 {vehicle ? (
                     <>
-                        {/* Vehicle Card - iOS Widget Style */}
-                        <div className="bg-white rounded-[2rem] shadow-sm p-6 relative overflow-hidden">
-                            <div className="flex justify-between items-start mb-6">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <span className={`h-2.5 w-2.5 rounded-full ${vehicle.falla_activa ? "bg-red-500 animate-pulse" : "bg-green-500"}`}></span>
-                                        <span className={`text-xs font-bold uppercase tracking-wider ${vehicle.falla_activa ? "text-red-500" : "text-green-600"}`}>
-                                            {vehicle.falla_activa ? "Mantenimiento" : "Operativo"}
+                        {/* Vehicle Info Section (Open Canvas) */}
+                        <section className="pb-6 border-b border-neutral-100 space-y-6">
+                            <div>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                    <span className={`h-2 w-2 rounded-full ${vehicle.falla_activa ? "bg-red-500 animate-pulse" : "bg-emerald-500"}`} />
+                                    <span className={`text-xs font-medium ${vehicle.falla_activa ? "text-red-600" : "text-emerald-600"}`}>
+                                        {vehicle.falla_activa ? "Mantenimiento" : "Operativo"}
+                                    </span>
+                                </div>
+                                <h2 className="text-2xl font-light text-neutral-900 tracking-tight leading-tight">{vehicle.modelo}</h2>
+                                <p className="text-neutral-500 font-mono text-sm mt-0.5">{vehicle.placa}</p>
+                            </div>
+
+                            {/* Pure Typographic Metrics */}
+                            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-neutral-100">
+                                <div className="flex flex-col">
+                                    <span className="text-xs text-neutral-500 font-normal">Combustible</span>
+                                    <span className="text-2xl font-light tracking-tight text-neutral-900 mt-0.5 tabular-nums">
+                                        {vehicle.current_fuel_level || 0}%
+                                    </span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-xs text-neutral-500 font-normal">Kilometraje</span>
+                                    <span className="text-2xl font-light tracking-tight text-neutral-900 mt-0.5 tabular-nums">
+                                        {(vehicle.kilometraje || 0).toLocaleString()}
+                                    </span>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Actions List */}
+                        <div className="divide-y divide-neutral-100">
+                            <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+                                <DialogTrigger asChild>
+                                    <button
+                                        type="button"
+                                        className="w-full py-4 flex items-center justify-between text-left text-neutral-900 hover:text-neutral-600 transition-colors"
+                                    >
+                                        <span className="flex items-center gap-3 text-sm font-medium">
+                                            <QrCode className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                                            Mi código QR
                                         </span>
-                                    </div>
-                                    <h2 className="text-3xl font-bold text-gray-900 leading-tight">{vehicle.modelo}</h2>
-                                    <p className="text-gray-400 font-mono text-lg">{vehicle.placa}</p>
-                                </div>
-                                <div className="h-12 w-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
-                                    <Car size={24} />
-                                </div>
-                            </div>
+                                        <ArrowRight className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                                    </button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-sm bg-white/95 backdrop-blur-xs border border-neutral-200/70 shadow-sm p-6 flex flex-col items-center animate-in fade-in zoom-in-95 duration-150">
+                                    <DialogTitle className="text-center text-base font-medium text-neutral-900">Código de carga</DialogTitle>
+                                    <DialogDescription className="text-center text-xs text-neutral-500 mt-1 mb-6 max-w-[220px]">
+                                        Muestra este código al supervisor para autorizar combustible.
+                                    </DialogDescription>
 
-                            {/* Stats Flex */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-gray-50 rounded-2xl p-4">
-                                    <div className="flex items-center gap-2 mb-1 text-gray-400">
-                                        <Fuel size={14} />
-                                        <span className="text-xs font-bold uppercase">Combustible</span>
+                                    <div className="p-4 bg-white mb-4 w-full max-w-[240px]">
+                                        <div style={{ height: "auto", margin: "0 auto", width: "100%" }}>
+                                            <QRCode
+                                                size={256}
+                                                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                                                value={qrData}
+                                                viewBox={`0 0 256 256`}
+                                            />
+                                        </div>
                                     </div>
-                                    <span className="text-xl font-bold text-gray-900">{vehicle.current_fuel_level || 0}%</span>
-                                </div>
-                                <div className="bg-gray-50 rounded-2xl p-4">
-                                    <div className="flex items-center gap-2 mb-1 text-gray-400">
-                                        <MapPin size={14} />
-                                        <span className="text-xs font-bold uppercase">Km</span>
-                                    </div>
-                                    <span className="text-xl font-bold text-gray-900">{(vehicle.kilometraje || 0).toLocaleString()}</span>
-                                </div>
-                            </div>
-                        </div>
+                                    <p className="font-mono text-xs font-medium text-neutral-900 tracking-wider">{vehicle.placa}</p>
+                                </DialogContent>
+                            </Dialog>
 
-                        {/* Primary Action: QR Code */}
-                        <Dialog open={qrOpen} onOpenChange={setQrOpen}>
-                            <DialogTrigger asChild>
-                                <Button className="w-full h-24 rounded-[2rem] bg-black text-white hover:bg-gray-800 shadow-xl shadow-gray-200 transition-all active:scale-95 flex flex-col items-center justify-center gap-2">
-                                    <QrCode size={32} />
-                                    <span className="text-base font-semibold">Mi Código QR</span>
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-md bg-white/95 backdrop-blur-xl border-none shadow-2xl rounded-[2.5rem] p-8 flex flex-col items-center">
-                                <div className="bg-gray-100 h-1.5 w-12 rounded-full mb-6"></div>
-                                <DialogTitle className="text-center text-2xl font-bold mb-2">Código de Carga</DialogTitle>
-                                <DialogDescription className="text-center text-gray-400 mb-8 max-w-[200px]">
-                                    Muestra este código al supervisor para autorizar combustible.
-                                </DialogDescription>
-
-                                <div className="p-6 bg-white border border-gray-100 shadow-lg rounded-[2rem] mb-6 w-full max-w-[280px]">
-                                    <div style={{ height: "auto", margin: "0 auto", width: "100%" }}>
-                                        <QRCode
-                                            size={256}
-                                            style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                                            value={qrData}
-                                            viewBox={`0 0 256 256`}
-                                        />
-                                    </div>
-                                </div>
-                                <p className="font-mono text-sm font-bold text-gray-900 tracking-widest">{vehicle.placa}</p>
-                            </DialogContent>
-                        </Dialog>
-
-                        {/* Secondary Actions Grid */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <Link href={`/transporte?action=salida&vehicle_id=${vehicle.id}`} className="w-full block">
-                                <Button className="w-full h-32 rounded-[2rem] bg-white text-gray-900 hover:bg-gray-50 border border-gray-100 shadow-sm flex flex-col items-center justify-center gap-3 active:scale-95 transition-all">
-                                    <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                                        <FileText size={20} />
-                                    </div>
-                                    <span className="font-bold text-sm">Registrar Salida</span>
-                                </Button>
+                            <Link
+                                href={`/transporte?action=salida&vehicle_id=${vehicle.id}`}
+                                className="w-full py-4 flex items-center justify-between text-neutral-900 hover:text-neutral-600 transition-colors"
+                            >
+                                <span className="flex items-center gap-3 text-sm font-medium">
+                                    <FileText className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                                    Registrar salida
+                                </span>
+                                <ArrowRight className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
                             </Link>
 
-                            <Link href={`/transporte?action=entrada&vehicle_id=${vehicle.id}`} className="w-full block">
-                                <Button className="w-full h-32 rounded-[2rem] bg-white text-gray-900 hover:bg-gray-50 border border-gray-100 shadow-sm flex flex-col items-center justify-center gap-3 active:scale-95 transition-all">
-                                    <div className="h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
-                                        <LogOut size={20} className="scale-x-[-1]" />
-                                    </div>
-                                    <span className="font-bold text-sm">Registrar Entrada</span>
-                                </Button>
+                            <Link
+                                href={`/transporte?action=entrada&vehicle_id=${vehicle.id}`}
+                                className="w-full py-4 flex items-center justify-between text-neutral-900 hover:text-neutral-600 transition-colors"
+                            >
+                                <span className="flex items-center gap-3 text-sm font-medium">
+                                    <LogOut className="w-4 h-4 text-neutral-400 scale-x-[-1]" strokeWidth={1.5} />
+                                    Registrar entrada
+                                </span>
+                                <ArrowRight className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                            </Link>
+
+                            <Link
+                                href="/chofer/reportar"
+                                className="w-full py-4 flex items-center justify-between text-red-600 hover:text-red-700 transition-colors"
+                            >
+                                <span className="flex items-center gap-3 text-sm font-medium">
+                                    <AlertTriangle className="w-4 h-4" strokeWidth={1.5} />
+                                    Reportar falla mecánica
+                                </span>
+                                <ArrowRight className="w-4 h-4 opacity-60" strokeWidth={1.5} />
                             </Link>
                         </div>
-
-                        {/* NEW FEATURE: Report Issue */}
-                        <Link href="/chofer/reportar" className="block mt-2">
-                            <Button variant="ghost" className="w-full h-16 rounded-[1.5rem] bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-between px-6 active:scale-95 transition-all">
-                                <div className="flex items-center gap-3">
-                                    <AlertTriangle size={20} />
-                                    <span className="font-bold">Reportar Falla Mecánica</span>
-                                </div>
-                                <ArrowRight size={18} className="opacity-50" />
-                            </Button>
-                        </Link>
-
                     </>
                 ) : (
-                    <div className="bg-white rounded-[2rem] p-10 flex flex-col items-center justify-center text-center shadow-sm min-h-[50vh]">
-                        <div className="h-24 w-24 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 mb-6">
-                            <Car size={40} />
-                        </div>
-                        <h2 className="text-xl font-bold text-gray-900 mb-2">Sin Vehículo Asignado</h2>
-                        <p className="text-gray-500 max-w-[200px]">Contacta a supervisión para que te asignen una unidad.</p>
+                    <div className="py-24 flex flex-col items-center justify-center text-center">
+                        <Car className="w-8 h-8 text-neutral-300 mb-3" strokeWidth={1.25} />
+                        <h2 className="text-base font-medium text-neutral-900 mb-1">Sin vehículo asignado</h2>
+                        <p className="text-xs text-neutral-500 max-w-[220px]">Contacta a supervisión para que te asignen una unidad.</p>
                     </div>
                 )}
             </div>
-            {/* iOS Bottom SafeArea Spacer if needed, usually handled by mb-10 */}
         </div>
     )
 }

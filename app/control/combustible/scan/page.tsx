@@ -3,8 +3,6 @@
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Html5Qrcode } from "html5-qrcode"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
@@ -122,50 +120,46 @@ export default function ScanPage() {
     }, [router])
 
     return (
-        <div className="p-6 max-w-lg mx-auto space-y-6">
-            <div className="flex items-center gap-4">
-                <Link href="/control/combustible">
-                    <Button variant="ghost" size="icon">
-                        <ArrowLeft size={20} />
-                    </Button>
+        <div className="p-6 max-w-lg mx-auto space-y-6 bg-white min-h-screen text-neutral-900">
+            <div className="flex items-center gap-4 pb-4 border-b border-neutral-100">
+                <Link href="/control/combustible" className="text-neutral-400 hover:text-neutral-900 transition-colors">
+                    <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
                 </Link>
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Escanear Conductor</h1>
-                    <p className="text-muted-foreground">Escanea el código QR del chofer para autorizar.</p>
+                    <h1 className="text-xl font-light text-neutral-900 tracking-tight">Escanear conductor</h1>
+                    <p className="text-xs text-neutral-500 mt-0.5">Escanea el código QR del chofer para autorizar.</p>
                 </div>
             </div>
 
-            <Card className="border-slate-200 shadow-sm overflow-hidden bg-black">
-                <CardContent className="p-0 relative min-h-[300px] flex items-center justify-center">
-                    {error ? (
-                        <div className="text-white p-6 text-center">
-                            <p className="mb-4 text-red-400 font-bold">Error</p>
-                            <p>{error}</p>
-                            <Button
-                                variant="outline"
-                                className="mt-4 bg-white/10 border-white/20 text-white hover:bg-white/20"
-                                onClick={() => window.location.reload()}
-                            >
-                                Recargar Página
-                            </Button>
-                        </div>
-                    ) : (
-                        <>
-                            <div id="reader" className="w-full h-full"></div>
-                            {initializing && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900 z-10">
-                                    <div className="text-center text-zinc-400">
-                                        <Loader2 className="animate-spin w-8 h-8 mx-auto mb-2" />
-                                        <p>Iniciando cámara...</p>
-                                    </div>
+            <div className="overflow-hidden bg-black relative min-h-[300px] flex items-center justify-center">
+                {error ? (
+                    <div className="text-white p-6 text-center space-y-3">
+                        <p className="text-sm font-medium text-red-400">Error</p>
+                        <p className="text-sm text-neutral-300">{error}</p>
+                        <button
+                            type="button"
+                            className="text-xs text-neutral-200 hover:text-white transition-colors"
+                            onClick={() => window.location.reload()}
+                        >
+                            Recargar página
+                        </button>
+                    </div>
+                ) : (
+                    <>
+                        <div id="reader" className="w-full h-full"></div>
+                        {initializing && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-neutral-900 z-10">
+                                <div className="text-center text-neutral-400 text-xs">
+                                    <Loader2 className="animate-spin w-6 h-6 mx-auto mb-2" />
+                                    <p>Iniciando cámara...</p>
                                 </div>
-                            )}
-                        </>
-                    )}
-                </CardContent>
-            </Card>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
 
-            <div className="text-center text-sm text-zinc-400">
+            <div className="text-center text-xs text-neutral-400">
                 Asegúrese de tener permisos de cámara habilitados y buena iluminación.
             </div>
         </div>

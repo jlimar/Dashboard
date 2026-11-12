@@ -42,10 +42,8 @@ export function DashboardMenu() {
     }, [])
 
     if (isUserLoading || loadingSettings) {
-        return <div className="text-center text-zinc-500 py-10">Cargando panel...</div>
+        return <div className="text-neutral-400 text-sm py-10">Cargando panel...</div>
     }
-
-    const dept = profile?.department
 
     const canAccess = (roleKey: string) => {
         if (isAdmin) return true
@@ -56,176 +54,97 @@ export function DashboardMenu() {
         return enabledModules[key] !== false
     }
 
+    const items = [
+        ...(isModuleEnabled("module_transporte") && (canAccess("transporte") || hasRole("chofer"))
+            ? [{
+                href: "/transporte",
+                icon: Truck,
+                title: "Transporte",
+                description: "Control de flota y salidas de vehículos.",
+                action: "Acceder",
+            }]
+            : []),
+        ...(isModuleEnabled("module_taller") && (canAccess("taller") || hasRole("mecanico" as any))
+            ? [{
+                href: "/taller",
+                icon: Wrench,
+                title: "Taller mecánico",
+                description: "Gestión de fallas y mantenimiento.",
+                action: "Ir al taller",
+            }]
+            : []),
+        ...(isModuleEnabled("module_combustible") && canAccess("supervisor")
+            ? [{
+                href: "/control/combustible",
+                icon: ClipboardCheck,
+                title: "Control",
+                description: "Control de combustible y auditorías.",
+                action: "Ver control",
+            }]
+            : []),
+        ...(isAdmin
+            ? [{
+                href: "/admin",
+                icon: Settings,
+                title: "Panel admin",
+                description: "Configuración global y ajustes del sistema.",
+                action: "Configurar",
+            }]
+            : []),
+        ...(canAccess("gerencia")
+            ? [{
+                href: "/gerencia",
+                icon: Activity,
+                title: "Gerencia",
+                description: "Tablero de control y resumen operativo.",
+                action: "Acceder",
+            }]
+            : []),
+        ...(isModuleEnabled("module_supervision") && canAccess("reportes")
+            ? [{
+                href: "/supervision",
+                icon: FileText,
+                title: "Supervisión",
+                description: "Módulo de control para operaciones en calle y almacén.",
+                action: "Acceder",
+            }]
+            : []),
+        {
+            href: "/perfil",
+            icon: UserCog,
+            title: "Mi perfil",
+            description: "Ver información de cuenta y roles asignados.",
+            action: "Ver perfil",
+        },
+    ]
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* TRANSPORTE */}
-            {isModuleEnabled("module_transporte") && (canAccess("transporte") || hasRole("chofer")) && (
+        <div className="divide-y divide-neutral-100 border-b border-neutral-100">
+            {items.map((item) => {
+                const Icon = item.icon
+                return (
                     <Link
-                        href="/transporte"
-                        className="group relative overflow-hidden bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm hover:shadow-xl hover:border-zinc-300 transition-all duration-300 block"
+                        key={item.href}
+                        href={item.href}
+                        className="group flex items-center justify-between gap-6 py-5 hover:bg-neutral-50/50 transition-colors"
                     >
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                            <Truck size={120} />
-                        </div>
-                        <div className="relative z-10 flex flex-col h-full justify-between space-y-8">
-                            <div className="w-14 h-14 rounded-2xl bg-zinc-100 flex items-center justify-center text-zinc-900 group-hover:bg-black group-hover:text-white transition-colors">
-                                <Truck size={28} />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-zinc-900 mb-2">Transporte</h2>
-                                <p className="text-zinc-500 font-medium">Control de flota y salidas de vehículos.</p>
-                            </div>
-                            <div className="flex items-center text-zinc-900 font-semibold group-hover:translate-x-2 transition-transform">
-                                Acceder <span className="ml-2">→</span>
+                        <div className="flex items-start gap-4 min-w-0">
+                            <Icon className="w-4 h-4 mt-1 text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0" strokeWidth={1.5} />
+                            <div className="min-w-0">
+                                <h2 className="text-base font-medium text-neutral-900">
+                                    {item.title}
+                                </h2>
+                                <p className="text-sm text-neutral-500 mt-0.5">
+                                    {item.description}
+                                </p>
                             </div>
                         </div>
+                        <span className="text-xs text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
+                            {item.action} →
+                        </span>
                     </Link>
-            )}
-
-            {/* TALLER CARD */}
-            {isModuleEnabled("module_taller") && (canAccess("taller") || hasRole("mecanico")) && (
-                    <Link
-                        href="/taller"
-                        className="group relative overflow-hidden bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm hover:shadow-xl hover:border-zinc-300 transition-all duration-300 block"
-                    >
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                            <Wrench size={120} />
-                        </div>
-                        <div className="relative z-10 flex flex-col h-full justify-between space-y-8">
-                            <div className="w-14 h-14 rounded-2xl bg-zinc-100 flex items-center justify-center text-zinc-900 group-hover:bg-black group-hover:text-white transition-colors">
-                                <Wrench size={28} />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-zinc-900 mb-2">Taller Mecánico</h2>
-                                <p className="text-zinc-500 font-medium">Gestión de fallas y mantenimiento.</p>
-                            </div>
-                            <div className="flex items-center text-zinc-900 font-semibold group-hover:translate-x-2 transition-transform">
-                                Ir al Taller <span className="ml-2">→</span>
-                            </div>
-                        </div>
-                    </Link>
-            )}
-
-            {/* CONTROL (Combustible y Auditorías) */}
-            {isModuleEnabled("module_combustible") && canAccess("supervisor") && (
-                    <Link
-                        href="/control/combustible"
-                        className="group relative overflow-hidden bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 block"
-                    >
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                            <ClipboardCheck size={120} />
-                        </div>
-                        <div className="relative z-10 flex flex-col h-full justify-between space-y-8">
-                            <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
-                                <ClipboardCheck size={28} />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-zinc-900 mb-2">Control</h2>
-                                <p className="text-zinc-500 font-medium">Control de combustible y auditorías.</p>
-                            </div>
-                            <div className="flex items-center text-orange-600 font-semibold group-hover:translate-x-2 transition-transform">
-                                Ver Control <span className="ml-2">→</span>
-                            </div>
-                        </div>
-                    </Link>
-            )}
-
-            {/* ADMIN GENERAL (Only Admin) */}
-            {isAdmin && (
-                    <Link
-                        href="/admin"
-                        className="group relative overflow-hidden bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm hover:shadow-xl hover:border-zinc-300 transition-all duration-300 block"
-                    >
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                            <Settings size={120} />
-                        </div>
-                        <div className="relative z-10 flex flex-col h-full justify-between space-y-8">
-                            <div className="w-14 h-14 rounded-2xl bg-zinc-100 flex items-center justify-center text-zinc-900 group-hover:bg-black group-hover:text-white transition-colors">
-                                <Settings size={28} />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-zinc-900 mb-2">Panel Admin</h2>
-                                <p className="text-zinc-500 font-medium">Configuración global y ajustes del sistema.</p>
-                            </div>
-                            <div className="flex items-center text-zinc-900 font-semibold group-hover:translate-x-2 transition-transform">
-                                Configurar <span className="ml-2">→</span>
-                            </div>
-                        </div>
-                    </Link>
-            )}
-
-            {/* GERENCIA */}
-            {canAccess("gerencia") && (
-                    <Link
-                        href="/gerencia"
-                        className="group relative overflow-hidden bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 block"
-                    >
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                            <Activity size={120} />
-                        </div>
-                        <div className="relative z-10 flex flex-col h-full justify-between space-y-8">
-                            <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-900 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                                <Activity size={28} />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-zinc-900 mb-2">Gerencia</h2>
-                                <p className="text-zinc-500 font-medium">Tablero de control y resumen operativo.</p>
-                            </div>
-                            <div className="flex items-center text-zinc-900 font-semibold group-hover:translate-x-2 transition-transform">
-                                Acceder <span className="ml-2">→</span>
-                            </div>
-                        </div>
-                    </Link>
-            )}
-
-            {/* SUPERVISIÓN */}
-            {isModuleEnabled("module_supervision") && canAccess("reportes") && (
-                <Link
-                    href="/supervision"
-                    className="group relative overflow-hidden bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 block"
-                >
-                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                        <FileText size={120} />
-                    </div>
-                    <div className="relative z-10 flex flex-col h-full justify-between space-y-8">
-                        <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                            <FileText size={28} />
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-bold text-zinc-900 mb-2">Supervisión</h2>
-                            <p className="text-zinc-500 font-medium">Módulo de control para operaciones en calle y almacén.</p>
-                        </div>
-                        <div className="flex items-center text-blue-600 font-semibold group-hover:translate-x-2 transition-transform">
-                            Acceder <span className="ml-2">→</span>
-                        </div>
-                    </div>
-                </Link>
-            )}
-
-            {/* MI PERFIL */}
-                <Link
-                    href="/perfil"
-                    className="group relative overflow-hidden bg-zinc-900 rounded-[32px] p-8 border border-zinc-800 shadow-sm hover:shadow-xl hover:border-zinc-700 transition-all duration-300 md:col-span-2 block"
-                >
-                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500">
-                        <UserCog size={120} className="text-white" />
-                    </div>
-                    <div className="relative z-10 flex flex-col h-full justify-between space-y-8">
-                        <div className="flex items-center justify-between">
-                            <div className="w-14 h-14 rounded-2xl bg-zinc-800 flex items-center justify-center text-white group-hover:bg-white group-hover:text-black transition-colors">
-                                <UserCog size={28} />
-                            </div>
-                        </div>
-
-                        <div>
-                            <h2 className="text-2xl font-bold text-white mb-2">Mi Perfil</h2>
-                            <p className="text-zinc-400 font-medium">Ver información de cuenta y roles asignados.</p>
-                        </div>
-                        <div className="flex items-center text-white font-semibold group-hover:translate-x-2 transition-transform">
-                            Ver Perfil <span className="ml-2">→</span>
-                        </div>
-                    </div>
-                </Link>
+                )
+            })}
         </div>
     )
 }

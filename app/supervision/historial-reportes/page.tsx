@@ -35,24 +35,28 @@ export default async function HistorialReportesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F2F2F7] p-6 md:p-12 relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-96 bg-blue-600/5 blur-[120px] pointer-events-none" />
-      
+    <main className="min-h-screen bg-white text-neutral-900 px-6 py-10 md:py-14">
       {/* Navegación Pestañas y Volver */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-8 relative z-10 max-w-5xl mx-auto gap-4">
-        <Link 
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 mb-8 border-b border-neutral-100 max-w-5xl mx-auto gap-4">
+        <Link
           href="/supervision"
-          className="flex items-center px-4 py-2 bg-white rounded-xl text-sm font-semibold text-gray-700 hover:text-gray-900 shadow-sm border border-gray-200 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
           Volver a Supervisión
         </Link>
 
-        <div className="bg-gray-200/60 p-1 rounded-xl flex items-center">
-          <Link href="/supervision/reporte-diario" className="px-6 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors">
+        <div className="flex items-center gap-6">
+          <Link
+            href="/supervision/reporte-diario"
+            className="text-sm text-neutral-400 hover:text-neutral-900 transition-colors pb-1"
+          >
             Nuevo Reporte
           </Link>
-          <Link href="/supervision/historial-reportes" className="px-6 py-2 rounded-lg bg-white shadow-sm text-sm font-semibold text-gray-900">
+          <Link
+            href="/supervision/historial-reportes"
+            className="text-sm font-medium text-neutral-900 border-b border-neutral-900 pb-1"
+          >
             Mi Historial
           </Link>
         </div>

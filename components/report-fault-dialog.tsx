@@ -2,12 +2,10 @@
 
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { CustomDropdown } from "@/components/ui/custom-dropdown"
 import { toast } from "sonner"
-import { AlertTriangle } from "lucide-react"
 
 type ReportFaultDialogProps = {
     isOpen: boolean
@@ -59,67 +57,72 @@ export function ReportFaultDialog({ isOpen, onClose, vehicleId, onFaultReported 
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md rounded-2xl border-none shadow-2xl">
-                <DialogHeader>
-                    <div className="mx-auto bg-amber-100 w-12 h-12 rounded-full flex items-center justify-center mb-4 text-amber-600">
-                        <AlertTriangle size={24} />
-                    </div>
-                    <DialogTitle className="text-center text-xl font-bold text-zinc-900">Reportar Falla</DialogTitle>
-                    <DialogDescription className="text-center text-zinc-500">
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader className="pb-4 border-b border-neutral-100">
+                    <DialogTitle className="text-lg font-medium text-neutral-900">Reportar falla</DialogTitle>
+                    <DialogDescription className="text-sm text-neutral-500">
                         Describe el problema para que el taller pueda revisarlo.
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-zinc-700">Tipo de Falla</label>
-                        <Select value={tipo} onValueChange={setTipo}>
-                            <SelectTrigger className="h-11 rounded-xl">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Mecánica">Mecánica</SelectItem>
-                                <SelectItem value="Eléctrica">Eléctrica</SelectItem>
-                                <SelectItem value="Cauchos">Cauchos</SelectItem>
-                                <SelectItem value="Carrocería">Carrocería</SelectItem>
-                                <SelectItem value="Otro">Otro</SelectItem>
-                            </SelectContent>
-                        </Select>
+                <div className="space-y-5 py-2">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-neutral-500">Tipo de falla</label>
+                        <CustomDropdown
+                            value={tipo}
+                            onChange={setTipo}
+                            options={[
+                                { value: "Mecánica", label: "Mecánica" },
+                                { value: "Eléctrica", label: "Eléctrica" },
+                                { value: "Cauchos", label: "Cauchos" },
+                                { value: "Carrocería", label: "Carrocería" },
+                                { value: "Otro", label: "Otro" },
+                            ]}
+                        />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-zinc-700">Prioridad</label>
-                        <Select value={prioridad} onValueChange={setPrioridad}>
-                            <SelectTrigger className="h-11 rounded-xl">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Baja">Baja (Puede esperar)</SelectItem>
-                                <SelectItem value="Media">Media (Revisar pronto)</SelectItem>
-                                <SelectItem value="Alta">Alta (Urgente)</SelectItem>
-                                <SelectItem value="Crítica">Crítica (Vehículo parado)</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-neutral-500">Prioridad</label>
+                        <CustomDropdown
+                            value={prioridad}
+                            onChange={setPrioridad}
+                            options={[
+                                { value: "Baja", label: "Baja (Puede esperar)" },
+                                { value: "Media", label: "Media (Revisar pronto)" },
+                                { value: "Alta", label: "Alta (Urgente)" },
+                                { value: "Crítica", label: "Crítica (Vehículo parado)" },
+                            ]}
+                        />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-zinc-700">Descripción</label>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-neutral-500">Descripción</label>
                         <Textarea
                             placeholder="Ej. Ruido en los frenos traseros al detenerse..."
                             value={descripcion}
                             onChange={(e) => setDescripcion(e.target.value)}
-                            className="h-32 rounded-xl resize-none text-base"
+                            className="min-h-24 resize-none"
                         />
                     </div>
                 </div>
 
-                <DialogFooter className="flex-col sm:flex-row gap-2">
-                    <Button variant="outline" onClick={onClose} className="rounded-xl h-11">
+                <DialogFooter className="flex-row items-center justify-end gap-5 pt-4 border-t border-neutral-100">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        disabled={loading}
+                        className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors disabled:opacity-40"
+                    >
                         Cancelar
-                    </Button>
-                    <Button onClick={handleSubmit} disabled={loading} className="rounded-xl h-11 bg-black text-white hover:bg-zinc-800">
-                        {loading ? "Enviando..." : "Reportar Falla"}
-                    </Button>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
+                    >
+                        {loading ? "Enviando..." : "Reportar falla"}
+                    </button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

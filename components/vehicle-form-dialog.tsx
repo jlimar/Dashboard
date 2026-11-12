@@ -3,13 +3,12 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { X, Upload, Camera, Trash2 } from "lucide-react"
+import { Upload, Camera } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DEPARTMENTS } from "@/lib/constants"
+import { CustomDropdown } from "@/components/ui/custom-dropdown"
+import { Switch } from "@/components/ui/switch"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 
 type Vehicle = {
     id?: string
@@ -209,182 +208,168 @@ export function VehicleFormDialog({ isOpen, onClose, onVehicleSaved, vehicleToEd
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 bg-zinc-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-            <Card className="w-full max-w-2xl rounded-[32px] border-none shadow-2xl bg-white overflow-hidden max-h-[90vh] flex flex-col">
-                <CardHeader className="flex flex-row items-center justify-between pb-6 pt-6 px-6 border-b border-zinc-100 shrink-0">
-                    <CardTitle className="text-xl font-bold text-zinc-900">
-                        {vehicleToEdit ? "Editar Vehículo" : "Nuevo Vehículo"}
-                    </CardTitle>
-                    <button
-                        onClick={onClose}
-                        className="w-10 h-10 rounded-full flex items-center justify-center bg-zinc-50 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
-                    >
-                        <X size={20} />
-                    </button>
-                </CardHeader>
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+                <DialogHeader className="px-6 py-4 border-b border-neutral-100 shrink-0">
+                    <DialogTitle className="text-lg font-medium text-neutral-900">
+                        {vehicleToEdit ? "Editar vehículo" : "Nuevo vehículo"}
+                    </DialogTitle>
+                </DialogHeader>
 
-                <CardContent className="p-6 overflow-y-auto">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-
-                        {/* PHOTO UPLOAD */}
-                        <div className="flex flex-col items-center justify-center space-y-4">
-                            <div
-                                className="relative w-40 h-40 rounded-3xl bg-zinc-100 border-2 border-dashed border-zinc-300 flex items-center justify-center cursor-pointer overflow-hidden group hover:border-zinc-400 transition-colors"
-                                onClick={() => fileInputRef.current?.click()}
-                            >
-                                {photoPreview ? (
-                                    <Image
-                                        src={photoPreview}
-                                        alt="Preview"
-                                        fill
-                                        className="object-cover"
-                                    />
-                                ) : (
-                                    <div className="text-center text-zinc-400">
-                                        <Camera size={32} className="mx-auto mb-2" />
-                                        <span className="text-xs font-medium">Subir Foto</span>
-                                    </div>
-                                )}
-
-                                {/* Hover Overlay */}
-                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Upload className="text-white" size={24} />
+                <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-6">
+                    {/* PHOTO UPLOAD */}
+                    <div className="flex flex-col items-center justify-center space-y-2 pb-4 border-b border-neutral-100">
+                        <div
+                            className="relative w-32 h-32 bg-neutral-50 flex items-center justify-center cursor-pointer overflow-hidden group hover:bg-neutral-100 transition-colors"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            {photoPreview ? (
+                                <Image
+                                    src={photoPreview}
+                                    alt="Preview"
+                                    fill
+                                    className="object-cover"
+                                />
+                            ) : (
+                                <div className="text-center text-neutral-400">
+                                    <Camera className="w-6 h-6 mx-auto mb-1" strokeWidth={1.5} />
+                                    <span className="text-xs">Subir foto</span>
                                 </div>
+                            )}
+
+                            {/* Hover Overlay */}
+                            <div className="absolute inset-0 bg-neutral-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Upload className="text-white w-5 h-5" strokeWidth={1.5} />
                             </div>
+                        </div>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            ref={fileInputRef}
+                            className="hidden"
+                            onChange={handlePhotoSelect}
+                        />
+                        <p className="text-xs text-neutral-400">JPG, PNG, WEBP (Máx. 5MB)</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label className="block text-xs font-medium text-neutral-500 mb-1">Código</label>
                             <input
-                                type="file"
-                                accept="image/*"
-                                ref={fileInputRef}
-                                className="hidden"
-                                onChange={handlePhotoSelect}
+                                name="codigo"
+                                value={formData.codigo}
+                                onChange={handleChange}
+                                required
+                                placeholder="Ej. C-01"
+                                className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
                             />
-                            <p className="text-xs text-zinc-400">JPG, PNG, WEBP (Max 5MB)</p>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-neutral-500 mb-1">Placa</label>
+                            <input
+                                name="placa"
+                                value={formData.placa}
+                                onChange={handleChange}
+                                required
+                                placeholder="Ej. AB123CD"
+                                className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-neutral-500 mb-1">Modelo</label>
+                            <input
+                                name="modelo"
+                                value={formData.modelo}
+                                onChange={handleChange}
+                                required
+                                placeholder="Ej. Toyota Hilux"
+                                className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-neutral-500 mb-1">Año</label>
+                            <input
+                                name="año"
+                                value={formData.año}
+                                onChange={handleChange}
+                                placeholder="2024"
+                                className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-neutral-500 mb-1">Color</label>
+                            <input
+                                name="color"
+                                value={formData.color}
+                                onChange={handleChange}
+                                placeholder="Blanco"
+                                className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-medium text-neutral-500 mb-1">Capacidad de tanque</label>
+                            <input
+                                name="capacidad_tanque"
+                                value={formData.capacidad_tanque}
+                                onChange={handleChange}
+                                placeholder="Litros"
+                                className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
+                            />
+                        </div>
+                        <div className="col-span-1 md:col-span-2">
+                            <label className="block text-xs font-medium text-neutral-500 mb-1">Tipo de vehículo</label>
+                            <CustomDropdown
+                                value={formData.tipo}
+                                onChange={(val) => setFormData({ ...formData, tipo: val })}
+                                options={[
+                                    { value: 'Particular', label: 'Particular' },
+                                    { value: 'Carga', label: 'Carga' },
+                                    { value: 'Moto', label: 'Moto' },
+                                ]}
+                            />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-zinc-900 mb-2 pl-1">Código</label>
-                                <input
-                                    name="codigo"
-                                    value={formData.codigo}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="Ej. C-01"
-                                    className="w-full h-12 px-4 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 focus:ring-2 focus:ring-black focus:outline-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-zinc-900 mb-2 pl-1">Placa</label>
-                                <input
-                                    name="placa"
-                                    value={formData.placa}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="Ej. AB123CD"
-                                    className="w-full h-12 px-4 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 focus:ring-2 focus:ring-black focus:outline-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-zinc-900 mb-2 pl-1">Modelo</label>
-                                <input
-                                    name="modelo"
-                                    value={formData.modelo}
-                                    onChange={handleChange}
-                                    required
-                                    placeholder="Ej. Toyota Hilux"
-                                    className="w-full h-12 px-4 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 focus:ring-2 focus:ring-black focus:outline-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-zinc-900 mb-2 pl-1">Año</label>
-                                <input
-                                    name="año"
-                                    value={formData.año}
-                                    onChange={handleChange}
-                                    placeholder="2024"
-                                    className="w-full h-12 px-4 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 focus:ring-2 focus:ring-black focus:outline-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-zinc-900 mb-2 pl-1">Color</label>
-                                <input
-                                    name="color"
-                                    value={formData.color}
-                                    onChange={handleChange}
-                                    placeholder="Blanco"
-                                    className="w-full h-12 px-4 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 focus:ring-2 focus:ring-black focus:outline-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-zinc-900 mb-2 pl-1">Capacidad Tanque</label>
-                                <input
-                                    name="capacidad_tanque"
-                                    value={formData.capacidad_tanque}
-                                    onChange={handleChange}
-                                    placeholder="Liters"
-                                    className="w-full h-12 px-4 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 focus:ring-2 focus:ring-black focus:outline-none"
-                                />
-                            </div>
-                            <div className="col-span-1 md:col-span-2">
-                                <label className="block text-sm font-semibold text-zinc-900 mb-2 pl-1">Tipo de Vehículo</label>
-                                <div className="grid grid-cols-3 gap-3">
-                                    {['Particular', 'Carga', 'Moto'].map((type) => (
-                                        <button
-                                            key={type}
-                                            type="button"
-                                            onClick={() => setFormData({ ...formData, tipo: type })}
-                                            className={`h-12 rounded-xl font-medium border transition-all ${formData.tipo === type
-                                                ? 'bg-black text-white border-black'
-                                                : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50'
-                                                }`}
-                                        >
-                                            {type}
-                                        </button>
-                                    ))}
+                        {/* Odometer Status Switch */}
+                        <div className="col-span-1 md:col-span-2 py-4 border-t border-neutral-100 flex items-center justify-between gap-4">
+                            <div className="space-y-0.5">
+                                <div className="text-sm font-medium text-neutral-900">
+                                    Odómetro averiado
                                 </div>
+                                <p className="text-xs text-neutral-500">
+                                    Activar si el contador de km no funciona. Esto creará una alerta automática en Taller.
+                                </p>
                             </div>
-
-                            {/* [NEW] Odometer Status Switch */}
-                            <div className="col-span-1 md:col-span-2 bg-red-50 p-4 rounded-xl border border-red-100 flex items-center justify-between">
-                                <div className="space-y-1">
-                                    <div className="font-bold text-red-900 flex items-center gap-2">
-                                        🔴 Odómetro Averiado
-                                    </div>
-                                    <p className="text-xs text-red-700/80">
-                                        Activar si el contador de KM no funciona.
-                                        Esto creará una alerta inmediata en Taller.
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <span className={`text-sm font-bold ${formData.odometro_averiado ? 'text-red-700' : 'text-zinc-400'}`}>
-                                        {formData.odometro_averiado ? "AVERIA ACTIVA" : "OPERATIVO"}
-                                    </span>
-                                    {/* Simple Toggle Button */}
-                                    <button
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, odometro_averiado: !formData.odometro_averiado })}
-                                        className={`w-14 h-8 rounded-full p-1 transition-all ${formData.odometro_averiado ? 'bg-red-500' : 'bg-zinc-300'}`}
-                                    >
-                                        <div className={`h-6 w-6 bg-white rounded-full shadow-sm transition-all ${formData.odometro_averiado ? 'translate-x-6' : 'translate-x-0'}`} />
-                                    </button>
-                                </div>
+                            <div className="flex items-center gap-3 shrink-0">
+                                <span className={`text-xs ${formData.odometro_averiado ? 'text-red-600 font-medium' : 'text-neutral-400'}`}>
+                                    {formData.odometro_averiado ? "Avería activa" : "Operativo"}
+                                </span>
+                                <Switch
+                                    checked={!!formData.odometro_averiado}
+                                    onCheckedChange={(checked) => setFormData({ ...formData, odometro_averiado: checked })}
+                                />
                             </div>
-
-                            {/* Removed Department Select */}
                         </div>
+                    </div>
 
-                        <div className="pt-4">
-                            <Button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full h-14 bg-black text-white text-lg font-semibold rounded-2xl hover:bg-zinc-800 active:scale-[0.98] transition-all"
-                            >
-                                {loading ? "Guardando..." : (vehicleToEdit ? "Guardar Cambios" : "Crear Vehículo")}
-                            </Button>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
-        </div >
+                    <DialogFooter className="pt-4 border-t border-neutral-100 flex-row items-center justify-end gap-5">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            disabled={loading}
+                            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors disabled:opacity-40"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
+                        >
+                            {loading ? "Guardando..." : (vehicleToEdit ? "Guardar cambios" : "Crear vehículo")}
+                        </button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
     )
 }

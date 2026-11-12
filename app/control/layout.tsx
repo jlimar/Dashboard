@@ -1,5 +1,5 @@
 
-import { MessageSquareDiff, ShieldCheck } from "lucide-react"
+import { ShieldCheck } from "lucide-react"
 
 export default function ControlLayout({
   children,
@@ -7,11 +7,11 @@ export default function ControlLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900">
-      <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-6 shadow-sm">
-        <div className="flex items-center gap-2 font-bold text-xl text-primary">
-          <ShieldCheck className="h-6 w-6" />
-          <span>Control y Fiscalización</span>
+    <div className="flex min-h-screen flex-col bg-white text-neutral-900">
+      <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b border-neutral-100 bg-white/95 backdrop-blur-xs px-6">
+        <div className="flex items-center gap-2 text-sm font-medium text-neutral-900">
+          <ShieldCheck className="h-4 w-4 text-neutral-400" strokeWidth={1.5} />
+          <span>Control y fiscalización</span>
         </div>
       </header>
       <main className="flex-1 p-6">

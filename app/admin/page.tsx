@@ -1,137 +1,98 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
-import { ArrowLeft, UserCog, ShieldCheck, LayoutGrid, ArrowRight, Database, Map, Users2 } from "lucide-react"
+import { ArrowLeft, ArrowRight, UserCog, ShieldCheck, LayoutGrid, Database, Map, Users2 } from "lucide-react"
 import Link from "next/link"
+
+const ADMIN_SECTIONS = [
+    {
+        href: "/admin/configuracion",
+        title: "Gestión de módulos",
+        description: "Habilitar o deshabilitar paneles del sistema.",
+        icon: LayoutGrid,
+    },
+    {
+        href: "/admin/usuarios",
+        title: "Gestión de usuarios",
+        description: "Roles, departamentos y permisos de acceso.",
+        icon: UserCog,
+    },
+    {
+        href: "/admin/vehiculos",
+        title: "Flota vehicular",
+        description: "Coches, mantenimiento y asignaciones.",
+        icon: ShieldCheck,
+    },
+    {
+        href: "/admin/geodata",
+        title: "Zonas operativas",
+        description: "Gestión de estados, municipios y sectores.",
+        icon: Map,
+    },
+    {
+        href: "/admin/cuadrillas",
+        title: "Gestión de cuadrillas",
+        description: "Equipos de trabajo, líderes y auxiliares.",
+        icon: Users2,
+    },
+    {
+        href: "/admin/database",
+        title: "Base de datos",
+        description: "Limpieza y reseteo para testing.",
+        icon: Database,
+    },
+]
 
 export default function AdminDashboard() {
     return (
-        <div className="min-h-screen bg-slate-50/50 p-6 md:p-10">
-            <div className="max-w-4xl mx-auto mb-10">
-                <div className="flex items-center gap-2 mb-2">
-                    <Link href="/" className="p-2 -ml-2 rounded-full hover:bg-slate-200/50 transition-colors text-slate-500">
-                        <ArrowLeft size={24} />
-                    </Link>
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">Panel de Administración</h1>
-                </div>
-                <p className="text-slate-500">Configuración global del sistema y accesos.</p>
-            </div>
-
-            <div className="max-w-4xl mx-auto space-y-6">
-
-                {/* QUICK LINKS */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-
-                    {/* GESTION DE MODULOS */}
+        <div className="min-h-screen bg-white text-neutral-900 px-6 py-10 md:px-10">
+            <div className="max-w-3xl mx-auto">
+                <header className="pb-6 mb-2 border-b border-neutral-100">
                     <Link
-                        href="/admin/configuracion"
-                        className="group relative overflow-hidden bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm hover:shadow-xl hover:border-violet-300 transition-all duration-300"
+                        href="/"
+                        className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors mb-4"
                     >
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                            <LayoutGrid size={100} />
-                        </div>
-                        <div className="relative z-10 flex flex-col h-full justify-between space-y-6">
-                            <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-colors">
-                                <LayoutGrid size={24} />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold text-zinc-900 mb-2">Gestión de Módulos</h2>
-                                <p className="text-zinc-500 text-sm font-medium">Habilitar o deshabilitar paneles del sistema.</p>
-                            </div>
-                            <div className="flex items-center text-violet-600 font-bold text-sm group-hover:translate-x-1 transition-transform">
-                                Configurar <ArrowRight size={16} className="ml-2" />
-                            </div>
-                        </div>
+                        <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        Inicio
                     </Link>
+                    <h1 className="text-2xl font-light tracking-tight text-neutral-900">
+                        Panel de administración
+                    </h1>
+                    <p className="text-sm text-neutral-500 mt-1">
+                        Configuración global del sistema y accesos.
+                    </p>
+                </header>
 
-                    {/* USUARIOS */}
-                    <Link href="/admin/usuarios" className="block">
-                        <Card className="rounded-xl hover:shadow-md transition-shadow cursor-pointer border-slate-200">
-                            <CardContent className="p-6 flex items-center justify-between">
+                <div className="divide-y divide-neutral-100">
+                    {ADMIN_SECTIONS.map((section) => {
+                        const Icon = section.icon
+                        return (
+                            <Link
+                                key={section.href}
+                                href={section.href}
+                                className="group flex items-center justify-between py-5 px-2 -mx-2 hover:bg-neutral-50/50 transition-colors"
+                            >
                                 <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-zinc-100 rounded-lg text-zinc-600">
-                                        <UserCog size={24} />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <h3 className="font-bold text-slate-900">Gestión de Usuarios</h3>
-                                        <p className="text-sm text-slate-500">Roles, departamentos y permisos de acceso.</p>
+                                    <Icon
+                                        className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0"
+                                        strokeWidth={1.5}
+                                    />
+                                    <div>
+                                        <h2 className="text-sm font-medium text-neutral-900">
+                                            {section.title}
+                                        </h2>
+                                        <p className="text-xs text-neutral-500 mt-0.5">
+                                            {section.description}
+                                        </p>
                                     </div>
                                 </div>
-                                <ArrowLeft className="rotate-180 text-slate-300" />
-                            </CardContent>
-                        </Card>
-                    </Link>
-                    <Link href="/admin/vehiculos" className="block">
-                        <Card className="rounded-xl hover:shadow-md transition-shadow cursor-pointer border-slate-200">
-                            <CardContent className="p-6 flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-zinc-100 rounded-lg text-zinc-600">
-                                        <ShieldCheck size={24} />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <h3 className="font-bold text-slate-900">Flota Vehicular</h3>
-                                        <p className="text-sm text-slate-500">Coches, mantenimiento y asignaciones.</p>
-                                    </div>
-                                </div>
-                                <ArrowLeft className="rotate-180 text-slate-300" />
-                            </CardContent>
-                        </Card>
-                    </Link>
-
-                    <Link href="/admin/geodata" className="block">
-                        <Card className="rounded-xl hover:shadow-md transition-shadow cursor-pointer border-slate-200">
-                            <CardContent className="p-6 flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-zinc-100 rounded-lg text-zinc-600">
-                                        <Map size={24} />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <h3 className="font-bold text-slate-900">Zonas Operativas</h3>
-                                        <p className="text-sm text-slate-500">Gestión de estados, municipios y sectores.</p>
-                                    </div>
-                                </div>
-                                <ArrowLeft className="rotate-180 text-slate-300" />
-                            </CardContent>
-                        </Card>
-                    </Link>
-
-                    {/* CUADRILLAS */}
-                    <Link href="/admin/cuadrillas" className="block">
-                        <Card className="rounded-xl hover:shadow-md transition-shadow cursor-pointer border-slate-200">
-                            <CardContent className="p-6 flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-zinc-100 rounded-lg text-zinc-600">
-                                        <Users2 size={24} />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <h3 className="font-bold text-slate-900">Gestión de Cuadrillas</h3>
-                                        <p className="text-sm text-slate-500">Equipos de trabajo, líderes y auxiliares.</p>
-                                    </div>
-                                </div>
-                                <ArrowLeft className="rotate-180 text-slate-300" />
-                            </CardContent>
-                        </Card>
-                    </Link>
-
-                    {/* DATABASE TOOLS */}
-                    <Link href="/admin/database" className="block">
-                        <Card className="rounded-xl hover:shadow-md transition-shadow cursor-pointer border-slate-200">
-                            <CardContent className="p-6 flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-slate-100 rounded-lg text-slate-600">
-                                        <Database size={24} />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <h3 className="font-bold text-slate-900">Base de Datos</h3>
-                                        <p className="text-sm text-slate-500">Limpieza y reseteo para testing.</p>
-                                    </div>
-                                </div>
-                                <ArrowLeft className="rotate-180 text-slate-300" />
-                            </CardContent>
-                        </Card>
-                    </Link>
+                                <ArrowRight
+                                    className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0"
+                                    strokeWidth={1.5}
+                                />
+                            </Link>
+                        )
+                    })}
                 </div>
-
             </div>
         </div>
     )

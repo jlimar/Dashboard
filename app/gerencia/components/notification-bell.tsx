@@ -24,12 +24,16 @@ export function NotificationBell() {
     }, [])
 
     return (
-        <Link href="/gerencia/notificaciones" className="relative flex items-center justify-center h-10 w-10 rounded-full bg-white/80 backdrop-blur-md border border-zinc-100/50 text-zinc-400 hover:text-zinc-900 hover:bg-white hover:shadow-md transition-all duration-300" title="Ver Historial de Notificaciones">
+        <Link
+            href="/gerencia/notificaciones"
+            className="relative inline-flex items-center justify-center p-1 text-neutral-400 hover:text-neutral-900 transition-colors"
+            title="Ver historial de notificaciones"
+        >
             <span className="sr-only">Notificaciones</span>
-            <Bell size={20} strokeWidth={2} />
+            <Bell className="w-4 h-4" strokeWidth={1.5} />
 
             {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-zinc-50 shadow-sm animate-in zoom-in-50 duration-300">
+                <span className="absolute -top-1 -right-1.5 text-[10px] font-medium leading-none text-red-600 tabular-nums animate-in zoom-in-50 duration-300">
                     {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
             )}

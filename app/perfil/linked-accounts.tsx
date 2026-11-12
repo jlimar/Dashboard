@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
 import { Chrome, Link2, Unlink } from "lucide-react"
 import { toast } from "sonner"
 import { UserIdentity } from "@supabase/supabase-js"
@@ -44,7 +43,7 @@ export function LinkedAccounts({ identities }: LinkedAccountsProps) {
     try {
       const { error } = await supabase.auth.unlinkIdentity(googleIdentity)
       if (error) throw error
-      
+
       toast.success("Cuenta de Google desvinculada correctamente")
       router.refresh()
     } catch (error: any) {
@@ -56,51 +55,40 @@ export function LinkedAccounts({ identities }: LinkedAccountsProps) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center space-x-3 text-zinc-900">
-        <Link2 className="h-5 w-5 text-zinc-500" />
-        <span className="font-medium">Cuentas Vinculadas</span>
-      </div>
-      <div className="pl-8">
+    <div className="space-y-3">
+      <span className="text-xs text-neutral-400 block">Cuentas vinculadas</span>
+      <div className="flex items-center justify-between py-2">
+        <div className="flex items-center gap-3">
+          <Chrome className="h-4 w-4 text-neutral-400" strokeWidth={1.5} />
+          <div>
+            <p className="text-sm text-neutral-900">Google</p>
+            <p className="text-xs text-neutral-500">
+              {googleIdentity
+                ? `Conectado (${googleIdentity.identity_data?.email || "Google Account"})`
+                : "No conectado"}
+            </p>
+          </div>
+        </div>
         {googleIdentity ? (
-          <div className="flex items-center justify-between p-4 rounded-2xl border border-zinc-200 bg-zinc-50">
-            <div className="flex items-center space-x-3">
-              <Chrome className="h-5 w-5 text-zinc-500" />
-              <div>
-                <p className="text-sm font-medium text-zinc-900">Google</p>
-                <p className="text-xs text-zinc-500">Conectado ({googleIdentity.identity_data?.email || "Google Account"})</p>
-              </div>
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleUnlinkGoogle}
-              disabled={loading}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-            >
-              <Unlink className="h-4 w-4 mr-2" />
-              {loading ? "Procesando..." : "Desvincular"}
-            </Button>
-          </div>
+          <button
+            type="button"
+            onClick={handleUnlinkGoogle}
+            disabled={loading}
+            className="inline-flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 transition-colors disabled:opacity-40"
+          >
+            <Unlink className="h-3.5 w-3.5" strokeWidth={1.5} />
+            {loading ? "Procesando..." : "Desvincular"}
+          </button>
         ) : (
-          <div className="flex items-center justify-between p-4 rounded-2xl border border-zinc-200 bg-zinc-50">
-            <div className="flex items-center space-x-3">
-              <Chrome className="h-5 w-5 text-zinc-500" />
-              <div>
-                <p className="text-sm font-medium text-zinc-900">Google</p>
-                <p className="text-xs text-zinc-500">No conectado</p>
-              </div>
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleLinkGoogle}
-              disabled={loading}
-            >
-              <Link2 className="h-4 w-4 mr-2" />
-              {loading ? "Procesando..." : "Vincular"}
-            </Button>
-          </div>
+          <button
+            type="button"
+            onClick={handleLinkGoogle}
+            disabled={loading}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
+          >
+            <Link2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+            {loading ? "Procesando..." : "Vincular"}
+          </button>
         )}
       </div>
     </div>

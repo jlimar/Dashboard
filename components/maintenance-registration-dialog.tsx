@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { CustomDropdown } from "@/components/ui/custom-dropdown"
 import { Label } from "@/components/ui/label"
 import { createClient } from "@/lib/supabase/client"
-import { Droplets, Gauge, Bike, Command, Loader2, Car, Timer, AlertTriangle } from "lucide-react"
-import { registerMaintenance, reportFault, resolveFault } from "@/app/taller/actions"
+import { Droplets, Bike, Search, Loader2, Car, Timer, Check, CheckCircle2 } from "lucide-react"
+import { registerMaintenance, reportFault } from "@/app/taller/actions"
 import { toast } from "sonner"
 
 type Vehicle = {
@@ -301,40 +300,32 @@ export function MaintenanceRegistrationDialog({
     if (successData) {
         return (
             <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-                <DialogContent className="max-w-md bg-white p-6 rounded-3xl text-center">
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-2">
-                            <Droplets size={32} />
-                        </div>
-                        <DialogTitle className="text-xl font-bold text-zinc-900">
-                            {successData.type === 'fault' ? 'Falla Reportada' : 'Registro Exitoso'}
+                <DialogContent className="max-w-md p-6 text-center">
+                    <div className="flex flex-col items-center gap-4 py-2">
+                        <CheckCircle2 className="w-8 h-8 text-neutral-900" strokeWidth={1.5} />
+                        <DialogTitle className="text-lg font-medium text-neutral-900">
+                            {successData.type === 'fault' ? 'Falla reportada' : 'Registro exitoso'}
                         </DialogTitle>
-                        <DialogDescription className="text-center">
+                        <DialogDescription className="text-center text-sm text-neutral-500">
                             El registro se ha guardado correctamente en el sistema.
                         </DialogDescription>
 
-                        <div className="w-full space-y-3 mt-4">
+                        <div className="w-full flex flex-col items-center gap-4 mt-4 pt-4 border-t border-neutral-100">
                             <a
                                 href={generateWhatsAppLink()}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 px-4 rounded-xl transition-colors"
+                                className="inline-flex items-center justify-center gap-2 text-sm font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
                             >
-                                <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-2.846-.848-.919-.386-1.526-1.286-1.571-1.353-.045-.067-1.144-1.522-1.144-2.903S9.882 7.732 10.428 7.732c.189 0 .313.003.447.006.14.003.324-.047.502.383.184.444.629 1.543.684 1.655.055.112.091.24.032.348-.06.107-.152.285-.259.417l-.234.25c-.105.122-.36.257.254 1.392 1.314 2.43 2.502 3.425 2.138 2.656.76.626 1.439.673 1.83 2 .385 0 .762.336 1.049.336 1.77.078.29.133.407.039.73-.095.321-.555.444-.812.541zM2.81 12.012c0 2.28 1.082 4.048 1.85 5.57L4 21l3.541-.884c1.19.467 2.76.85 4.5.85 5.523 0 10-4.477 10-10S17.523 1 12 1 2 5.477 2 12.012z" />
-                                </svg>
-                                Enviar Reporte por WhatsApp
+                                Enviar reporte por WhatsApp →
                             </a>
-                            <Button
-                                variant="outline"
-                                className="w-full h-12 rounded-xl"
-                                onClick={() => {
-                                    // if (onSuccess) onSuccess() // Handled immediately
-                                    onClose()
-                                }}
+                            <button
+                                type="button"
+                                className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                                onClick={() => onClose()}
                             >
                                 Cerrar
-                            </Button>
+                            </button>
                         </div>
                     </div>
                 </DialogContent>
@@ -344,18 +335,22 @@ export function MaintenanceRegistrationDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-md bg-zinc-50 p-0 gap-0 overflow-hidden border-none rounded-3xl">
-                <div className="p-6 pb-4 bg-white border-b border-zinc-100">
+            <DialogContent className="max-w-md p-0 gap-0 overflow-hidden">
+                <div className="px-6 py-4 border-b border-neutral-100">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-bold text-zinc-900">{closingFaultId ? 'Registrar Reparación' : 'Registrar Mantenimiento'}</DialogTitle>
-                        <DialogDescription>{closingFaultId ? 'Registra el trabajo realizado para cerrar esta falla.' : 'Seleccione el vehículo y el tipo de servicio realizado.'}</DialogDescription>
+                        <DialogTitle className="text-lg font-medium text-neutral-900">
+                            {closingFaultId ? 'Registrar reparación' : 'Registrar mantenimiento'}
+                        </DialogTitle>
+                        <DialogDescription className="text-xs text-neutral-500">
+                            {closingFaultId ? 'Registra el trabajo realizado para cerrar esta falla.' : 'Seleccione el vehículo y el tipo de servicio realizado.'}
+                        </DialogDescription>
                     </DialogHeader>
                 </div>
 
                 <div className="p-6 space-y-6 overflow-y-auto max-h-[70vh]">
                     {/* 1. Vehicle Selection */}
-                    <div className="space-y-3">
-                        <Label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Vehículo</Label>
+                    <div className="space-y-2">
+                        <Label className="text-xs font-medium text-neutral-500">Vehículo</Label>
                         {!selectedVehicle ? (
                             <div className="relative">
                                 <SearchInput
@@ -363,11 +358,11 @@ export function MaintenanceRegistrationDialog({
                                     onChange={setSearchTerm}
                                     placeholder="Buscar placa o modelo..."
                                 />
-                                <div className="mt-2 max-h-40 overflow-y-auto border border-zinc-200 rounded-xl bg-white divide-y divide-zinc-50 shadow-sm">
+                                <div className="mt-1 max-h-40 overflow-y-auto divide-y divide-neutral-100">
                                     {loadingVehicles ? (
-                                        <div className="p-4 text-center text-zinc-400 text-sm">Cargando...</div>
+                                        <div className="py-4 text-center text-neutral-400 text-xs">Cargando...</div>
                                     ) : filteredVehicles.length === 0 ? (
-                                        <div className="p-4 text-center text-zinc-400 text-sm">No se encontraron vehículos</div>
+                                        <div className="py-4 text-center text-neutral-400 text-xs">No se encontraron vehículos</div>
                                     ) : (
                                         filteredVehicles.map(v => (
                                             <div
@@ -376,13 +371,13 @@ export function MaintenanceRegistrationDialog({
                                                     setSelectedVehicle(v)
                                                     setMileage(v.kilometraje?.toString() || "")
                                                 }}
-                                                className="p-3 hover:bg-zinc-50 cursor-pointer flex justify-between items-center transition-colors"
+                                                className="py-2.5 px-1 hover:bg-neutral-50/50 cursor-pointer flex justify-between items-center transition-colors"
                                             >
                                                 <div>
-                                                    <div className="font-bold text-sm text-zinc-900">{v.modelo}</div>
-                                                    <div className="text-xs text-zinc-500 font-mono">{v.placa}</div>
+                                                    <div className="font-medium text-sm text-neutral-900">{v.modelo}</div>
+                                                    <div className="text-xs text-neutral-500 font-mono">{v.placa}</div>
                                                 </div>
-                                                <div className="text-xs font-bold text-zinc-400 bg-zinc-100 px-2 py-1 rounded-md">
+                                                <div className="text-xs font-mono text-neutral-400">
                                                     {(v.kilometraje || 0).toLocaleString()} km
                                                 </div>
                                             </div>
@@ -391,77 +386,81 @@ export function MaintenanceRegistrationDialog({
                                 </div>
                             </div>
                         ) : (
-                            <div className="flex items-center justify-between p-3 bg-white border border-zinc-200 rounded-xl shadow-sm">
+                            <div className="flex items-center justify-between py-2 border-b border-neutral-100">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-zinc-100 rounded-full flex items-center justify-center">
-                                        <Car size={18} className="text-zinc-500" />
-                                    </div>
+                                    <Car className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.5} />
                                     <div>
-                                        <div className="font-bold text-sm text-zinc-900">{selectedVehicle.modelo}</div>
-                                        <div className="text-xs text-zinc-500 font-mono">{selectedVehicle.placa}</div>
+                                        <div className="font-medium text-sm text-neutral-900">{selectedVehicle.modelo}</div>
+                                        <div className="text-xs text-neutral-500 font-mono">{selectedVehicle.placa}</div>
                                     </div>
                                 </div>
                                 {!lockVehicle && activeTab !== 'fault' && (
-                                    <Button variant="ghost" size="sm" onClick={() => setSelectedVehicle(null)}>Cambiar</Button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedVehicle(null)}
+                                        className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                                    >
+                                        Cambiar
+                                    </button>
                                 )}
                             </div>
                         )}
                     </div>
 
-                    {/* 2. Service Type */}
                     {/* 2. Toggle Mode (Only if vehicle selected AND not resolving a specific fault) */}
                     {selectedVehicle && !closingFaultId && (
-                        <div className="bg-zinc-100 p-1 rounded-xl flex gap-1">
+                        <div className="flex gap-6 border-b border-neutral-100">
                             <button
+                                type="button"
                                 onClick={() => setActiveTab('maintenance')}
-                                className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${activeTab === 'maintenance' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+                                className={`pb-2 text-xs transition-colors border-b-2 -mb-[1px] ${activeTab === 'maintenance' ? 'border-neutral-900 text-neutral-900 font-medium' : 'border-transparent text-neutral-400 hover:text-neutral-700'}`}
                             >
                                 Mantenimiento
                             </button>
                             <button
+                                type="button"
                                 onClick={() => setActiveTab('corrective')}
-                                className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${activeTab === 'corrective' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+                                className={`pb-2 text-xs transition-colors border-b-2 -mb-[1px] ${activeTab === 'corrective' ? 'border-neutral-900 text-neutral-900 font-medium' : 'border-transparent text-neutral-400 hover:text-neutral-700'}`}
                             >
                                 Reparación
                             </button>
                             <button
+                                type="button"
                                 onClick={() => setActiveTab('fault')}
-                                className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${activeTab === 'fault' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+                                className={`pb-2 text-xs transition-colors border-b-2 -mb-[1px] ${activeTab === 'fault' ? 'border-neutral-900 text-neutral-900 font-medium' : 'border-transparent text-neutral-400 hover:text-neutral-700'}`}
                             >
                                 Falla
                             </button>
                         </div>
                     )}
 
-                    {/* Fault context banner when resolving */}
+                    {/* Fault context when resolving */}
                     {closingFaultId && originalFaultDescription && (
-                        <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl">
-                            <p className="text-[10px] font-black text-amber-700 uppercase tracking-wider mb-1">Falla a Resolver</p>
-                            <p className="text-sm font-bold text-amber-900">{originalFaultDescription}</p>
+                        <div className="pb-3 border-b border-neutral-100 space-y-0.5">
+                            <p className="text-xs text-neutral-400">Falla a resolver</p>
+                            <p className="text-sm font-medium text-neutral-900">{originalFaultDescription}</p>
                         </div>
                     )}
 
-                    {/* [NEW] Reparación Fields */}
+                    {/* Reparación Fields */}
                     {selectedVehicle && activeTab === 'corrective' && (
-                        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <div className="space-y-2">
-                                <Label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Falla a Reparar</Label>
+                        <div className="space-y-4">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-medium text-neutral-500">Falla a reparar</Label>
                                 <Input
                                     value={originalFaultDescription}
                                     onChange={e => setOriginalFaultDescription(e.target.value)}
                                     placeholder="Describa la falla que está reparando..."
-                                    className="bg-zinc-50"
-                                    disabled={!!closingFaultId} // Disable if loaded from existing fault
+                                    disabled={!!closingFaultId}
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Repuestos Utilizados</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-medium text-neutral-500">Repuestos utilizados</Label>
                                 <Input
                                     value={partsUsed}
                                     onChange={e => setPartsUsed(e.target.value)}
                                     placeholder="Ej. Pastillas de freno, Bombillo H4..."
-                                    className="bg-zinc-50"
                                 />
                             </div>
                         </div>
@@ -469,16 +468,15 @@ export function MaintenanceRegistrationDialog({
 
                     {/* 3. Content based on Tab */}
                     {selectedVehicle && activeTab === 'maintenance' && (
-                        <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <Label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Tipo de Servicio</Label>
-                            <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                            <Label className="text-xs font-medium text-neutral-500">Tipo de servicio</Label>
+                            <div className="divide-y divide-neutral-100">
                                 {[
-                                    { id: 'OIL_CHANGE', label: 'Cambio de Aceite', icon: Droplets },
-                                    { id: 'TIMING_BELT', label: 'Correa de Tiempo', icon: Timer },
-                                    { id: 'CHAIN_KIT', label: 'Kit de Arrastre', icon: Bike },
+                                    { id: 'OIL_CHANGE', label: 'Cambio de aceite', icon: Droplets },
+                                    { id: 'TIMING_BELT', label: 'Correa de tiempo', icon: Timer },
+                                    { id: 'CHAIN_KIT', label: 'Kit de arrastre', icon: Bike },
                                     { id: 'WASH', label: 'Lavado', icon: Droplets },
                                 ].map((service) => {
-                                    // Filter logic (Motorcycles etc)
                                     if (selectedVehicle) {
                                         const model = selectedVehicle.modelo.toUpperCase()
                                         const isMoto = model.includes('MOTO') || selectedVehicle.tipo?.toLowerCase() === 'moto'
@@ -495,19 +493,17 @@ export function MaintenanceRegistrationDialog({
 
                                     return (
                                         <button
+                                            type="button"
                                             key={service.id}
                                             onClick={() => !lockServiceType && setServiceType(service.id)}
                                             disabled={lockServiceType}
-                                            className={`p-4 rounded-xl border-2 flex flex-col items-center gap-3 transition-all
-                                                ${isSelected
-                                                    ? 'border-zinc-900 bg-zinc-50 text-zinc-900'
-                                                    : 'border-zinc-100 bg-white text-zinc-500 hover:border-zinc-200 hover:bg-zinc-50'
-                                                }
-                                                ${lockServiceType ? 'cursor-default opacity-70' : ''}
-                                            `}
+                                            className={`w-full py-2.5 flex items-center justify-between text-left transition-colors ${isSelected ? 'text-neutral-900 font-medium' : 'text-neutral-500 hover:text-neutral-900'} ${lockServiceType ? 'cursor-default opacity-70' : ''}`}
                                         >
-                                            <service.icon size={24} className={isSelected ? 'text-zinc-900' : 'text-zinc-400'} />
-                                            <span className="font-medium text-sm">{service.label}</span>
+                                            <span className="inline-flex items-center gap-2.5 text-sm">
+                                                <service.icon className={`w-4 h-4 ${isSelected ? 'text-neutral-900' : 'text-neutral-400'}`} strokeWidth={1.5} />
+                                                {service.label}
+                                            </span>
+                                            {isSelected && <Check className="w-3.5 h-3.5 text-neutral-900" strokeWidth={1.5} />}
                                         </button>
                                     )
                                 })}
@@ -516,90 +512,88 @@ export function MaintenanceRegistrationDialog({
                     )}
 
                     {selectedVehicle && activeTab === 'fault' && (
-                        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Tipo de Falla</Label>
-                                    <Select value={faultType} onValueChange={setFaultType}>
-                                        <SelectTrigger className="h-11 rounded-xl bg-zinc-50 border-zinc-200">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Mecánica">Mecánica</SelectItem>
-                                            <SelectItem value="Eléctrica">Eléctrica</SelectItem>
-                                            <SelectItem value="Cauchos">Cauchos</SelectItem>
-                                            <SelectItem value="Carrocería">Carrocería</SelectItem>
-                                            <SelectItem value="Otro">Otro</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Prioridad</Label>
-                                    <Select value={faultPriority} onValueChange={setFaultPriority}>
-                                        <SelectTrigger className="h-11 rounded-xl bg-zinc-50 border-zinc-200">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Baja">Baja</SelectItem>
-                                            <SelectItem value="Media">Media</SelectItem>
-                                            <SelectItem value="Alta">Alta</SelectItem>
-                                            <SelectItem value="Crítica">Crítica</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-medium text-neutral-500">Tipo de falla</Label>
+                                <CustomDropdown
+                                    value={faultType}
+                                    onChange={setFaultType}
+                                    options={[
+                                        { value: "Mecánica", label: "Mecánica" },
+                                        { value: "Eléctrica", label: "Eléctrica" },
+                                        { value: "Cauchos", label: "Cauchos" },
+                                        { value: "Carrocería", label: "Carrocería" },
+                                        { value: "Otro", label: "Otro" },
+                                    ]}
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-medium text-neutral-500">Prioridad</Label>
+                                <CustomDropdown
+                                    value={faultPriority}
+                                    onChange={setFaultPriority}
+                                    options={[
+                                        { value: "Baja", label: "Baja" },
+                                        { value: "Media", label: "Media" },
+                                        { value: "Alta", label: "Alta" },
+                                        { value: "Crítica", label: "Crítica" },
+                                    ]}
+                                />
                             </div>
                         </div>
                     )}
 
-
                     {/* 4. Common Details */}
                     {selectedVehicle && (
-                        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="space-y-4">
                             {(activeTab === 'maintenance' || activeTab === 'corrective') && (
-                                <div className="space-y-2">
-                                    <Label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Kilometraje Actual</Label>
-                                    <div className="relative">
-                                        <Input
-                                            type="number"
-                                            value={mileage}
-                                            onChange={(e) => setMileage(e.target.value)}
-                                            className="pl-10 font-mono font-bold"
-                                        />
-                                        <div className="absolute left-3 top-2.5 text-zinc-400">
-                                            <Gauge size={16} />
-                                        </div>
-                                    </div>
-                                    <p className="text-[10px] text-zinc-400">
+                                <div className="space-y-1.5">
+                                    <Label className="text-xs font-medium text-neutral-500">Kilometraje actual</Label>
+                                    <Input
+                                        type="number"
+                                        value={mileage}
+                                        onChange={(e) => setMileage(e.target.value)}
+                                        className="font-mono font-medium"
+                                    />
+                                    <p className="text-xs text-neutral-400">
                                         Registrado: {(selectedVehicle.kilometraje || 0).toLocaleString()} km
                                     </p>
                                 </div>
                             )}
 
-                            <div className="space-y-2">
-                                <Label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                                    {activeTab === 'fault' ? 'Descripción del Problema' : 'Notas (Opcional)'}
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-medium text-neutral-500">
+                                    {activeTab === 'fault' ? 'Descripción del problema' : 'Notas (opcional)'}
                                 </Label>
                                 <Textarea
                                     value={notes}
                                     onChange={(e) => setNotes(e.target.value)}
                                     placeholder={activeTab === 'fault' ? "Describa detalladamente la falla..." : activeTab === 'corrective' ? "Detalles del trabajo realizado..." : "Detalles adicionales del servicio..."}
-                                    className="resize-none h-24"
+                                    className="resize-none min-h-20"
                                 />
                             </div>
                         </div>
                     )}
                 </div>
 
-                <div className="p-4 bg-white border-t border-zinc-100 flex justify-end gap-2">
-                    <Button variant="outline" onClick={onClose} disabled={isSubmitting}>Cancelar</Button>
-                    <Button
+                <div className="px-6 py-4 border-t border-neutral-100 flex items-center justify-end gap-5">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        disabled={isSubmitting}
+                        className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors disabled:opacity-40"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="button"
                         onClick={handleSubmit}
                         disabled={isSubmitting || !selectedVehicle || (activeTab === 'maintenance' && (!serviceType || !mileage)) || (activeTab === 'fault' && !notes)}
-                        className="bg-black text-white hover:bg-zinc-800"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
                     >
-                        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {activeTab === 'fault' ? 'Reportar Falla' : activeTab === 'corrective' ? 'Registrar Reparación' : 'Registrar Servicio'}
-                    </Button>
+                        {isSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                        {activeTab === 'fault' ? 'Reportar falla' : activeTab === 'corrective' ? 'Registrar reparación' : 'Registrar servicio'}
+                    </button>
                 </div>
             </DialogContent>
         </Dialog>
@@ -608,13 +602,13 @@ export function MaintenanceRegistrationDialog({
 
 function SearchInput({ value, onChange, placeholder }: any) {
     return (
-        <div className="relative">
-            <Command className="absolute left-3 top-3 text-zinc-400" size={16} />
-            <Input
+        <div className="flex items-center gap-2 border-b border-neutral-200 focus-within:border-neutral-900 transition-colors">
+            <Search className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.5} />
+            <input
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className="pl-9 h-10 bg-white"
+                className="w-full bg-transparent py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none"
             />
         </div>
     )

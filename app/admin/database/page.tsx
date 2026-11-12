@@ -1,8 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, Fuel, Loader2, Trash2, Stethoscope, CheckCircle2 } from "lucide-react"
+import { ArrowLeft, Fuel, Loader2, Stethoscope, CheckCircle2, X } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -10,21 +8,19 @@ import { resetFuelLogsAction } from "./actions"
 import { runIntegrityCheck, type IntegrityIssue } from "./integrity/actions"
 import { cleanMonthData } from "@/app/control/combustible/cleanAction"
 import { useRouter } from "next/navigation"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { AlertTriangle } from "lucide-react"
+import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog"
 
 export default function DatabaseManagementPage() {
     const [fuelLoading, setFuelLoading] = useState(false)
     const [integrityLoading, setIntegrityLoading] = useState(false)
     const [cleanupDialogOpen, setCleanupDialogOpen] = useState(false)
+    const [resetFuelDialogOpen, setResetFuelDialogOpen] = useState(false)
     const [cleaning, setCleaning] = useState(false)
     const [integrityIssues, setIntegrityIssues] = useState<IntegrityIssue[]>([])
 
     const router = useRouter()
 
-    const handleResetFuel = async () => {
-        if (!confirm("⚠️ ¿ESTÁS SEGURO?\n\nEsto borrará:\n- Todo el historial de carga de combustible.\n\nNO borrará los vehículos.")) return
-
+    const executeResetFuel = async () => {
         setFuelLoading(true)
         try {
             const result = await resetFuelLogsAction()
@@ -66,7 +62,7 @@ export default function DatabaseManagementPage() {
             const issues = await runIntegrityCheck()
             setIntegrityIssues(issues)
             if (issues.length === 0) {
-                toast.success("Base de Datos Saludable")
+                toast.success("Base de datos saludable")
             } else {
                 toast.warning(`Se detectaron ${issues.length} problemas`)
             }
@@ -78,132 +74,150 @@ export default function DatabaseManagementPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50/50 p-6 md:p-10">
-            <div className="max-w-4xl mx-auto mb-10">
-                <div className="flex items-center gap-2 mb-2">
-                    <Link href="/admin" className="p-2 -ml-2 rounded-full hover:bg-slate-200/50 transition-colors text-slate-500">
-                        <ArrowLeft size={24} />
+        <div className="min-h-screen bg-white text-neutral-900 px-6 py-10 md:px-10">
+            <div className="max-w-3xl mx-auto">
+                <header className="pb-6 mb-2 border-b border-neutral-100">
+                    <Link
+                        href="/admin"
+                        className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors mb-4"
+                    >
+                        <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        Volver al panel
                     </Link>
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">Gestión de Base de Datos</h1>
-                </div>
-                <p className="text-slate-500">Herramientas de limpieza y reinicio para pruebas (Testing).</p>
-            </div>
+                    <h1 className="text-2xl font-light tracking-tight text-neutral-900">
+                        Gestión de base de datos
+                    </h1>
+                    <p className="text-sm text-neutral-500 mt-1">
+                        Herramientas de limpieza y reinicio para pruebas.
+                    </p>
+                </header>
 
-            <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* MONTH END CLEANUP */}
-                <Card className="border-red-200 bg-red-50/30">
-                    <CardHeader>
-                        <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center text-red-600 mb-4">
-                            <Trash2 size={24} />
+                <div className="divide-y divide-neutral-100">
+                    {/* MONTH END CLEANUP */}
+                    <section className="py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="space-y-1">
+                            <h2 className="text-sm font-medium text-neutral-900">
+                                Limpieza de fin de mes
+                            </h2>
+                            <p className="text-xs text-neutral-500">
+                                Vacía el historial antiguo y las imágenes de combustible. Conserva el último ticket de cada vehículo para no descontrolar secuencias.
+                            </p>
                         </div>
-                        <CardTitle className="text-xl text-red-700">Limpieza de Fin de Mes</CardTitle>
-                        <CardDescription>Vacía el historial antiguo y las imágenes de combustible.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="text-sm text-red-800 bg-red-100/50 p-3 rounded-lg border border-red-100">
-                            <strong>Conserva:</strong> El último ticket de cada vehículo para no descontrolar secuencias.
-                        </div>
-                        <Button
-                            className="w-full font-bold bg-red-600 hover:bg-red-700 text-white"
+                        <button
+                            type="button"
                             onClick={() => setCleanupDialogOpen(true)}
                             disabled={cleaning}
+                            className="shrink-0 inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 transition-colors disabled:opacity-40"
                         >
-                            {cleaning ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                            Vaciar Datos del Mes
-                        </Button>
-                    </CardContent>
-                </Card>
+                            {cleaning ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.5} />
+                            ) : (
+                                <X className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            )}
+                            Vaciar datos del mes
+                        </button>
+                    </section>
 
-                {/* FUEL RESET */}
-                <Card className="border-blue-200 bg-blue-50/30">
-                    <CardHeader>
-                        <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 mb-4">
-                            <Fuel size={24} />
+                    {/* FUEL RESET */}
+                    <section className="py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                                <Fuel className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                <h2 className="text-sm font-medium text-neutral-900">
+                                    Reiniciar combustible
+                                </h2>
+                            </div>
+                            <p className="text-xs text-neutral-500">
+                                Borra el historial de carga de combustible. Conserva vehículos y conductores.
+                            </p>
                         </div>
-                        <CardTitle className="text-xl text-blue-700">Reiniciar Combustible</CardTitle>
-                        <CardDescription>Borra el historial de carga de combustible.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="text-sm text-blue-800 bg-blue-100/50 p-3 rounded-lg border border-blue-100">
-                            <strong>Conserva:</strong> Vehículos, Conductores.
-                        </div>
-                        <Button
-                            className="w-full font-bold bg-blue-600 hover:bg-blue-700 text-white"
-                            onClick={handleResetFuel}
+                        <button
+                            type="button"
+                            onClick={() => setResetFuelDialogOpen(true)}
                             disabled={fuelLoading}
+                            className="shrink-0 inline-flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 transition-colors disabled:opacity-40"
                         >
-                            {fuelLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                            Borrar Logs Fuel
-                        </Button>
-                    </CardContent>
-                </Card>
+                            {fuelLoading ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.5} />
+                            ) : (
+                                <X className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            )}
+                            Borrar logs de combustible
+                        </button>
+                    </section>
 
-                {/* INTEGRITY */}
-                <Card className="border-zinc-200 bg-white">
-                    <CardHeader>
-                        <div className="w-12 h-12 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-600 mb-4">
-                            <Stethoscope size={24} />
+                    {/* INTEGRITY */}
+                    <section className="py-6 space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                    <Stethoscope className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                    <h2 className="text-sm font-medium text-neutral-900">
+                                        Verificador de salud
+                                    </h2>
+                                </div>
+                                <p className="text-xs text-neutral-500">
+                                    Detecta inconsistencias en la base de datos.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleIntegrityCheck}
+                                disabled={integrityLoading}
+                                className="shrink-0 inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
+                            >
+                                {integrityLoading ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.5} />
+                                ) : (
+                                    <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                )}
+                                Escanear base de datos
+                            </button>
                         </div>
-                        <CardTitle className="text-xl text-zinc-900">Verificador de Salud</CardTitle>
-                        <CardDescription>Detecta inconsistencias en la base de datos.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <Button
-                            variant="outline"
-                            className="w-full text-zinc-700 hover:bg-zinc-50"
-                            onClick={handleIntegrityCheck}
-                            disabled={integrityLoading}
-                        >
-                            {integrityLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
-                            Escanear Base de Datos
-                        </Button>
 
-                        {integrityIssues.length > 0 && (
-                            <div className="space-y-2 mt-4 max-h-40 overflow-y-auto">
+                        {integrityIssues.length > 0 ? (
+                            <div className="divide-y divide-neutral-100 border-t border-b border-neutral-100 max-h-56 overflow-y-auto">
                                 {integrityIssues.map((issue, idx) => (
-                                    <div key={idx} className={`p-2 rounded text-xs border ${issue.type === 'CRITICAL' ? 'bg-red-50 border-red-100 text-red-700' : 'bg-yellow-50 border-yellow-100 text-yellow-700'}`}>
-                                        <strong>{issue.title}:</strong> {issue.description}
+                                    <div key={idx} className="py-2.5 text-xs">
+                                        <span className={issue.type === 'CRITICAL' ? 'font-medium text-red-600' : 'font-medium text-neutral-900'}>
+                                            {issue.title}:
+                                        </span>{" "}
+                                        <span className="text-neutral-500">{issue.description}</span>
                                     </div>
                                 ))}
                             </div>
-                        )}
-                        {integrityIssues.length === 0 && !integrityLoading && (
-                            <div className="text-xs text-center text-zinc-400 italic mt-2">
+                        ) : !integrityLoading && (
+                            <p className="text-xs text-neutral-400">
                                 Sistema estable. No se detectaron problemas.
-                            </div>
+                            </p>
                         )}
-                    </CardContent>
-                </Card>
-
+                    </section>
+                </div>
             </div>
 
-            {/* CLEANUP DIALOG */}
-            <AlertDialog open={cleanupDialogOpen} onOpenChange={setCleanupDialogOpen}>
-                <AlertDialogContent className="rounded-[32px] max-w-md p-6">
-                    <AlertDialogHeader>
-                        <div className="h-16 w-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4 mx-auto">
-                            <AlertTriangle size={32} />
-                        </div>
-                        <AlertDialogTitle className="text-center text-2xl font-black text-slate-900">¿Vaciar Base de Datos?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-center text-sm font-medium text-slate-500">
-                            Esta acción <strong className="text-red-600">eliminará todas las fotos</strong> de los tickets del servidor de producción, y borrará el historial antiguo.
-                            <br/><br/>
-                            El sistema mantendrá automáticamente el <strong>último registro</strong> de cada vehículo.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter className="flex-col sm:flex-row gap-3 mt-6">
-                        <AlertDialogCancel className="rounded-2xl h-12 border-slate-200 text-slate-600 font-bold w-full m-0">Cancelar</AlertDialogCancel>
-                        <Button 
-                            variant="destructive"
-                            onClick={handleCleanup}
-                            disabled={cleaning}
-                            className="rounded-2xl h-12 font-black w-full shadow-lg shadow-red-200 m-0"
-                        >
-                            {cleaning ? "Vaciando..." : "Sí, vaciar datos"}
-                        </Button>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <DeleteConfirmDialog
+                open={cleanupDialogOpen}
+                onOpenChange={setCleanupDialogOpen}
+                title="¿Vaciar base de datos?"
+                description={
+                    <>
+                        Esta acción eliminará todas las fotos de los tickets del servidor de producción y borrará el historial antiguo. El sistema mantendrá automáticamente el último registro de cada vehículo.
+                    </>
+                }
+                confirmLabel="Sí, vaciar datos"
+                onConfirm={handleCleanup}
+                isLoading={cleaning}
+            />
+
+            <DeleteConfirmDialog
+                open={resetFuelDialogOpen}
+                onOpenChange={setResetFuelDialogOpen}
+                title="Reiniciar combustible"
+                description="Esto borrará todo el historial de carga de combustible. No borrará los vehículos."
+                confirmLabel="Borrar logs"
+                onConfirm={executeResetFuel}
+                isLoading={fuelLoading}
+            />
         </div>
     )
 }

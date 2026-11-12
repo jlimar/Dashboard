@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Loader2, Search, Filter, AlertCircle, ChevronDown, ChevronUp, Calendar, User, Users } from "lucide-react"
+import { Loader2, AlertCircle, ChevronDown, ChevronUp, Calendar, User } from "lucide-react"
+import { CustomDropdown } from "@/components/ui/custom-dropdown"
 
 type Report = {
   id: string
@@ -15,9 +16,13 @@ type Report = {
 }
 
 const getSupervisorName = async (supabase: any, id: string) => {
-    const { data } = await supabase.from('profiles').select('first_name, last_name').eq('id', id).single()
-    if (!data) return "Desconocido"
-    return `${data.first_name || ''} ${data.last_name || ''}`.trim() || "Desconocido"
+  const { data } = await supabase
+    .from("profiles")
+    .select("first_name, last_name")
+    .eq("id", id)
+    .single()
+  if (!data) return "Desconocido"
+  return `${data.first_name || ""} ${data.last_name || ""}`.trim() || "Desconocido"
 }
 
 export default function EquipmentHistoryViewer() {
@@ -40,262 +45,309 @@ export default function EquipmentHistoryViewer() {
 
   const fetchHistory = async () => {
     setLoading(true)
-    const { data, error } = await supabase
-      .from('equipment_control_reports')
-      .select('*')
-      .neq('equipo_nombre', 'DRAFT')
-      .order('date', { ascending: false })
-      .order('created_at', { ascending: false })
+    const { data } = await supabase
+      .from("equipment_control_reports")
+      .select("*")
+      .neq("equipo_nombre", "DRAFT")
+      .order("date", { ascending: false })
+      .order("created_at", { ascending: false })
 
     if (data) {
-        setReports(data)
-        
-        // Fetch unique supervisors
-        const supIds = Array.from(new Set(data.map(r => r.supervisor_id)))
-        const supMap: Record<string, string> = {}
-        for (const id of supIds) {
-            supMap[id] = await getSupervisorName(supabase, id)
-        }
-        setSupervisors(supMap)
+      setReports(data)
+
+      // Fetch unique supervisors
+      const supIds = Array.from(new Set(data.map((r) => r.supervisor_id)))
+      const supMap: Record<string, string> = {}
+      for (const id of supIds) {
+        supMap[id] = await getSupervisorName(supabase, id)
+      }
+      setSupervisors(supMap)
     }
     setLoading(false)
   }
 
   // Check if a report contains any critical issue
   const hasCriticalIssue = (reportData: any) => {
-      let hasCritical = false
-      const checkGroup = (group: any) => {
-          if (!group) return
-          Object.values(group).forEach((v: any) => {
-              const estado = typeof v === 'object' ? v.estado : v
-              if (estado === 'Extraviado' || estado === 'Dañado') hasCritical = true
-          })
-      }
-      checkGroup(reportData.kit_lider)
-      checkGroup(reportData.epp_lider)
-      checkGroup(reportData.kit_auxiliar)
-      checkGroup(reportData.epp_auxiliar)
-      checkGroup(reportData.herramientas)
-      return hasCritical
+    let hasCritical = false
+    const checkGroup = (group: any) => {
+      if (!group) return
+      Object.values(group).forEach((v: any) => {
+        const estado = typeof v === "object" ? v.estado : v
+        if (estado === "Extraviado" || estado === "Dañado") hasCritical = true
+      })
+    }
+    checkGroup(reportData.kit_lider)
+    checkGroup(reportData.epp_lider)
+    checkGroup(reportData.kit_auxiliar)
+    checkGroup(reportData.epp_auxiliar)
+    checkGroup(reportData.herramientas)
+    return hasCritical
   }
 
   const filteredReports = useMemo(() => {
-      return reports.filter(r => {
-          if (dateFilter && r.date !== dateFilter) return false
-          if (equipoFilter && !r.equipo_nombre.toLowerCase().includes(equipoFilter.toLowerCase())) return false
-          if (tecnicoFilter) {
-              const term = tecnicoFilter.toLowerCase()
-              const lider = (r.tecnico_lider || "").toLowerCase()
-              const aux = (r.tecnico_auxiliar || "").toLowerCase()
-              if (!lider.includes(term) && !aux.includes(term)) return false
-          }
-          if (criticalFilter && !hasCriticalIssue(r.report_data)) return false
-          return true
-      })
+    return reports.filter((r) => {
+      if (dateFilter && r.date !== dateFilter) return false
+      if (
+        equipoFilter &&
+        !r.equipo_nombre.toLowerCase().includes(equipoFilter.toLowerCase())
+      )
+        return false
+      if (tecnicoFilter) {
+        const term = tecnicoFilter.toLowerCase()
+        const lider = (r.tecnico_lider || "").toLowerCase()
+        const aux = (r.tecnico_auxiliar || "").toLowerCase()
+        if (!lider.includes(term) && !aux.includes(term)) return false
+      }
+      if (criticalFilter && !hasCriticalIssue(r.report_data)) return false
+      return true
+    })
   }, [reports, dateFilter, equipoFilter, tecnicoFilter, criticalFilter])
 
-  const uniqueEquipos = Array.from(new Set(reports.map(r => r.equipo_nombre)))
+  const uniqueEquipos = Array.from(new Set(reports.map((r) => r.equipo_nombre)))
+  const equipoOptions = [
+    { value: "", label: "Todos los equipos" },
+    ...uniqueEquipos.map((eq) => ({ value: eq, label: eq })),
+  ]
 
   const toggleExpand = (id: string) => {
-      setExpandedId(prev => prev === id ? null : id)
+    setExpandedId((prev) => (prev === id ? null : id))
   }
 
   const renderGroup = (group: any, title: string) => {
-      if (!group || Object.keys(group).length === 0) return null
-      
-      const items = Object.entries(group).filter(([_, v]: any) => {
-          const e = typeof v === 'object' ? v.estado : v
-          return e && e !== "No Aplica"
-      })
+    if (!group || Object.keys(group).length === 0) return null
 
-      if (items.length === 0) return null
+    const items = Object.entries(group).filter(([_, v]: any) => {
+      const e = typeof v === "object" ? v.estado : v
+      return e && e !== "No Aplica"
+    })
 
-      return (
-          <div className="mb-4">
-              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 border-b pb-1">{title}</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {items.map(([item, v]: any) => {
-                      const estado = typeof v === 'object' ? v.estado : v
-                      const isCritical = estado === 'Extraviado' || estado === 'Dañado'
-                      return (
-                          <div key={item} className={`flex justify-between items-center p-2 rounded-lg text-sm ${isCritical ? 'bg-red-50 border border-red-100' : 'bg-gray-50'}`}>
-                              <span className="font-medium text-gray-700">{item}</span>
-                              <span className={`font-bold ${
-                                  estado === 'Extraviado' ? 'text-red-600' : 
-                                  estado === 'Dañado' ? 'text-orange-600' : 
-                                  estado === 'Operativo' ? 'text-green-600' : 'text-gray-600'
-                              }`}>
-                                  {estado}
-                              </span>
-                          </div>
-                      )
-                  })}
+    if (items.length === 0) return null
+
+    return (
+      <div className="mb-5">
+        <h4 className="text-xs font-medium text-neutral-400 mb-2 pb-1 border-b border-neutral-100">
+          {title}
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+          {items.map(([item, v]: any) => {
+            const estado = typeof v === "object" ? v.estado : v
+            return (
+              <div
+                key={item}
+                className="flex justify-between items-center py-2 border-b border-neutral-100 last:border-b-0 text-sm"
+              >
+                <span className="text-neutral-700">{item}</span>
+                <span
+                  className={
+                    estado === "Extraviado"
+                      ? "text-red-600 font-medium"
+                      : estado === "Dañado"
+                        ? "text-neutral-900 font-medium"
+                        : estado === "Operativo"
+                          ? "text-neutral-600"
+                          : "text-neutral-400"
+                  }
+                >
+                  {estado}
+                </span>
               </div>
-          </div>
-      )
+            )
+          })}
+        </div>
+      </div>
+    )
   }
 
   if (loading) {
-      return <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-gray-400" /></div>
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-neutral-400" />
+      </div>
+    )
   }
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-        <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Historial de Auditorías</h1>
-            <p className="text-gray-500">Revisa el estado histórico de los equipos y herramientas.</p>
-        </div>
+      <div className="pb-6 mb-6 border-b border-neutral-100">
+        <h1 className="text-2xl font-semibold text-neutral-900 tracking-tight mb-1">
+          Historial de auditorías
+        </h1>
+        <p className="text-sm text-neutral-500">
+          Revisa el estado histórico de los equipos y herramientas.
+        </p>
+      </div>
 
-        {/* FILTERS */}
-        <div className="bg-white p-4 sm:p-6 rounded-[24px] shadow-sm border border-gray-100 mb-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Fecha</label>
-                    <div className="relative">
-                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                        <input 
-                            type="date" 
-                            value={dateFilter}
-                            onChange={e => setDateFilter(e.target.value)}
-                            className="w-full pl-9 h-10 rounded-xl border-gray-200 bg-gray-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                        />
-                    </div>
-                </div>
-                <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Equipo</label>
-                    <div className="relative">
-                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                        <select 
-                            value={equipoFilter}
-                            onChange={e => setEquipoFilter(e.target.value)}
-                            className="w-full pl-9 pr-8 h-10 rounded-xl border-gray-200 bg-gray-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none appearance-none"
-                        >
-                            <option value="">Todos los Equipos</option>
-                            {uniqueEquipos.map(eq => <option key={eq} value={eq}>{eq}</option>)}
-                        </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-                    </div>
-                </div>
-                <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Técnico</label>
-                    <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                        <input 
-                            type="text" 
-                            placeholder="Buscar nombre..."
-                            value={tecnicoFilter}
-                            onChange={e => setTecnicoFilter(e.target.value)}
-                            className="w-full pl-9 h-10 rounded-xl border-gray-200 bg-gray-50 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                        />
-                    </div>
-                </div>
-                <div className="flex items-end">
-                    <button 
-                        onClick={() => setCriticalFilter(!criticalFilter)}
-                        className={`w-full h-10 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold transition-colors ${criticalFilter ? 'bg-red-100 text-red-700 border-red-200' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
-                    >
-                        <AlertCircle className="w-4 h-4" />
-                        {criticalFilter ? "Solo Críticos" : "Mostrar Críticos"}
-                    </button>
-                </div>
+      {/* FILTERS */}
+      <div className="pb-6 mb-4 border-b border-neutral-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+          <div>
+            <label className="block text-xs text-neutral-500 mb-1">Fecha</label>
+            <div className="relative">
+              <Calendar
+                className="absolute left-0 top-1/2 -translate-y-1/2 text-neutral-400 w-3.5 h-3.5"
+                strokeWidth={1.5}
+              />
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="w-full pl-5 bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 outline-none transition-colors"
+              />
             </div>
-            
+          </div>
+          <div>
+            <label className="block text-xs text-neutral-500 mb-1">Equipo</label>
+            <CustomDropdown
+              value={equipoFilter}
+              onChange={setEquipoFilter}
+              options={equipoOptions}
+              placeholder="Todos los equipos"
+              searchable
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-neutral-500 mb-1">Técnico</label>
+            <div className="relative">
+              <User
+                className="absolute left-0 top-1/2 -translate-y-1/2 text-neutral-400 w-3.5 h-3.5"
+                strokeWidth={1.5}
+              />
+              <input
+                type="text"
+                placeholder="Buscar nombre..."
+                value={tecnicoFilter}
+                onChange={(e) => setTecnicoFilter(e.target.value)}
+                className="w-full pl-5 bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 outline-none transition-colors placeholder:text-neutral-400"
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between gap-4 pb-1.5">
+            <button
+              type="button"
+              onClick={() => setCriticalFilter(!criticalFilter)}
+              className={`inline-flex items-center gap-1.5 text-xs transition-colors ${
+                criticalFilter
+                  ? "text-red-600 font-medium"
+                  : "text-neutral-500 hover:text-neutral-900"
+              }`}
+            >
+              <AlertCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
+              {criticalFilter ? "Solo críticos" : "Mostrar críticos"}
+            </button>
+
             {(dateFilter || equipoFilter || tecnicoFilter || criticalFilter) && (
-                <div className="mt-4 flex justify-end">
-                    <button 
-                        onClick={() => {
-                            setDateFilter("")
-                            setEquipoFilter("")
-                            setTecnicoFilter("")
-                            setCriticalFilter(false)
-                        }}
-                        className="text-xs font-semibold text-gray-500 hover:text-gray-900"
-                    >
-                        Limpiar Filtros
-                    </button>
-                </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setDateFilter("")
+                  setEquipoFilter("")
+                  setTecnicoFilter("")
+                  setCriticalFilter(false)
+                }}
+                className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+              >
+                Limpiar filtros
+              </button>
             )}
+          </div>
         </div>
+      </div>
 
-        {/* RESULTS LIST */}
-        <div className="space-y-4">
-            {filteredReports.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-[24px] border border-dashed border-gray-300">
-                    <Filter className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-                    <p className="text-gray-500">No se encontraron auditorías con estos filtros.</p>
+      {/* RESULTS LIST */}
+      <div className="divide-y divide-neutral-100">
+        {filteredReports.length === 0 ? (
+          <div className="text-center py-12 text-sm text-neutral-400">
+            No se encontraron auditorías con estos filtros.
+          </div>
+        ) : (
+          filteredReports.map((report) => {
+            const isExpanded = expandedId === report.id
+            const isCritical = hasCriticalIssue(report.report_data)
+            const rd = report.report_data
+
+            return (
+              <div key={report.id} className="py-4 transition-colors">
+                {/* ROW HEADER (Clickable) */}
+                <div
+                  onClick={() => toggleExpand(report.id)}
+                  className="cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4 py-1 hover:bg-neutral-50/50 px-1 transition-colors"
+                >
+                  <div>
+                    <p className="text-xs text-neutral-400 mb-0.5">
+                      {report.date.split("-").reverse().join("/")}
+                    </p>
+                    <h3 className="font-medium text-neutral-900 text-base flex items-center gap-2.5">
+                      {report.equipo_nombre}
+                      {isCritical && (
+                        <span className="text-xs font-medium text-red-600">
+                          Con fallas
+                        </span>
+                      )}
+                    </h3>
+                  </div>
+
+                  <div className="flex-1 md:px-8 grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-xs text-neutral-400">Técnicos</p>
+                      <p className="text-neutral-700 truncate">
+                        {report.tecnico_lider}{" "}
+                        <span className="text-neutral-300">/</span>{" "}
+                        {report.tecnico_auxiliar}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-neutral-400">Auditor</p>
+                      <p className="text-neutral-700 truncate">
+                        {supervisors[report.supervisor_id]}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-neutral-400 flex items-center justify-end">
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4" strokeWidth={1.5} />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" strokeWidth={1.5} />
+                    )}
+                  </div>
                 </div>
-            ) : (
-                filteredReports.map(report => {
-                    const isExpanded = expandedId === report.id
-                    const isCritical = hasCriticalIssue(report.report_data)
-                    const rd = report.report_data
 
-                    return (
-                        <div key={report.id} className={`bg-white rounded-[20px] shadow-sm border transition-all duration-200 overflow-hidden ${isCritical ? 'border-red-200' : 'border-gray-200 hover:border-gray-300'}`}>
-                            {/* CARD HEADER (Clickable) */}
-                            <div 
-                                onClick={() => toggleExpand(report.id)}
-                                className="p-5 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-500">
-                                        <Calendar className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-0.5">{report.date.split('-').reverse().join('/')}</p>
-                                        <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2">
-                                            {report.equipo_nombre}
-                                            {isCritical && <span className="bg-red-100 text-red-700 text-[10px] uppercase px-2 py-0.5 rounded-full font-bold">Fallas</span>}
-                                        </h3>
-                                    </div>
-                                </div>
-                                
-                                <div className="flex-1 md:px-8 grid grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <p className="text-xs text-gray-400 font-semibold uppercase">Técnicos</p>
-                                        <p className="text-gray-700 truncate">{report.tecnico_lider} <span className="text-gray-400">/</span> {report.tecnico_auxiliar}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-400 font-semibold uppercase">Auditor</p>
-                                        <p className="text-gray-700 truncate">{supervisors[report.supervisor_id]}</p>
-                                    </div>
-                                </div>
+                {/* ROW BODY (Expanded) */}
+                {isExpanded && (
+                  <div className="pt-5 pb-2 pl-2 border-t border-neutral-100 mt-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                      <div>
+                        <h3 className="text-sm font-medium text-neutral-900 pb-1.5 mb-3 border-b border-neutral-100">
+                          Líder: {report.tecnico_lider}
+                        </h3>
+                        {renderGroup(rd.kit_lider, "Kit FTTH líder")}
+                        {renderGroup(rd.epp_lider, "EPP líder")}
+                      </div>
 
-                                <div className="text-gray-400 flex items-center justify-end">
-                                    {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-                                </div>
-                            </div>
-
-                            {/* CARD BODY (Expanded) */}
-                            {isExpanded && (
-                                <div className="p-6 bg-gray-50 border-t border-gray-100">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                                        <div>
-                                            <h3 className="text-sm font-bold text-gray-900 bg-gray-200 px-3 py-1.5 rounded-lg inline-block mb-3">Líder: {report.tecnico_lider}</h3>
-                                            {renderGroup(rd.kit_lider, "Kit FTTH Lider")}
-                                            {renderGroup(rd.epp_lider, "EPP Lider")}
-                                        </div>
-                                        
-                                        {report.tecnico_auxiliar && (
-                                            <div>
-                                                <h3 className="text-sm font-bold text-gray-900 bg-gray-200 px-3 py-1.5 rounded-lg inline-block mb-3">Auxiliar: {report.tecnico_auxiliar}</h3>
-                                                {renderGroup(rd.kit_auxiliar, "Kit FTTH Auxiliar")}
-                                                {renderGroup(rd.epp_auxiliar, "EPP Auxiliar")}
-                                            </div>
-                                        )}
-
-                                        <div className="md:col-span-2 mt-4">
-                                            <h3 className="text-sm font-bold text-gray-900 bg-gray-200 px-3 py-1.5 rounded-lg inline-block mb-3">Herramientas del Equipo</h3>
-                                            {renderGroup(rd.herramientas, "Inventario Compartido")}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
+                      {report.tecnico_auxiliar && (
+                        <div>
+                          <h3 className="text-sm font-medium text-neutral-900 pb-1.5 mb-3 border-b border-neutral-100">
+                            Auxiliar: {report.tecnico_auxiliar}
+                          </h3>
+                          {renderGroup(rd.kit_auxiliar, "Kit FTTH auxiliar")}
+                          {renderGroup(rd.epp_auxiliar, "EPP auxiliar")}
                         </div>
-                    )
-                })
-            )}
-        </div>
+                      )}
+
+                      <div className="md:col-span-2 mt-2">
+                        <h3 className="text-sm font-medium text-neutral-900 pb-1.5 mb-3 border-b border-neutral-100">
+                          Herramientas del equipo
+                        </h3>
+                        {renderGroup(rd.herramientas, "Inventario compartido")}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })
+        )}
+      </div>
     </div>
   )
 }

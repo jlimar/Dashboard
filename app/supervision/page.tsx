@@ -30,66 +30,53 @@ export default async function SupervisionHubPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F2F2F7] p-6 md:p-12 relative overflow-hidden">
-      {/* Background Gradients */}
-      <div className="absolute top-0 left-0 w-full h-96 bg-blue-600/5 blur-[120px] pointer-events-none" />
-      
-      <div className="max-w-4xl mx-auto relative z-10">
-        <div className="mb-8 flex items-center justify-between">
+    <main className="min-h-screen bg-white text-neutral-900 px-6 py-10 md:py-14">
+      <div className="max-w-3xl mx-auto">
+        <header className="pb-6 mb-4 border-b border-neutral-100 flex items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Supervisión</h1>
-            <p className="text-gray-500 mt-2">Módulo de control para operaciones en calle y almacén.</p>
+            <h1 className="text-2xl font-light tracking-tight text-neutral-900">Supervisión</h1>
+            <p className="text-sm text-neutral-500 mt-1">Módulo de control para operaciones en calle y almacén.</p>
           </div>
-          <Link 
+          <Link
             href="/"
-            className="flex items-center px-4 py-2 bg-white rounded-[14px] text-sm font-semibold text-gray-700 hover:text-gray-900 shadow-sm border border-gray-200 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors shrink-0"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver al Inicio
+            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
+            Volver al inicio
           </Link>
-        </div>
+        </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="divide-y divide-neutral-100">
           <Link
             href="/supervision/reporte-diario"
-            className="group relative overflow-hidden bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 block"
+            className="group py-6 flex items-center justify-between gap-4 transition-colors"
           >
-            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                <FileText size={120} />
+            <div className="flex items-start gap-4">
+              <FileText className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.5} />
+              <div>
+                <h2 className="text-base font-medium text-neutral-900">Reporte Diario</h2>
+                <p className="text-sm text-neutral-500 mt-0.5">Llenar el reporte de las operaciones realizadas.</p>
+              </div>
             </div>
-            <div className="relative z-10 flex flex-col h-full justify-between space-y-8">
-                <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                    <FileText size={28} />
-                </div>
-                <div>
-                    <h2 className="text-2xl font-bold text-zinc-900 mb-2">Reporte Diario</h2>
-                    <p className="text-zinc-500 font-medium">Llenar el reporte de las operaciones realizadas.</p>
-                </div>
-                <div className="flex items-center text-blue-600 font-semibold group-hover:translate-x-2 transition-transform">
-                    Acceder <span className="ml-2">→</span>
-                </div>
-            </div>
+            <span className="text-xs text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
+              Acceder →
+            </span>
           </Link>
 
           <Link
             href="/supervision/control-equipamiento"
-            className="group relative overflow-hidden bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 block"
+            className="group py-6 flex items-center justify-between gap-4 transition-colors"
           >
-            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                <Wrench size={120} />
+            <div className="flex items-start gap-4">
+              <Wrench className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.5} />
+              <div>
+                <h2 className="text-base font-medium text-neutral-900">Control de Equipamiento</h2>
+                <p className="text-sm text-neutral-500 mt-0.5">Auditoría de herramientas y kits FTTH del equipo de técnicos.</p>
+              </div>
             </div>
-            <div className="relative z-10 flex flex-col h-full justify-between space-y-8">
-                <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
-                    <Wrench size={28} />
-                </div>
-                <div>
-                    <h2 className="text-2xl font-bold text-zinc-900 mb-2">Control de Equipamiento</h2>
-                    <p className="text-zinc-500 font-medium">Auditoría de herramientas y kits FTTH del equipo de técnicos.</p>
-                </div>
-                <div className="flex items-center text-orange-600 font-semibold group-hover:translate-x-2 transition-transform">
-                    Auditar Equipos <span className="ml-2">→</span>
-                </div>
-            </div>
+            <span className="text-xs text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
+              Auditar equipos →
+            </span>
           </Link>
         </div>
       </div>

@@ -1,23 +1,11 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { X, Car, Bike, Truck, Calendar, Droplets, Gauge, MapPin, Hash, CreditCard, Fuel, AlertTriangle, Wrench, User, CheckCircle2 } from "lucide-react"
+import { X, Car, Bike, Truck, Droplets, Gauge, Wrench, User, CheckCircle2 } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog"
 import { toast } from "sonner"
 
 type Vehicle = {
@@ -178,7 +166,7 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
         setAssigning(false)
         if (error) {
             console.error(error)
-            alert("Error al asignar conductor")
+            toast.error("Error al asignar conductor")
         } else {
             toast.success(isTransfer ? "Traslado realizado con éxito" : "Conductor asignado")
             if (onUpdate) onUpdate()
@@ -188,18 +176,17 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
 
     const getIcon = (tipo: string) => {
         switch (tipo?.toLowerCase()) {
-            case 'moto': return <Bike size={24} />;
-            case 'carga': return <Truck size={24} />;
-            default: return <Car size={24} />;
+            case 'moto': return <Bike className="w-4 h-4" strokeWidth={1.5} />;
+            case 'carga': return <Truck className="w-4 h-4" strokeWidth={1.5} />;
+            default: return <Car className="w-4 h-4" strokeWidth={1.5} />;
         }
     }
 
-    const getPriorityColor = (prioridad: string) => {
+    const getPriorityTextClass = (prioridad: string) => {
         switch (prioridad) {
-            case 'Crítica': return 'bg-red-100 text-red-700 border-red-200';
-            case 'Alta': return 'bg-orange-100 text-orange-700 border-orange-200';
-            case 'Media': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-            default: return 'bg-blue-100 text-blue-700 border-blue-200';
+            case 'Crítica': return 'text-red-600 font-medium';
+            case 'Alta': return 'text-neutral-900 font-medium';
+            default: return 'text-neutral-500';
         }
     }
 
@@ -208,14 +195,14 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent showCloseButton={false} className="max-w-2xl p-0 gap-0 overflow-hidden bg-white border-none rounded-[32px] shadow-2xl max-h-[90vh] flex flex-col focus:outline-none">
+                <DialogContent showCloseButton={false} className="max-w-2xl p-0 gap-0 overflow-hidden max-h-[90vh] flex flex-col focus:outline-none">
 
                     {/* Scrollable Content Container */}
-                    <div className="overflow-y-auto custom-scrollbar flex flex-col">
+                    <div className="overflow-y-auto flex flex-col">
 
                         {/* Top Section: Image & Key Info */}
-                        <div className="w-full bg-zinc-50 flex flex-col">
-                            <div className="relative w-full aspect-video bg-zinc-200">
+                        <div className="w-full flex flex-col">
+                            <div className="relative w-full aspect-video bg-neutral-100">
                                 {vehicle.foto_url ? (
                                     <Image
                                         src={vehicle.foto_url}
@@ -224,137 +211,110 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                         className="object-cover"
                                     />
                                 ) : (
-                                    <div className="flex items-center justify-center h-full text-zinc-300">
+                                    <div className="flex items-center justify-center h-full text-neutral-300">
                                         {getIcon(vehicle.tipo)}
                                     </div>
                                 )}
-                                <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-2">
+                                <div className="absolute top-4 left-4 bg-neutral-950/60 backdrop-blur-xs text-white text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5">
                                     {getIcon(vehicle.tipo)}
-                                    {vehicle.tipo}
+                                    <span>{vehicle.tipo}</span>
                                 </div>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="absolute top-2 right-2 bg-black/20 hover:bg-black/40 text-white rounded-full z-10"
+                                <button
+                                    type="button"
+                                    className="absolute top-3 right-3 text-white/80 hover:text-white transition-colors p-1 z-10"
                                     onClick={onClose}
                                 >
-                                    <X size={20} />
-                                </Button>
+                                    <X className="w-5 h-5" strokeWidth={1.5} />
+                                </button>
                             </div>
 
                             <div className="p-6">
-                                <div className="mb-6">
-                                    <DialogTitle className="text-2xl font-bold text-zinc-900 leading-tight">{vehicle.modelo}</DialogTitle>
-                                    <DialogDescription className="text-zinc-500 font-mono text-lg">{vehicle.placa}</DialogDescription>
+                                <div className="pb-5 border-b border-neutral-100">
+                                    <DialogTitle className="text-xl font-medium text-neutral-900 leading-tight">{vehicle.modelo}</DialogTitle>
+                                    <DialogDescription className="text-neutral-500 font-mono text-sm mt-0.5">{vehicle.placa}</DialogDescription>
                                 </div>
 
-                                {/* Driver Assignment Section - NEW */}
-                                <div className="mb-6">
+                                {/* Driver Assignment Section */}
+                                <div className="py-5 border-b border-neutral-100">
                                     {readonly ? (
-                                        <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-100">
-                                            <div className="text-zinc-400 text-xs font-semibold uppercase mb-2">Conductor Asignado</div>
+                                        <div>
+                                            <div className="text-neutral-400 text-xs mb-2">Conductor asignado</div>
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-500">
-                                                    <User size={20} />
-                                                </div>
+                                                <User className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.5} />
                                                 <div>
-                                                    <div className="font-bold text-zinc-900">
-                                                        {drivers.find(d => d.id === vehicle.assigned_driver_id)?.first_name} {drivers.find(d => d.id === vehicle.assigned_driver_id)?.last_name || "Sin Asignar"}
+                                                    <div className="font-medium text-sm text-neutral-900">
+                                                        {drivers.find(d => d.id === vehicle.assigned_driver_id)?.first_name} {drivers.find(d => d.id === vehicle.assigned_driver_id)?.last_name || "Sin asignar"}
                                                     </div>
-                                                    <div className="text-xs text-zinc-500">
-                                                        {vehicle.assigned_driver_id ? "Conductor Oficial" : "Vehículo sin conductor"}
+                                                    <div className="text-xs text-neutral-500">
+                                                        {vehicle.assigned_driver_id ? "Conductor oficial" : "Vehículo sin conductor"}
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="flex gap-2">
-                                            <div className="w-full">
-                                                <DriverSelector
-                                                    drivers={drivers}
-                                                    selectedDriverId={vehicle.assigned_driver_id}
-                                                    onSelect={handleAssignDriver}
-                                                    loading={assigning}
-                                                />
-                                            </div>
-                                        </div>
+                                        <DriverSelector
+                                            drivers={drivers}
+                                            selectedDriverId={vehicle.assigned_driver_id}
+                                            onSelect={handleAssignDriver}
+                                            loading={assigning}
+                                        />
                                     )}
                                 </div>
 
-                                {/* Department display removed */}
-
-                                <div className="grid grid-cols-2 gap-3 mb-6">
-                                    <div className="bg-white p-3 rounded-xl border border-zinc-100 shadow-sm">
-                                        <div className="text-zinc-400 text-xs font-semibold uppercase mb-1">Kilometraje</div>
-                                        <div className="text-zinc-900 font-bold flex items-center gap-1">
-                                            <MapPin size={14} className="text-blue-500" />
+                                {/* Key Metrics (Pure Typography) */}
+                                <div className="grid grid-cols-3 gap-6 py-5 border-b border-neutral-100">
+                                    <div className="flex flex-col">
+                                        <span className="text-xs text-neutral-500">Kilometraje</span>
+                                        <span className="text-xl font-light tracking-tight text-neutral-900 mt-0.5">
                                             {(vehicle.kilometraje || 0).toLocaleString()}
-                                        </div>
+                                        </span>
                                     </div>
-                                    <div className="bg-white p-3 rounded-xl border border-zinc-100 shadow-sm">
-                                        <div className="text-zinc-400 text-xs font-semibold uppercase mb-1">Código</div>
-                                        <div className="text-zinc-900 font-bold flex items-center gap-1">
-                                            <Hash size={14} className="text-purple-500" />
+                                    <div className="flex flex-col">
+                                        <span className="text-xs text-neutral-500">Código</span>
+                                        <span className="text-xl font-light tracking-tight font-mono text-neutral-900 mt-0.5">
                                             {vehicle.codigo}
-                                        </div>
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-xs text-neutral-500">Combustible</span>
+                                        <span className={`text-xl font-light tracking-tight mt-0.5 ${(vehicle.current_fuel_level || 0) <= 25 ? "text-red-600" : "text-neutral-900"}`}>
+                                            {vehicle.current_fuel_level || 0}%
+                                        </span>
                                     </div>
                                 </div>
 
-                                <div className="bg-white p-4 rounded-xl border border-zinc-100 shadow-sm mb-6 flex justify-between items-center">
-                                    <span className="text-zinc-500 text-sm font-medium">Nivel de Combustible</span>
-                                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold ${(vehicle.current_fuel_level || 0) <= 25 ? "bg-red-50 text-red-600 border border-red-100" :
-                                        (vehicle.current_fuel_level || 0) <= 50 ? "bg-yellow-50 text-yellow-700 border border-yellow-100" :
-                                            "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                                        }`}>
-                                        <Fuel size={16} />
-                                        <span>{vehicle.current_fuel_level || 0}%</span>
-                                    </div>
-                                </div>
-
-
-                                {/* ACTIVE REPORT SECTION [NEW] */}
+                                {/* ACTIVE REPORT SECTION */}
                                 {vehicle.activeReport && (
-                                    <div className="mb-6 bg-blue-50/50 p-5 rounded-2xl border border-blue-100">
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
-                                                <MapPin size={18} />
+                                    <div className="py-5 border-b border-neutral-100 space-y-4">
+                                        <div>
+                                            <h3 className="font-medium text-neutral-900 text-sm">Reporte de salida activo</h3>
+                                            <p className="text-xs text-neutral-500 mt-0.5">
+                                                Salida: {new Date(vehicle.activeReport.fecha_salida).toLocaleString()}
+                                            </p>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <span className="text-xs text-neutral-400 block">Conductor</span>
+                                                <span className="font-medium text-neutral-900 text-sm block truncate">{vehicle.activeReport.conductor}</span>
                                             </div>
                                             <div>
-                                                <h3 className="font-bold text-blue-900 text-sm">Reporte de Salida Activo</h3>
-                                                <p className="text-xs text-blue-600">
-                                                    Salida: {new Date(vehicle.activeReport.fecha_salida).toLocaleString()}
-                                                </p>
+                                                <span className="text-xs text-neutral-400 block">Km salida</span>
+                                                <span className="font-medium text-neutral-900 text-sm block font-mono">{vehicle.activeReport.km_salida} km</span>
                                             </div>
                                         </div>
 
-                                        {/* Key Metrics */}
-                                        <div className="grid grid-cols-2 gap-3 mb-4">
-                                            <div className="bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
-                                                <span className="text-[10px] uppercase font-bold text-zinc-400 block mb-1">Conductor</span>
-                                                <span className="font-semibold text-zinc-800 text-sm block truncate">{vehicle.activeReport.conductor}</span>
-                                            </div>
-                                            <div className="bg-white p-3 rounded-xl border border-blue-100 shadow-sm">
-                                                <span className="text-[10px] uppercase font-bold text-zinc-400 block mb-1">Km Salida</span>
-                                                <span className="font-semibold text-zinc-800 text-sm block">{vehicle.activeReport.km_salida} km</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Checklist */}
-                                        <div className="bg-white rounded-xl border border-blue-100 shadow-sm overflow-hidden">
-                                            <div className="bg-blue-50/30 px-4 py-2 border-b border-blue-100">
-                                                <span className="text-xs font-bold text-blue-800">Verificación de Salida</span>
-                                            </div>
-                                            <div className="p-4 grid grid-cols-2 gap-y-3 gap-x-4">
-                                                {/* COMMON */}
+                                        <div className="pt-2">
+                                            <div className="text-xs text-neutral-400 mb-3">Verificación de salida</div>
+                                            <div className="grid grid-cols-2 gap-y-2.5 gap-x-4">
                                                 <CheckItem label="Aceite" checked={vehicle.activeReport.aceite_salida} />
                                                 <CheckItem label="Iluminación" checked={vehicle.activeReport.luces_salida} />
                                                 <CheckItem label="Frenos" checked={vehicle.activeReport.frenos_salida} />
                                                 <CheckItem label="Corneta" checked={vehicle.activeReport.corneta_salida} />
-                                                <div className="col-span-2 mt-1 mb-2">
-                                                    <TextItem label="Estado de Cauchos" value={vehicle.activeReport.estado_cauchos_salida} />
+                                                <div className="col-span-2 mt-1">
+                                                    <TextItem label="Estado de cauchos" value={vehicle.activeReport.estado_cauchos_salida} />
                                                 </div>
 
-                                                {/* CAR SPECIFIC (Agua, Safety) */}
                                                 {!vehicle.tipo?.toLowerCase().includes('moto') && !vehicle.modelo?.toLowerCase().includes('moto') && (
                                                     <>
                                                         <CheckItem label="Cinturones" checked={vehicle.activeReport.cinturones_salida} />
@@ -370,7 +330,6 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                                     </>
                                                 )}
 
-                                                {/* MOTO SPECIFIC */}
                                                 {(vehicle.tipo?.toLowerCase().includes('moto') || vehicle.modelo?.toLowerCase().includes('moto')) && (
                                                     <>
                                                         <CheckItem label="Casco" checked={vehicle.activeReport.casco_salida} />
@@ -378,7 +337,6 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                                     </>
                                                 )}
 
-                                                {/* TECH STUFF - Only for Soporte/Instalación/Distribución/Afectaciones AND NOT MOTO */}
                                                 {(vehicle.department === 'Soporte' || vehicle.department === 'Instalación' || vehicle.department === 'Distribución' || vehicle.department === 'Afectaciones') && !vehicle.tipo?.toLowerCase().includes('moto') && !vehicle.modelo?.toLowerCase().includes('moto') && (
                                                     <>
                                                         {vehicle.department === 'Instalación' && (
@@ -388,11 +346,8 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                                     </>
                                                 )}
 
-                                                {/* EQUIPOS DE CARGA */}
                                                 {(vehicle.tipo?.toLowerCase() === 'carga' || vehicle.modelo?.toLowerCase().includes('carga')) && (
-                                                    <>
-                                                        <CheckItem label="Esc. Tijera" checked={vehicle.activeReport.escalera_tijera_salida} />
-                                                    </>
+                                                    <CheckItem label="Esc. Tijera" checked={vehicle.activeReport.escalera_tijera_salida} />
                                                 )}
                                             </div>
                                         </div>
@@ -400,41 +355,40 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                 )}
 
                                 {/* Maintenance Section */}
-                                <div className="mt-6 mb-6">
-                                    <h3 className="text-sm font-bold text-zinc-900 mb-3 flex items-center gap-2">
-                                        <Wrench className="text-zinc-400" size={16} />
-                                        Mantenimiento Preventivo
+                                <div className="py-5 border-b border-neutral-100">
+                                    <h3 className="text-sm font-medium text-neutral-900 mb-3">
+                                        Mantenimiento preventivo
                                     </h3>
 
-                                    <div className="space-y-4">
+                                    <div className="divide-y divide-neutral-100">
                                         {/* Oil Change */}
-                                        <div className="bg-white p-4 rounded-xl border border-zinc-100 shadow-sm">
-                                            <div className="flex justify-between items-center mb-2">
+                                        <div className="py-3.5">
+                                            <div className="flex justify-between items-center mb-1.5">
                                                 <div className="flex items-center gap-2">
-                                                    <Droplets size={16} className="text-amber-500" />
-                                                    <span className="text-sm font-medium text-zinc-700">Cambio de Aceite</span>
+                                                    <Droplets className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                                    <span className="text-sm text-neutral-700">Cambio de aceite</span>
                                                 </div>
-                                                <span className="text-xs text-zinc-400 font-mono">
+                                                <span className="text-xs text-neutral-400 font-mono">
                                                     Último: {vehicle.last_oil_change_km ? vehicle.last_oil_change_km.toLocaleString() + ' km' : 'N/A'}
                                                 </span>
                                             </div>
 
                                             {vehicle.last_oil_change_km && vehicle.kilometraje ? (() => {
-                                                const interval = 5000 // 5k for oil
+                                                const interval = 5000
                                                 const driven = (vehicle.kilometraje || 0) - vehicle.last_oil_change_km
                                                 const progress = Math.min(100, (driven / interval) * 100)
                                                 const remaining = Math.max(0, interval - driven)
-                                                const statusColor = progress >= 90 ? 'bg-red-500' : progress >= 75 ? 'bg-yellow-500' : 'bg-emerald-500'
+                                                const statusColor = progress >= 90 ? 'bg-red-500' : progress >= 75 ? 'bg-neutral-700' : 'bg-neutral-900'
 
                                                 return (
                                                     <div>
                                                         <div className="flex justify-between text-xs mb-1.5">
-                                                            <span className="text-zinc-500">Recorrido: {driven.toLocaleString()} km</span>
-                                                            <span className={`font-bold ${progress >= 90 ? 'text-red-600' : 'text-zinc-600'}`}>
+                                                            <span className="text-neutral-500">Recorrido: {driven.toLocaleString()} km</span>
+                                                            <span className={progress >= 90 ? 'text-red-600 font-medium' : 'text-neutral-600'}>
                                                                 {remaining.toLocaleString()} km restantes
                                                             </span>
                                                         </div>
-                                                        <div className="h-2 w-full bg-zinc-100 rounded-full overflow-hidden">
+                                                        <div className="h-1.5 w-full bg-neutral-100 rounded-full overflow-hidden">
                                                             <div
                                                                 className={`h-full rounded-full transition-all duration-500 ${statusColor}`}
                                                                 style={{ width: `${progress}%` }}
@@ -443,47 +397,47 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                                     </div>
                                                 )
                                             })() : (
-                                                <div className="text-xs text-zinc-400 italic">Sin información de servicio</div>
+                                                <div className="text-xs text-neutral-400 italic">Sin información de servicio</div>
                                             )}
                                         </div>
 
-                                        {/* Timing Belt - Hide for Motos & Chain/Gear Vehicles */}
+                                        {/* Timing Belt */}
                                         {(() => {
                                             const model = vehicle.modelo?.toUpperCase() || ''
                                             const type = vehicle.tipo?.toLowerCase() || (model.includes('MOTO') ? 'moto' : '')
-                                            const hideFor = ['HILUX', 'TRITON', 'DONFENG', 'RICH', 'NKR'] // Vehicles with Chains or Gears
+                                            const hideFor = ['HILUX', 'TRITON', 'DONFENG', 'RICH', 'NKR']
 
                                             if (type === 'moto') return null
                                             if (hideFor.some(keyword => model.includes(keyword))) return null
 
                                             return (
-                                                <div className="bg-white p-4 rounded-xl border border-zinc-100 shadow-sm">
-                                                    <div className="flex justify-between items-center mb-2">
+                                                <div className="py-3.5">
+                                                    <div className="flex justify-between items-center mb-1.5">
                                                         <div className="flex items-center gap-2">
-                                                            <Gauge size={16} className="text-blue-500" />
-                                                            <span className="text-sm font-medium text-zinc-700">Correa de Tiempo</span>
+                                                            <Gauge className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                                            <span className="text-sm text-neutral-700">Correa de tiempo</span>
                                                         </div>
-                                                        <span className="text-xs text-zinc-400 font-mono">
+                                                        <span className="text-xs text-neutral-400 font-mono">
                                                             Último: {vehicle.last_timing_belt_km ? vehicle.last_timing_belt_km.toLocaleString() + ' km' : 'N/A'}
                                                         </span>
                                                     </div>
 
                                                     {vehicle.last_timing_belt_km && vehicle.kilometraje ? (() => {
-                                                        const interval = 50000 // 50k for belt
+                                                        const interval = 50000
                                                         const driven = (vehicle.kilometraje || 0) - vehicle.last_timing_belt_km
                                                         const progress = Math.min(100, (driven / interval) * 100)
                                                         const remaining = Math.max(0, interval - driven)
-                                                        const statusColor = progress >= 90 ? 'bg-red-500' : progress >= 75 ? 'bg-yellow-500' : 'bg-blue-500'
+                                                        const statusColor = progress >= 90 ? 'bg-red-500' : progress >= 75 ? 'bg-neutral-700' : 'bg-neutral-900'
 
                                                         return (
                                                             <div>
                                                                 <div className="flex justify-between text-xs mb-1.5">
-                                                                    <span className="text-zinc-500">Recorrido: {driven.toLocaleString()} km</span>
-                                                                    <span className={`font-bold ${progress >= 90 ? 'text-red-600' : 'text-zinc-600'}`}>
+                                                                    <span className="text-neutral-500">Recorrido: {driven.toLocaleString()} km</span>
+                                                                    <span className={progress >= 90 ? 'text-red-600 font-medium' : 'text-neutral-600'}>
                                                                         {remaining.toLocaleString()} km restantes
                                                                     </span>
                                                                 </div>
-                                                                <div className="h-2 w-full bg-zinc-100 rounded-full overflow-hidden">
+                                                                <div className="h-1.5 w-full bg-neutral-100 rounded-full overflow-hidden">
                                                                     <div
                                                                         className={`h-full rounded-full transition-all duration-500 ${statusColor}`}
                                                                         style={{ width: `${progress}%` }}
@@ -492,7 +446,7 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                                             </div>
                                                         )
                                                     })() : (
-                                                        <div className="text-xs text-zinc-400 italic">Sin información de servicio</div>
+                                                        <div className="text-xs text-neutral-400 italic">Sin información de servicio</div>
                                                     )}
                                                 </div>
                                             )
@@ -500,33 +454,33 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
 
                                         {/* Chain Kit - Only for Motos */}
                                         {(vehicle.tipo?.toLowerCase() === 'moto' || vehicle.modelo?.toLowerCase().includes('moto')) && (
-                                            <div className="bg-white p-4 rounded-xl border border-zinc-100 shadow-sm">
-                                                <div className="flex justify-between items-center mb-2">
+                                            <div className="py-3.5">
+                                                <div className="flex justify-between items-center mb-1.5">
                                                     <div className="flex items-center gap-2">
-                                                        <Bike size={16} className="text-zinc-600" />
-                                                        <span className="text-sm font-medium text-zinc-700">Kit de Arrastre</span>
+                                                        <Bike className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                                        <span className="text-sm text-neutral-700">Kit de arrastre</span>
                                                     </div>
-                                                    <span className="text-xs text-zinc-400 font-mono">
+                                                    <span className="text-xs text-neutral-400 font-mono">
                                                         Último: {vehicle.last_chain_kit_km ? vehicle.last_chain_kit_km.toLocaleString() + ' km' : 'N/A'}
                                                     </span>
                                                 </div>
 
                                                 {vehicle.last_chain_kit_km && vehicle.kilometraje ? (() => {
-                                                    const interval = 20000 // 20k for chain kit
+                                                    const interval = 20000
                                                     const driven = (vehicle.kilometraje || 0) - vehicle.last_chain_kit_km
                                                     const progress = Math.min(100, (driven / interval) * 100)
                                                     const remaining = Math.max(0, interval - driven)
-                                                    const statusColor = progress >= 90 ? 'bg-red-500' : progress >= 75 ? 'bg-yellow-500' : 'bg-blue-500'
+                                                    const statusColor = progress >= 90 ? 'bg-red-500' : progress >= 75 ? 'bg-neutral-700' : 'bg-neutral-900'
 
                                                     return (
                                                         <div>
                                                             <div className="flex justify-between text-xs mb-1.5">
-                                                                <span className="text-zinc-500">Recorrido: {driven.toLocaleString()} km</span>
-                                                                <span className={`font-bold ${progress >= 90 ? 'text-red-600' : 'text-zinc-600'}`}>
+                                                                <span className="text-neutral-500">Recorrido: {driven.toLocaleString()} km</span>
+                                                                <span className={progress >= 90 ? 'text-red-600 font-medium' : 'text-neutral-600'}>
                                                                     {remaining.toLocaleString()} km restantes
                                                                 </span>
                                                             </div>
-                                                            <div className="h-2 w-full bg-zinc-100 rounded-full overflow-hidden">
+                                                            <div className="h-1.5 w-full bg-neutral-100 rounded-full overflow-hidden">
                                                                 <div
                                                                     className={`h-full rounded-full transition-all duration-500 ${statusColor}`}
                                                                     style={{ width: `${progress}%` }}
@@ -535,18 +489,16 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                                         </div>
                                                     )
                                                 })() : (
-                                                    <div className="text-xs text-zinc-400 italic">Sin información de servicio</div>
+                                                    <div className="text-xs text-neutral-400 italic">Sin información de servicio</div>
                                                 )}
                                             </div>
                                         )}
 
-                                        {/* Washing - For All */}
-                                        <div className="bg-white p-4 rounded-xl border border-zinc-100 shadow-sm">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <div className="flex items-center gap-2">
-                                                    <Droplets size={16} className="text-cyan-500" />
-                                                    <span className="text-sm font-medium text-zinc-700">Lavado y Aspirado</span>
-                                                </div>
+                                        {/* Washing */}
+                                        <div className="py-3.5">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <Droplets className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                                <span className="text-sm text-neutral-700">Lavado y aspirado</span>
                                             </div>
 
                                             {vehicle.last_wash_date ? (() => {
@@ -554,137 +506,115 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                                 const today = new Date()
                                                 const diffTime = Math.abs(today.getTime() - lastWash.getTime())
                                                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-                                                const statusColor = diffDays > 15 ? 'text-red-500 bg-red-50 border-red-100' : diffDays > 7 ? 'text-yellow-600 bg-yellow-50 border-yellow-100' : 'text-cyan-600 bg-cyan-50 border-cyan-100'
-                                                const statusText = diffDays > 15 ? 'Necesita Lavado' : diffDays > 7 ? 'Aceptable' : 'Limpio'
+                                                const statusTextClass = diffDays > 15 ? 'text-red-600 font-medium' : diffDays > 7 ? 'text-neutral-700' : 'text-neutral-500'
+                                                const statusText = diffDays > 15 ? 'Necesita lavado' : diffDays > 7 ? 'Aceptable' : 'Limpio'
 
                                                 return (
-                                                    <div className="flex justify-between items-center">
-                                                        <span className="text-xs text-zinc-500">
+                                                    <div className="flex justify-between items-center text-xs">
+                                                        <span className="text-neutral-500">
                                                             Hace {diffDays} días ({lastWash.toLocaleDateString()})
                                                         </span>
-                                                        <span className="text-[10px] font-bold px-2 py-1 rounded-full border ${statusColor}">
+                                                        <span className={statusTextClass}>
                                                             {statusText}
                                                         </span>
                                                     </div>
                                                 )
                                             })() : (
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-zinc-400 italic">Sin registro de lavado</span>
-                                                    <span className="text-[10px] font-bold px-2 py-1 rounded-full border bg-zinc-50 border-zinc-100 text-zinc-400">
-                                                        Desconocido
-                                                    </span>
+                                                <div className="flex justify-between items-center text-xs">
+                                                    <span className="text-neutral-400 italic">Sin registro de lavado</span>
+                                                    <span className="text-neutral-400">Desconocido</span>
                                                 </div>
                                             )}
                                         </div>
                                     </div>
                                 </div>
 
-                                {
-                                    vehicle.last_fuel_update && (
-                                        <p className="text-[10px] text-zinc-400 text-right mb-6 pr-1">
-                                            Combustible actualizado: {new Date(vehicle.last_fuel_update).toLocaleString()}
-                                        </p>
-                                    )
-                                }
+                                {vehicle.last_fuel_update && (
+                                    <p className="text-xs text-neutral-400 text-right pt-3">
+                                        Combustible actualizado: {new Date(vehicle.last_fuel_update).toLocaleString()}
+                                    </p>
+                                )}
 
-                                <div className="grid grid-cols-3 gap-4 text-sm border-t border-zinc-100 pt-4">
+                                <div className="grid grid-cols-3 gap-4 text-sm py-5 border-b border-neutral-100">
                                     <div>
-                                        <span className="block text-zinc-400 text-xs mb-1">Año</span>
-                                        <span className="font-medium text-zinc-900">{vehicle.año || '-'}</span>
+                                        <span className="block text-neutral-400 text-xs mb-0.5">Año</span>
+                                        <span className="font-medium text-neutral-900">{vehicle.año || '-'}</span>
                                     </div>
                                     <div>
-                                        <span className="block text-zinc-400 text-xs mb-1">Color</span>
-                                        <span className="font-medium text-zinc-900">{vehicle.color || '-'}</span>
+                                        <span className="block text-neutral-400 text-xs mb-0.5">Color</span>
+                                        <span className="font-medium text-neutral-900">{vehicle.color || '-'}</span>
                                     </div>
                                     <div>
-                                        <span className="block text-zinc-400 text-xs mb-1">Tanque</span>
-                                        <span className="font-medium text-zinc-900">{vehicle.capacidad_tanque || '-'} L</span>
+                                        <span className="block text-neutral-400 text-xs mb-0.5">Tanque</span>
+                                        <span className="font-medium text-neutral-900">{vehicle.capacidad_tanque || '-'} L</span>
                                     </div>
                                 </div>
-                            </div >
-                        </div >
 
-                        {/* Bottom Section: Faults History */}
-                        < div className="w-full p-6 bg-white border-t border-zinc-100" >
-                            <h3 className="text-lg font-bold text-zinc-900 flex items-center gap-2 mb-4">
-                                <Wrench className="text-zinc-400" size={20} />
-                                Historial de Fallas
-                            </h3>
+                                {/* Faults History */}
+                                <div className="pt-5">
+                                    <h3 className="text-sm font-medium text-neutral-900 mb-3 flex items-center gap-2">
+                                        <Wrench className="text-neutral-400 w-4 h-4" strokeWidth={1.5} />
+                                        Historial de fallas
+                                    </h3>
 
-                            <div className="space-y-3">
-                                {loadingFaults ? (
-                                    <div className="text-center py-6 text-zinc-400 text-sm">Cargando historial...</div>
-                                ) : faults.length === 0 ? (
-                                    <div className="text-center py-8 bg-zinc-50 rounded-2xl border border-dashed border-zinc-200">
-                                        <div className="mx-auto w-10 h-10 bg-zinc-100 rounded-full flex items-center justify-center text-zinc-400 mb-2">
-                                            <Wrench size={18} />
-                                        </div>
-                                        <h4 className="text-zinc-900 font-medium text-sm">Sin fallas reportadas</h4>
-                                    </div>
-                                ) : (
-                                    faults.map((fault) => (
-                                        <div key={fault.id} className="group p-4 rounded-2xl border border-zinc-100 hover:border-zinc-200 hover:bg-zinc-50 transition-all bg-zinc-50/50">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div className="flex gap-2 items-center">
-                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getPriorityColor(fault.prioridad)}`}>
-                                                        {fault.prioridad}
-                                                    </span>
-                                                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${fault.estado === 'Pendiente' ? 'bg-zinc-200 text-zinc-700' :
-                                                        fault.estado === 'En Revisión' ? 'bg-blue-100 text-blue-700' :
-                                                            fault.estado === 'Reparado' ? 'bg-green-100 text-green-700' :
-                                                                'bg-zinc-100 text-zinc-400'
-                                                        }`}>
-                                                        {fault.estado}
-                                                    </span>
-                                                </div>
-                                                <div className="text-[10px] text-zinc-400 font-mono">
-                                                    {new Date(fault.created_at).toLocaleDateString()}
-                                                </div>
+                                    <div className="divide-y divide-neutral-100">
+                                        {loadingFaults ? (
+                                            <div className="text-center py-6 text-neutral-400 text-sm">Cargando historial...</div>
+                                        ) : faults.length === 0 ? (
+                                            <div className="text-center py-8 text-neutral-400 text-sm">
+                                                Sin fallas reportadas
                                             </div>
-                                            <h4 className="font-bold text-zinc-900 text-sm mb-1">{fault.tipo_falla}</h4>
-                                            <p className="text-sm text-zinc-600 leading-relaxed">{fault.descripcion}</p>
-                                        </div>
-                                    ))
-                                )}
+                                        ) : (
+                                            faults.map((fault) => (
+                                                <div key={fault.id} className="py-3.5 space-y-1">
+                                                    <div className="flex justify-between items-center gap-2">
+                                                        <div className="flex items-center gap-2 text-xs">
+                                                            <span className={getPriorityTextClass(fault.prioridad)}>
+                                                                {fault.prioridad}
+                                                            </span>
+                                                            <span className="text-neutral-300">·</span>
+                                                            <span className="text-neutral-500">
+                                                                {fault.estado}
+                                                            </span>
+                                                        </div>
+                                                        <div className="text-xs text-neutral-400 font-mono">
+                                                            {new Date(fault.created_at).toLocaleDateString()}
+                                                        </div>
+                                                    </div>
+                                                    <h4 className="font-medium text-neutral-900 text-sm">{fault.tipo_falla}</h4>
+                                                    <p className="text-sm text-neutral-600 leading-relaxed">{fault.descripcion}</p>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
                             </div>
-                        </div >
-                    </div >
-                </DialogContent >
-            </Dialog >
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
 
-            <AlertDialog open={transferDialogOpen} onOpenChange={setTransferDialogOpen}>
-                <AlertDialogContent className="rounded-2xl border-none shadow-2xl">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle className="text-xl font-bold text-zinc-900">
-                            Confirmar Traslado
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className="text-zinc-500">
-                            {pendingDriver && (
-                                <span className="block mt-2 bg-amber-50 text-amber-900 p-4 rounded-xl border border-amber-200">
-                                    <span className="font-bold">{pendingDriver.first_name}</span> actualmente tiene asignado el vehículo:
-                                    <br />
-                                    <span className="font-bold text-lg mt-1 block">{pendingDriver.currentVehicle.modelo}</span>
-                                    <span className="text-xs font-mono uppercase opacity-75">{pendingDriver.currentVehicle.placa}</span>
-                                    <br /><br />
-                                    ¿Deseas desvincularlo de su unidad actual y asignarlo a este vehículo?
-                                </span>
-                            )}
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel>
-                        <AlertDialogAction
-                            className="rounded-xl bg-black text-white hover:bg-zinc-800"
-                            onClick={() => {
-                                executeAssignment(pendingDriver.id, true)
-                                setTransferDialogOpen(false)
-                            }}
-                        >
-                            Confirmar Traslado
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <DeleteConfirmDialog
+                open={transferDialogOpen}
+                onOpenChange={setTransferDialogOpen}
+                title="Confirmar traslado"
+                confirmLabel="Confirmar traslado"
+                cancelLabel="Cancelar"
+                destructive={false}
+                description={
+                    pendingDriver ? (
+                        <span>
+                            <strong className="font-medium text-neutral-900">{pendingDriver.first_name}</strong> actualmente tiene asignado el vehículo{" "}
+                            <strong className="font-medium text-neutral-900">{pendingDriver.currentVehicle.modelo}</strong> ({pendingDriver.currentVehicle.placa}). ¿Deseas desvincularlo de su unidad actual y asignarlo a este vehículo?
+                        </span>
+                    ) : null
+                }
+                onConfirm={() => {
+                    if (pendingDriver) {
+                        executeAssignment(pendingDriver.id, true)
+                    }
+                }}
+            />
         </>
     )
 }
@@ -692,13 +622,12 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
 function CheckItem({ label, checked }: { label: string, checked: boolean }) {
     return (
         <div className="flex items-center gap-2">
-            <div className={`
-                w-5 h-5 rounded-full flex items-center justify-center text-[10px] border
-                ${checked ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-50 text-red-400 border-red-100'}
-            `}>
-                {checked ? <CheckCircle2 size={12} strokeWidth={3} /> : <X size={12} strokeWidth={3} />}
-            </div>
-            <span className={`text-xs font-medium ${checked ? 'text-zinc-700' : 'text-zinc-400'}`}>{label}</span>
+            {checked ? (
+                <CheckCircle2 className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={1.5} />
+            ) : (
+                <X className="w-3.5 h-3.5 text-neutral-300 shrink-0" strokeWidth={1.5} />
+            )}
+            <span className={`text-xs ${checked ? 'text-neutral-700' : 'text-neutral-400'}`}>{label}</span>
         </div>
     )
 }
@@ -706,8 +635,8 @@ function CheckItem({ label, checked }: { label: string, checked: boolean }) {
 function TextItem({ label, value }: { label: string, value: string | undefined | null }) {
     return (
         <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-bold text-zinc-400 uppercase">{label}</span>
-            <span className="text-sm font-medium text-zinc-700">{value || 'N/A'}</span>
+            <span className="text-xs text-neutral-400">{label}</span>
+            <span className="text-sm text-neutral-700">{value || 'N/A'}</span>
         </div>
     )
 }

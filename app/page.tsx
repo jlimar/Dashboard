@@ -29,45 +29,31 @@ export default async function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-50 flex flex-col items-center justify-center p-6">
-      <div className="max-w-4xl w-full space-y-12">
+    <main className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-16">
+      <div className="max-w-3xl w-full space-y-12">
 
         {/* HEADER */}
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-black text-white mb-2 shadow-2xl shadow-zinc-200">
-            <ShieldCheck size={32} />
-          </div>
-
-          <div className="space-y-2">
-            <h1 className="text-4xl font-bold text-zinc-900 tracking-tight">
+        <header className="pb-8 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 text-neutral-400 text-xs">
+              <ShieldCheck className="w-3.5 h-3.5" strokeWidth={1.5} />
+              <span>Portal de operaciones</span>
+            </div>
+            <h1 className="text-3xl font-light tracking-tight text-neutral-900">
               Hola, {profile?.first_name || 'Usuario'}
             </h1>
             {profile?.job_title && (
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-zinc-200 text-sm font-medium text-zinc-600 shadow-sm">
-                <span>{profile.job_title}</span>
-                {profile.department && (
-                  <>
-                    <span className="w-1 h-1 rounded-full bg-zinc-300" />
-                    <span className="text-zinc-400">{profile.department}</span>
-                  </>
-                )}
-              </div>
-            )}
-            {!profile?.job_title && (
-              <p className="text-zinc-500 text-lg max-w-md mx-auto">
-                Portal de Operaciones
+              <p className="text-sm text-neutral-500">
+                {profile.job_title}
+                {profile.department ? ` · ${profile.department}` : ''}
               </p>
             )}
           </div>
-        </div>
-
-        {/* MODULE CARDS */}
-        <DashboardMenu />
-
-        {/* LOGOUT */}
-        <div className="text-center">
           <LogoutButton />
-        </div>
+        </header>
+
+        {/* MODULE LIST */}
+        <DashboardMenu />
 
       </div>
     </main>

@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
-import { AlertTriangle, Wrench } from "lucide-react"
+import { AlertTriangle } from "lucide-react"
 import { useRouter } from "next/navigation" // [NEW]
 
 export function RealtimeNotifications() {
@@ -21,33 +21,23 @@ export function RealtimeNotifications() {
                 (payload) => {
                     const newFault = payload.new as any
 
-                    // Custom Toast - Premium Style
-                    toast.custom((t) => (
-                        <div className="w-[356px] flex items-center gap-4 bg-white/80 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.12)] p-4 rounded-[24px] pointer-events-auto transition-all animate-in slide-in-from-top-5 fade-in duration-300">
-                            {/* Icon Container - Red for Faults */}
-                            <div className="flex-shrink-0 w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg shadow-black/20 text-white">
-                                <AlertTriangle size={20} />
-                            </div>
+                    // Custom Toast - Minimalist Style
+                    toast.custom(() => (
+                        <div className="w-[340px] flex items-start gap-3 bg-white/95 backdrop-blur-xs border-b border-neutral-200/70 px-4 py-3 pointer-events-auto animate-in slide-in-from-top-5 fade-in duration-300">
+                            <AlertTriangle className="w-4 h-4 text-red-600 mt-0.5 shrink-0" strokeWidth={1.5} />
 
-                            {/* Content */}
                             <div className="flex-1 min-w-0">
-                                <h3 className="text-[15px] font-bold text-zinc-900 leading-tight mb-1">
-                                    ¡Nueva Falla Reportada!
-                                </h3>
-                                <p className="text-[13px] text-zinc-500 leading-snug line-clamp-2">
-                                    {newFault.descripcion}
-                                </p>
-                                {/* Priority Tag */}
-                                <div className="mt-1.5 inline-flex items-center px-2 py-0.5 rounded-md bg-zinc-100 border border-zinc-200">
-                                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-600">
+                                <div className="flex items-center justify-between gap-2">
+                                    <h3 className="text-sm font-medium text-neutral-900 leading-tight">
+                                        Nueva falla reportada
+                                    </h3>
+                                    <span className="text-[11px] text-neutral-400 shrink-0">
                                         Prioridad: {newFault.prioridad}
                                     </span>
                                 </div>
-                            </div>
-
-                            {/* Dismiss Indicator */}
-                            <div className="h-full flex flex-col justify-start py-1">
-                                <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                                <p className="text-xs text-neutral-500 leading-snug line-clamp-2 mt-1">
+                                    {newFault.descripcion}
+                                </p>
                             </div>
                         </div>
                     ), { duration: 5000 })

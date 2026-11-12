@@ -20,7 +20,7 @@ export function ToggleSetting({ initialState, action }: { initialState: boolean,
                     // Revert if server response differs (unlikely)
                     setChecked(result.value)
                 }
-                toast.success(newValue ? "Restricción Activada" : "Restricción Desactivada")
+                toast.success(newValue ? "Restricción activada" : "Restricción desactivada")
             } catch (error) {
                 // Revert on error
                 setChecked(!newValue)
@@ -35,7 +35,7 @@ export function ToggleSetting({ initialState, action }: { initialState: boolean,
             checked={checked}
             onCheckedChange={handleToggle}
             disabled={isPending}
-            className="data-[state=checked]:bg-emerald-600"
+            className="data-[state=checked]:bg-neutral-900"
         />
     )
 }

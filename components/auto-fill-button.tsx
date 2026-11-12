@@ -1,6 +1,5 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
 import { Wand2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -81,15 +80,13 @@ export function AutoFillButton({ phase, onFill, existingData }: AutoFillButtonPr
     }
 
     return (
-        <Button
+        <button
             type="button"
-            variant="outline"
-            size="icon"
             onClick={handleAutoFill}
             title="Auto-rellenar (Test)"
-            className="fixed bottom-24 right-6 z-50 h-14 w-14 rounded-full bg-purple-600 text-white shadow-lg hover:bg-purple-700 border-none"
+            className="fixed bottom-6 right-6 z-50 text-neutral-400 hover:text-neutral-900 transition-colors"
         >
-            <Wand2 size={24} />
-        </Button>
+            <Wand2 className="w-4 h-4" strokeWidth={1.5} />
+        </button>
     )
 }

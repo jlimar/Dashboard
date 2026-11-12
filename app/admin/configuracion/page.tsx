@@ -4,9 +4,7 @@ import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { INITIAL_MODULES_CONFIG } from "@/lib/constants"
 import { Switch } from "@/components/ui/switch"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Save, AlertCircle, Bot, Zap, Mic, MicOff } from "lucide-react"
+import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 import { getSystemSettings } from "../settings-actions"
@@ -97,30 +95,42 @@ export default function AdminConfigModulesPage() {
         }))
     }
 
-    if (loading) return <div className="p-10 text-center">Cargando configuración...</div>
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-white px-6 py-16 text-center text-sm text-neutral-400">
+                Cargando configuración...
+            </div>
+        )
+    }
 
     return (
-        <main className="min-h-screen bg-zinc-50 p-6 md:p-12">
+        <main className="min-h-screen bg-white text-neutral-900 px-6 py-10 md:px-12">
             <div className="max-w-3xl mx-auto">
-                <div className="mb-8">
-                    <Link href="/admin" className="text-zinc-500 hover:text-zinc-900 flex items-center mb-4 transition-colors">
-                        <ArrowLeft size={16} className="mr-2" />
-                        Volver al Panel
+                <header className="pb-6 mb-8 border-b border-neutral-100">
+                    <Link
+                        href="/admin"
+                        className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors mb-4"
+                    >
+                        <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        Volver al panel
                     </Link>
-                    <h1 className="text-3xl font-bold text-zinc-900">Gestión de Módulos</h1>
-                    <p className="text-zinc-500 mt-1">Habilita o deshabilita secciones del sistema.</p>
-                </div>
+                    <h1 className="text-2xl font-light tracking-tight text-neutral-900">
+                        Gestión de módulos
+                    </h1>
+                    <p className="text-sm text-neutral-500 mt-1">
+                        Habilita o deshabilita secciones del sistema.
+                    </p>
+                </header>
 
                 {!tableExists && (
-                    <div className="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-6 flex flex-col gap-4">
-                        <div className="flex items-center gap-2 text-amber-700 font-bold">
-                            <AlertCircle />
-                            <span>Configuración de Base de Datos Necesaria</span>
-                        </div>
-                        <p className="text-sm text-amber-700">
+                    <section className="mb-8 pb-6 border-b border-neutral-200/60 space-y-3">
+                        <p className="text-sm font-medium text-neutral-900">
+                            Configuración de base de datos necesaria
+                        </p>
+                        <p className="text-xs text-neutral-500">
                             Para usar esta función, ejecuta el siguiente comando SQL en Supabase:
                         </p>
-                        <pre className="bg-white p-4 rounded-xl border border-amber-100 text-xs font-mono overflow-auto">
+                        <pre className="pl-4 border-l border-neutral-200 py-2 text-xs font-mono text-neutral-600 overflow-auto">
                             {`create table if not exists app_settings (
     key text primary key,
     value boolean default true,
@@ -132,21 +142,32 @@ alter table app_settings enable row level security;
 create policy "Public Read" on app_settings for select using (true);
 create policy "Admin Update" on app_settings for all using (true); -- Ajustar en prod`}
                         </pre>
-                    </div>
+                    </section>
                 )}
 
+                <section>
+                    <div className="mb-4">
+                        <h2 className="text-sm font-medium text-neutral-900">
+                            Visibilidad de paneles
+                        </h2>
+                        <p className="text-xs text-neutral-500 mt-0.5">
+                            Los paneles deshabilitados se ocultarán del menú principal para todos los usuarios.
+                        </p>
+                    </div>
 
-                <Card className="rounded-[32px] border-none shadow-sm">
-                    <CardHeader>
-                        <CardTitle>Visibilidad de Paneles</CardTitle>
-                        <CardDescription>Los paneles deshabilitados se ocultarán del menú principal para todos los usuarios.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
+                    <div className="divide-y divide-neutral-100 border-t border-b border-neutral-100">
                         {INITIAL_MODULES_CONFIG.map((module) => (
-                            <div key={module.key} className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
+                            <div
+                                key={module.key}
+                                className="flex items-center justify-between py-4"
+                            >
                                 <div>
-                                    <div className="font-semibold text-zinc-900">{module.label}</div>
-                                    <div className="text-xs text-zinc-400 font-mono">{module.path}</div>
+                                    <div className="text-sm font-medium text-neutral-900">
+                                        {module.label}
+                                    </div>
+                                    <div className="text-xs text-neutral-400 font-mono mt-0.5">
+                                        {module.path}
+                                    </div>
                                 </div>
                                 <Switch
                                     checked={settings[module.key]}
@@ -154,19 +175,20 @@ create policy "Admin Update" on app_settings for all using (true); -- Ajustar en
                                 />
                             </div>
                         ))}
+                    </div>
 
-                        <div className="pt-4 flex justify-end">
-                            <Button
-                                onClick={handleSave}
-                                disabled={saving || !tableExists}
-                                className="h-12 px-8 rounded-xl bg-black text-white hover:bg-zinc-800"
-                            >
-                                {saving ? "Guardando..." : "Guardar Cambios"}
-                                <Save size={18} className="ml-2" />
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
+                    <div className="pt-6 flex justify-end">
+                        <button
+                            type="button"
+                            onClick={handleSave}
+                            disabled={saving || !tableExists}
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                            <Save className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            {saving ? "Guardando..." : "Guardar cambios"}
+                        </button>
+                    </div>
+                </section>
             </div>
         </main>
     )

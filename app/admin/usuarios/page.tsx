@@ -11,24 +11,33 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Switch } from "@/components/ui/switch"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import { UserCog, Mail, Calendar, Settings2, Building2, Briefcase, User as UserIcon, ArrowLeft, Pencil, Shield, LogIn, LayoutDashboard, Truck, Wrench, Package, ClipboardCheck, Lock, Key, FileText, MapPin } from "lucide-react"
+import {
+    Mail,
+    Calendar,
+    Settings2,
+    Building2,
+    Briefcase,
+    User as UserIcon,
+    ArrowLeft,
+    PenLine,
+    Shield,
+    LogIn,
+    LayoutDashboard,
+    Truck,
+    Wrench,
+    ClipboardCheck,
+    Lock,
+    Key,
+    FileText,
+    MapPin,
+} from "lucide-react"
 import Link from "next/link"
 import { updateProfileDetails, impersonateUserAction, createUserAction, adminResetPassword } from "./user-actions"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { DEPARTMENTS, JOB_TITLES_BY_DEPARTMENT } from "@/lib/constants"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+import { CustomDropdown } from "@/components/ui/custom-dropdown"
+import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog"
 
 type Profile = {
     id: string
@@ -42,64 +51,69 @@ type Profile = {
     plain_text_reports?: boolean
 }
 
+const ROLE_OPTIONS = [
+    { value: "tecnico", label: "Técnico" },
+    { value: "mecanico", label: "Mecánico" },
+    { value: "admin", label: "Administrador" },
+    { value: "gerencia", label: "Gerencia" },
+    { value: "supervisor", label: "Supervisor" },
+    { value: "reportes", label: "Supervisión" },
+    { value: "chofer", label: "Chofer" },
+    { value: "geodata", label: "Zonas operativas" },
+    { value: "invitado", label: "Invitado" },
+]
+
 // DEFINING MODULE ACCESS GROUPS
 const MODULE_ACCESS = [
     {
-        title: "Módulos Principales",
+        title: "Módulos principales",
         items: [
             {
                 role: 'gerencia',
                 label: 'Gerencia',
                 description: 'Acceso al módulo de Gerencia (Dashboard y Métricas).',
                 icon: LayoutDashboard,
-                color: 'text-indigo-600 bg-indigo-50 border-indigo-200'
             },
             {
                 role: 'transporte',
                 label: 'Transporte',
                 description: 'Acceso al módulo de Transporte (Salidas y Vehículos).',
                 icon: Truck,
-                color: 'text-blue-600 bg-blue-50 border-blue-200'
             },
             {
                 role: 'taller',
                 label: 'Taller',
                 description: 'Acceso al módulo de Taller (Fallas y Preventivos).',
                 icon: Wrench,
-                color: 'text-amber-600 bg-amber-50 border-amber-200'
             },
             {
                 role: 'supervisor',
                 label: 'Control',
                 description: 'Acceso al módulo de Control (Combustible y Auditorías).',
                 icon: ClipboardCheck,
-                color: 'text-rose-600 bg-rose-50 border-rose-200'
             },
             {
                 role: 'reportes',
                 label: 'Supervisión',
                 description: 'Acceso al módulo de Supervisión (Reportes Diarios y Equipamiento).',
                 icon: FileText,
-                color: 'text-emerald-600 bg-emerald-50 border-emerald-200'
             },
         ]
     },
     {
-        title: "Roles Específicos",
+        title: "Roles específicos",
         items: [
-            { 
-                role: 'mecanico', 
-                label: 'Mecánico', 
+            {
+                role: 'mecanico',
+                label: 'Mecánico',
                 description: 'Rol para visualizar reparaciones asignadas en Taller.',
                 icon: Wrench,
-                color: 'text-zinc-600 bg-zinc-50 border-zinc-200'
             },
-            { 
-                role: 'tecnico', 
-                label: 'Técnico', 
+            {
+                role: 'tecnico',
+                label: 'Técnico',
                 description: 'Rol para técnicos de campo (App móvil/Soporte).',
                 icon: UserIcon,
-                color: 'text-zinc-600 bg-zinc-50 border-zinc-200'
             },
         ]
     },
@@ -111,14 +125,12 @@ const MODULE_ACCESS = [
                 label: 'Administrador',
                 description: 'Acceso total a configuración y gestión de usuarios.',
                 icon: Lock,
-                color: 'text-purple-600 bg-purple-50 border-purple-200'
             },
             {
                 role: 'geodata',
-                label: 'Zonas Operativas',
+                label: 'Zonas operativas',
                 description: 'Gestión global de ubicaciones (Geodata) para los selectores.',
                 icon: MapPin,
-                color: 'text-teal-600 bg-teal-50 border-teal-200'
             }
         ]
     }
@@ -151,6 +163,9 @@ export default function AdminUsersPage() {
     const [resetPasswordUser, setResetPasswordUser] = useState<Profile | null>(null)
     const [resetPasswordValue, setResetPasswordValue] = useState("")
     const [resettingPassword, setResettingPassword] = useState(false)
+
+    // Impersonate Confirm State
+    const [impersonateEmail, setImpersonateEmail] = useState<string | null>(null)
 
     useEffect(() => {
         loadProfiles()
@@ -193,7 +208,7 @@ export default function AdminUsersPage() {
         } else {
             toast.success("Datos actualizados")
             setEditingUser(null)
-            loadProfiles() // Reload to show changes
+            loadProfiles()
         }
     }
 
@@ -201,7 +216,6 @@ export default function AdminUsersPage() {
         try {
             const supabase = createClient()
 
-            // Calculate new roles
             let newRoles: string[]
             if (currentRoles.includes(roleToToggle)) {
                 newRoles = currentRoles.filter(r => r !== roleToToggle)
@@ -216,15 +230,12 @@ export default function AdminUsersPage() {
 
             if (error) throw error
 
-            // Update local state and permissions user state immediately
             const updatedProfile = { ...(permissionsUser || profiles.find(p => p.id === userId)!), roles: newRoles }
 
-            // Update Permissions Modal State if Open
             if (permissionsUser?.id === userId) {
                 setPermissionsUser(updatedProfile)
             }
 
-            // Update List
             setProfiles(prev => prev.map(p => p.id === userId ? updatedProfile : p))
 
             toast.success("Permiso actualizado")
@@ -272,13 +283,11 @@ export default function AdminUsersPage() {
         }
     }
 
-
-
-    const handleImpersonate = async (email: string) => {
-        if (!confirm("⚠️ ¿Iniciar sesión como este usuario?\n\nTu sesión de Administrador actual se cerrará.\nDeberás volver a iniciar sesión para regresar al admin.")) return
+    const executeImpersonate = async () => {
+        if (!impersonateEmail) return
 
         toast.loading("Generando acceso seguro...")
-        const result = await impersonateUserAction(email)
+        const result = await impersonateUserAction(impersonateEmail)
 
         if (result.success && result.url) {
             window.location.href = result.url
@@ -286,15 +295,6 @@ export default function AdminUsersPage() {
             toast.dismiss()
             toast.error(result.error || "Error desconocido")
         }
-    }
-
-    const getRoleBadgeColor = (role: string) => {
-        if (role === "admin") return "bg-purple-100 text-purple-700 hover:bg-purple-200"
-        if (role === "gerencia") return "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"
-        if (["tecnico", "chofer", "supervisor", "mecanico", "reportes"].includes(role)) return "bg-green-100 text-green-700"
-        if (["auditoria", "combustible"].includes(role)) return "bg-red-100 text-red-700"
-        if (role === "geodata") return "bg-teal-100 text-teal-700 hover:bg-teal-200"
-        return "bg-zinc-100 text-zinc-700"
     }
 
     const handleCreateUser = async () => {
@@ -318,152 +318,153 @@ export default function AdminUsersPage() {
         } else {
             toast.success("Usuario creado exitosamente")
             setIsCreateOpen(false)
-            setCreateForm({ email: "", password: "", firstName: "", lastName: "", role: "tecnico" }) // Reset
+            setCreateForm({ email: "", password: "", firstName: "", lastName: "", role: "tecnico" })
             loadProfiles()
         }
     }
 
-    return (
-        <div className="p-8 space-y-6 max-w-7xl mx-auto">
-            <div className="flex items-center gap-3 mb-8">
-                <Link href="/">
-                    <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl mr-2 bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50">
-                        <ArrowLeft size={20} />
-                    </Button>
-                </Link>
-                <div className="p-3 bg-zinc-900 rounded-xl shadow-lg shadow-zinc-900/10">
-                    <UserCog className="text-white" size={24} />
-                </div>
-                <div>
-                    <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">Gestión de Usuarios</h1>
-                    <p className="text-zinc-500">Administra los permisos y roles del personal</p>
-                </div>
-                <div className="ml-auto">
-                    <Button onClick={() => setIsCreateOpen(true)} className="bg-zinc-900 text-white hover:bg-zinc-800 rounded-xl">
-                        + Nuevo Usuario
-                    </Button>
-                </div>
-            </div>
+    const departmentOptions = DEPARTMENTS.map((dept) => ({ value: dept, label: dept }))
+    const jobTitleOptions = editForm.department
+        ? (JOB_TITLES_BY_DEPARTMENT[editForm.department] || []).map((title) => ({ value: title, label: title }))
+        : []
 
-            <Card className="border-zinc-200 shadow-sm overflow-hidden rounded-[24px]">
-                <CardHeader className="bg-zinc-50/50 border-b border-zinc-100">
-                    <CardTitle>Usuarios Registrados</CardTitle>
-                    <CardDescription>Lista completa de empleados registrados en el sistema</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
+    return (
+        <div className="min-h-screen bg-white text-neutral-900 px-6 py-10 md:px-10">
+            <div className="max-w-6xl mx-auto">
+                <header className="pb-6 mb-8 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                    <div>
+                        <Link
+                            href="/"
+                            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors mb-4"
+                        >
+                            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            Inicio
+                        </Link>
+                        <h1 className="text-2xl font-light tracking-tight text-neutral-900">
+                            Gestión de usuarios
+                        </h1>
+                        <p className="text-sm text-neutral-500 mt-1">
+                            Administra los permisos y roles del personal.
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setIsCreateOpen(true)}
+                        className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors self-start sm:self-auto"
+                    >
+                        + Nuevo usuario
+                    </button>
+                </header>
+
+                <div className="overflow-x-auto">
                     <Table>
-                        <TableHeader className="bg-zinc-50">
-                            <TableRow>
-                                <TableHead className="pl-6">Empleado</TableHead>
-                                <TableHead>Datos Laborales</TableHead>
-                                <TableHead>Roles Asignados</TableHead>
-                                <TableHead>Fecha Registro</TableHead>
-                                <TableHead className="text-right pr-6">Acciones</TableHead>
+                        <TableHeader>
+                            <TableRow className="border-b border-neutral-200/60 hover:bg-transparent">
+                                <TableHead className="text-xs font-normal text-neutral-400 pl-0">Empleado</TableHead>
+                                <TableHead className="text-xs font-normal text-neutral-400">Datos laborales</TableHead>
+                                <TableHead className="text-xs font-normal text-neutral-400">Roles asignados</TableHead>
+                                <TableHead className="text-xs font-normal text-neutral-400">Fecha registro</TableHead>
+                                <TableHead className="text-right text-xs font-normal text-neutral-400 pr-0">Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
-                        <TableBody>
+                        <TableBody className="divide-y divide-neutral-100">
                             {loading ? (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="text-center h-32 text-zinc-500">
+                                <TableRow className="hover:bg-transparent">
+                                    <TableCell colSpan={5} className="text-center h-32 text-xs text-neutral-400">
                                         Cargando usuarios...
                                     </TableCell>
                                 </TableRow>
                             ) : profiles.map((profile) => {
-                                const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ");
+                                const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ")
+                                const roles = profile.roles || []
                                 return (
-                                    <TableRow key={profile.id} className="hover:bg-zinc-50/50 transition-colors">
-                                        <TableCell className="pl-6">
+                                    <TableRow key={profile.id} className="group hover:bg-neutral-50/50 transition-colors border-b border-neutral-100">
+                                        <TableCell className="pl-0 py-3.5">
                                             <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-full bg-zinc-100 flex items-center justify-center border border-zinc-200 shrink-0">
-                                                    <UserIcon size={18} className="text-zinc-500" />
-                                                </div>
+                                                <UserIcon className="w-4 h-4 text-neutral-300 shrink-0" strokeWidth={1.5} />
                                                 <div className="flex flex-col">
-                                                    <span className="font-medium text-zinc-900">
+                                                    <span className="text-sm font-medium text-neutral-900">
                                                         {fullName || "Sin nombre"}
                                                     </span>
-                                                    <div className="flex items-center gap-1.5 text-xs text-zinc-500">
-                                                        <Mail size={12} />
+                                                    <div className="flex items-center gap-1.5 text-xs text-neutral-400">
+                                                        <Mail className="w-3 h-3" strokeWidth={1.5} />
                                                         {profile.email}
                                                     </div>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell>
-                                            <div className="flex flex-col gap-1">
-                                                <div className="flex items-center gap-2 text-sm text-zinc-700">
-                                                    <Briefcase size={14} className="text-zinc-400" />
-                                                    <span>{profile.job_title || "Sin Cargo"}</span>
+                                        <TableCell className="py-3.5">
+                                            <div className="flex flex-col gap-0.5">
+                                                <div className="flex items-center gap-1.5 text-xs text-neutral-700">
+                                                    <Briefcase className="w-3 h-3 text-neutral-400" strokeWidth={1.5} />
+                                                    <span>{profile.job_title || "Sin cargo"}</span>
                                                 </div>
-                                                <div className="flex items-center gap-2 text-xs text-zinc-500">
-                                                    <Building2 size={12} />
-                                                    {profile.department || "Sin Dpto."}
+                                                <div className="flex items-center gap-1.5 text-xs text-neutral-400">
+                                                    <Building2 className="w-3 h-3" strokeWidth={1.5} />
+                                                    <span>{profile.department || "Sin departamento"}</span>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell>
-                                            <div className="flex flex-wrap gap-2 max-w-[200px]">
-                                                {(profile.roles || []).slice(0, 3).map((role) => (
-                                                    <Badge key={role} variant="secondary" className={`capitalize px-2 py-0.5 text-xs ${getRoleBadgeColor(role)}`}>
-                                                        {role}
-                                                    </Badge>
+                                        <TableCell className="py-3.5">
+                                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 max-w-[220px]">
+                                                {roles.slice(0, 3).map((role, idx) => (
+                                                    <span key={role} className="text-xs text-neutral-600 capitalize">
+                                                        {role}{idx < Math.min(roles.length, 3) - 1 ? "," : ""}
+                                                    </span>
                                                 ))}
-                                                {(profile.roles || []).length > 3 && (
-                                                    <Badge variant="outline" className="px-1.5 text-[10px] text-zinc-500">
-                                                        +{profile.roles.length - 3}
-                                                    </Badge>
+                                                {roles.length > 3 && (
+                                                    <span className="text-xs text-neutral-400">
+                                                        +{roles.length - 3}
+                                                    </span>
                                                 )}
-                                                {(!profile.roles || profile.roles.length === 0) && (
-                                                    <span className="text-zinc-400 text-xs italic">Sin roles</span>
+                                                {roles.length === 0 && (
+                                                    <span className="text-neutral-400 text-xs italic">Sin roles</span>
                                                 )}
                                             </div>
                                         </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-2 text-zinc-500 text-sm">
-                                                <Calendar size={14} />
+                                        <TableCell className="py-3.5">
+                                            <div className="flex items-center gap-1.5 text-neutral-500 text-xs">
+                                                <Calendar className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
                                                 {new Date(profile.created_at).toLocaleDateString()}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-right pr-6">
-                                            <div className="flex justify-end gap-2">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
+                                        <TableCell className="text-right pr-0 py-3.5">
+                                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center justify-end gap-3">
+                                                <button
+                                                    type="button"
                                                     onClick={() => startEditing(profile)}
-                                                    className="h-8 w-8 p-0 hover:bg-zinc-100"
-                                                    title="Editar Datos"
+                                                    className="text-neutral-400 hover:text-neutral-900 transition-colors"
+                                                    title="Editar datos"
                                                 >
-                                                    <Pencil size={16} className="text-zinc-500" />
-                                                </Button>
+                                                    <PenLine className="w-3.5 h-3.5" strokeWidth={1.25} />
+                                                </button>
 
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="h-8 w-8 p-0 hover:bg-zinc-100 text-zinc-400 hover:text-amber-600"
-                                                    title="Cambiar Contraseña"
+                                                <button
+                                                    type="button"
                                                     onClick={() => setResetPasswordUser(profile)}
+                                                    className="text-neutral-400 hover:text-neutral-900 transition-colors"
+                                                    title="Cambiar contraseña"
                                                 >
-                                                    <Key size={16} />
-                                                </Button>
+                                                    <Key className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                                </button>
 
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="h-8 w-8 p-0 hover:bg-zinc-100 text-zinc-400 hover:text-violet-600"
-                                                    title="Iniciar Sesión como..."
-                                                    onClick={() => handleImpersonate(profile.email)}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setImpersonateEmail(profile.email)}
+                                                    className="text-neutral-400 hover:text-neutral-900 transition-colors"
+                                                    title="Iniciar sesión como..."
                                                 >
-                                                    <LogIn size={16} />
-                                                </Button>
+                                                    <LogIn className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                                </button>
 
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="gap-2 h-8"
+                                                <button
+                                                    type="button"
                                                     onClick={() => setPermissionsUser(profile)}
+                                                    className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors inline-flex items-center gap-1"
                                                 >
-                                                    <Shield size={14} />
+                                                    <Shield className="w-3.5 h-3.5" strokeWidth={1.5} />
                                                     <span className="hidden sm:inline">Permisos</span>
-                                                </Button>
+                                                </button>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -471,91 +472,78 @@ export default function AdminUsersPage() {
                             })}
                         </TableBody>
                     </Table>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
 
             {/* EDIT DETAILS DIALOG */}
             <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Editar Datos Laborales</DialogTitle>
+                        <DialogTitle className="text-base font-medium text-neutral-900">
+                            Editar datos laborales
+                        </DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <Label>Departamento</Label>
-                            <Select
+                    <div className="space-y-5 py-2">
+                        <div className="space-y-1.5">
+                            <label className="text-xs text-neutral-500 block">Departamento</label>
+                            <CustomDropdown
                                 value={editForm.department}
-                                onValueChange={(value) => setEditForm({ department: value, job_title: "" })}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Seleccionar Departamento" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {DEPARTMENTS.map((dept) => (
-                                        <SelectItem key={dept} value={dept}>
-                                            {dept}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                onChange={(value) => setEditForm({ department: value, job_title: "" })}
+                                options={departmentOptions}
+                                placeholder="Seleccionar departamento"
+                            />
                         </div>
 
-                        <div className="space-y-2">
-                            <Label>Cargo / Título</Label>
-                            <Select
+                        <div className="space-y-1.5">
+                            <label className="text-xs text-neutral-500 block">Cargo / Título</label>
+                            <CustomDropdown
                                 value={editForm.job_title}
-                                onValueChange={(value) => setEditForm({ ...editForm, job_title: value })}
+                                onChange={(value) => setEditForm({ ...editForm, job_title: value })}
+                                options={jobTitleOptions}
+                                placeholder={editForm.department ? "Seleccionar cargo" : "Primero selecciona un dpto."}
                                 disabled={!editForm.department}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Seleccionar Cargo" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {editForm.department && JOB_TITLES_BY_DEPARTMENT[editForm.department]?.map((title) => (
-                                        <SelectItem key={title} value={title}>
-                                            {title}
-                                        </SelectItem>
-                                    ))}
-                                    {!editForm.department && (
-                                        <SelectItem value="placeholder" disabled>Primero selecciona un dpto.</SelectItem>
-                                    )}
-                                </SelectContent>
-                            </Select>
+                            />
                         </div>
                     </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setEditingUser(null)}>Cancelar</Button>
-                        <Button onClick={handleSaveDetails} disabled={saving}>
-                            {saving ? "Guardando..." : "Guardar Cambios"}
-                        </Button>
+                    <DialogFooter className="mt-4 flex flex-row items-center justify-end gap-5">
+                        <button
+                            type="button"
+                            onClick={() => setEditingUser(null)}
+                            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSaveDetails}
+                            disabled={saving}
+                            className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
+                        >
+                            {saving ? "Guardando..." : "Guardar cambios"}
+                        </button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
 
-            {/* PERMISSIONS MANAGER DIALOG (REFACTORED) */}
+            {/* PERMISSIONS MANAGER DIALOG */}
             <Dialog open={!!permissionsUser} onOpenChange={(open) => !open && setPermissionsUser(null)}>
-                <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <div className="flex items-center gap-4 mb-2">
-                            <div className="h-12 w-12 rounded-2xl bg-zinc-900 flex items-center justify-center text-white">
-                                <Shield size={24} />
-                            </div>
-                            <div>
-                                <DialogTitle className="text-2xl">Gestionar Acceso a Módulos</DialogTitle>
-                                <DialogDescription>
-                                    Configuración de permisos para <span className="font-bold text-zinc-900">{permissionsUser?.email}</span>
-                                </DialogDescription>
-                            </div>
-                        </div>
+                        <DialogTitle className="text-lg font-medium text-neutral-900">
+                            Gestionar acceso a módulos
+                        </DialogTitle>
+                        <DialogDescription className="text-xs text-neutral-500">
+                            Configuración de permisos para <span className="font-medium text-neutral-900">{permissionsUser?.email}</span>
+                        </DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-6 py-4">
+                    <div className="space-y-6 py-2">
                         {MODULE_ACCESS.map((group) => (
-                            <div key={group.title} className="space-y-4">
-                                <h4 className="font-medium text-xs text-zinc-400 uppercase tracking-widest pl-1">
+                            <div key={group.title} className="space-y-2">
+                                <h4 className="font-medium text-xs text-neutral-400">
                                     {group.title}
                                 </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="divide-y divide-neutral-100 border-t border-b border-neutral-100">
                                     {group.items.map((item) => {
                                         const isChecked = (permissionsUser?.roles || []).includes(item.role)
                                         const Icon = item.icon || Shield
@@ -563,34 +551,24 @@ export default function AdminUsersPage() {
                                         return (
                                             <div
                                                 key={item.role}
-                                                className={`
-                                                    flex items-start gap-4 p-4 rounded-xl border transition-all duration-200
-                                                    ${isChecked ? 'bg-zinc-50 border-zinc-300 shadow-sm' : 'bg-white border-zinc-100 hover:border-zinc-200'}
-                                                `}
+                                                className="flex items-start gap-3 py-3.5"
                                             >
-                                                <div className={`
-                                                    h-10 w-10 rounded-lg flex items-center justify-center shrink-0
-                                                    ${item.color ? item.color.replace('text-', 'bg-').replace('bg-', 'bg-opacity-10 text-') : 'bg-zinc-100 text-zinc-500'}
-                                                    ${item.color}
-                                                `}>
-                                                    <Icon size={20} />
-                                                </div>
-
-                                                <div className="flex-1 space-y-1">
-                                                    <div className="flex items-center justify-between">
-                                                        <Label
+                                                <Icon className="w-4 h-4 text-neutral-400 mt-0.5 shrink-0" strokeWidth={1.5} />
+                                                <div className="flex-1 space-y-0.5">
+                                                    <div className="flex items-center justify-between gap-4">
+                                                        <label
                                                             htmlFor={`role-${item.role}`}
-                                                            className="font-semibold text-base text-zinc-900 cursor-pointer"
+                                                            className="text-sm font-medium text-neutral-900 cursor-pointer"
                                                         >
                                                             {item.label}
-                                                        </Label>
+                                                        </label>
                                                         <Switch
                                                             id={`role-${item.role}`}
                                                             checked={isChecked}
                                                             onCheckedChange={() => permissionsUser && handleRoleToggle(permissionsUser.id, permissionsUser.roles || [], item.role)}
                                                         />
                                                     </div>
-                                                    <p className="text-sm text-zinc-500 leading-snug pr-8">
+                                                    <p className="text-xs text-neutral-500 leading-snug pr-8">
                                                         {item.description}
                                                     </p>
                                                 </div>
@@ -601,27 +579,25 @@ export default function AdminUsersPage() {
                             </div>
                         ))}
 
-                        <div className="space-y-4">
-                            <h4 className="font-medium text-xs text-zinc-400 uppercase tracking-widest pl-1">
-                                Configuración Especial
+                        <div className="space-y-2">
+                            <h4 className="font-medium text-xs text-neutral-400">
+                                Configuración especial
                             </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className={`flex items-start gap-4 p-4 rounded-xl border transition-all duration-200 ${permissionsUser?.plain_text_reports ? 'bg-zinc-50 border-zinc-300 shadow-sm' : 'bg-white border-zinc-100 hover:border-zinc-200'}`}>
-                                    <div className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0 bg-orange-50 text-orange-600">
-                                        <Settings2 size={20} />
-                                    </div>
-                                    <div className="flex-1 space-y-1">
-                                        <div className="flex items-center justify-between">
-                                            <Label htmlFor="plain-text" className="font-semibold text-base text-zinc-900 cursor-pointer">
-                                                WhatsApp sin Emojis
-                                            </Label>
+                            <div className="divide-y divide-neutral-100 border-t border-b border-neutral-100">
+                                <div className="flex items-start gap-3 py-3.5">
+                                    <Settings2 className="w-4 h-4 text-neutral-400 mt-0.5 shrink-0" strokeWidth={1.5} />
+                                    <div className="flex-1 space-y-0.5">
+                                        <div className="flex items-center justify-between gap-4">
+                                            <label htmlFor="plain-text" className="text-sm font-medium text-neutral-900 cursor-pointer">
+                                                WhatsApp sin emojis
+                                            </label>
                                             <Switch
                                                 id="plain-text"
                                                 checked={!!permissionsUser?.plain_text_reports}
                                                 onCheckedChange={() => permissionsUser && handleTogglePlainText(permissionsUser.id, !!permissionsUser.plain_text_reports)}
                                             />
                                         </div>
-                                        <p className="text-sm text-zinc-500 leading-snug pr-8">
+                                        <p className="text-xs text-neutral-500 leading-snug pr-8">
                                             Usa [SI]/[NO] en vez de emojis en reportes para dispositivos antiguos.
                                         </p>
                                     </div>
@@ -630,10 +606,14 @@ export default function AdminUsersPage() {
                         </div>
                     </div>
 
-                    <DialogFooter>
-                        <Button onClick={() => setPermissionsUser(null)} className="w-full sm:w-auto">
-                            Guardar y Cerrar
-                        </Button>
+                    <DialogFooter className="mt-4">
+                        <button
+                            type="button"
+                            onClick={() => setPermissionsUser(null)}
+                            className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
+                        >
+                            Guardar y cerrar
+                        </button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -642,81 +622,86 @@ export default function AdminUsersPage() {
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Crear Nuevo Usuario</DialogTitle>
-                        <DialogDescription>
-                            Crea una cuenta con contraseña definida manualmente.
-                            El usuario podrá iniciar sesión inmediatamente.
+                        <DialogTitle className="text-base font-medium text-neutral-900">
+                            Crear nuevo usuario
+                        </DialogTitle>
+                        <DialogDescription className="text-xs text-neutral-500">
+                            Crea una cuenta con contraseña definida manualmente. El usuario podrá iniciar sesión inmediatamente.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4 py-2">
+                    <div className="space-y-5 py-2">
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Nombre</Label>
-                                <Input
+                            <div className="space-y-1">
+                                <label className="text-xs text-neutral-500 block">Nombre</label>
+                                <input
+                                    type="text"
                                     value={createForm.firstName}
                                     onChange={e => setCreateForm({ ...createForm, firstName: e.target.value })}
                                     placeholder="Ej: Juan"
+                                    className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label>Apellido</Label>
-                                <Input
+                            <div className="space-y-1">
+                                <label className="text-xs text-neutral-500 block">Apellido</label>
+                                <input
+                                    type="text"
                                     value={createForm.lastName}
                                     onChange={e => setCreateForm({ ...createForm, lastName: e.target.value })}
                                     placeholder="Ej: Pérez"
+                                    className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label>Correo Electrónico</Label>
-                            <Input
+                        <div className="space-y-1">
+                            <label className="text-xs text-neutral-500 block">Correo electrónico</label>
+                            <input
                                 type="email"
                                 value={createForm.email}
                                 onChange={e => setCreateForm({ ...createForm, email: e.target.value })}
                                 placeholder="usuario@empresa.com"
+                                className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <Label>Contraseña Inicial</Label>
-                            <Input
+                        <div className="space-y-1">
+                            <label className="text-xs text-neutral-500 block">Contraseña inicial</label>
+                            <input
                                 type="text"
                                 value={createForm.password}
                                 onChange={e => setCreateForm({ ...createForm, password: e.target.value })}
                                 placeholder="Clave segura..."
+                                className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
                             />
-                            <p className="text-[10px] text-zinc-500">Mínimo 6 caracteres.</p>
+                            <p className="text-[11px] text-neutral-400">Mínimo 6 caracteres.</p>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label>Rol Inicial</Label>
-                            <Select
+                        <div className="space-y-1.5">
+                            <label className="text-xs text-neutral-500 block">Rol inicial</label>
+                            <CustomDropdown
                                 value={createForm.role}
-                                onValueChange={v => setCreateForm({ ...createForm, role: v })}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Seleccionar Rol" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="tecnico">Técnico</SelectItem>
-                                    <SelectItem value="mecanico">Mecánico</SelectItem>
-                                    <SelectItem value="admin">Administrador</SelectItem>
-                                    <SelectItem value="gerencia">Gerencia</SelectItem>
-                                    <SelectItem value="supervisor">Supervisor</SelectItem>
-                                    <SelectItem value="reportes">Supervisión</SelectItem>
-                                    <SelectItem value="chofer">Chofer</SelectItem>
-                                    <SelectItem value="geodata">Zonas Operativas</SelectItem>
-                                    <SelectItem value="invitado">Invitado</SelectItem>
-                                </SelectContent>
-                            </Select>
+                                onChange={v => setCreateForm({ ...createForm, role: v })}
+                                options={ROLE_OPTIONS}
+                                placeholder="Seleccionar rol"
+                            />
                         </div>
                     </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancelar</Button>
-                        <Button onClick={handleCreateUser} disabled={creating} className="bg-zinc-900 text-white hover:bg-zinc-800">
-                            {creating ? "Creando..." : "Crear Cuenta"}
-                        </Button>
+                    <DialogFooter className="mt-4 flex flex-row items-center justify-end gap-5">
+                        <button
+                            type="button"
+                            onClick={() => setIsCreateOpen(false)}
+                            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleCreateUser}
+                            disabled={creating}
+                            className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
+                        >
+                            {creating ? "Creando..." : "Crear cuenta"}
+                        </button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -725,30 +710,61 @@ export default function AdminUsersPage() {
             <Dialog open={!!resetPasswordUser} onOpenChange={(open) => !open && setResetPasswordUser(null)}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Cambiar Contraseña</DialogTitle>
-                        <DialogDescription>
-                            Asigna una nueva contraseña a <span className="font-bold">{resetPasswordUser?.email}</span>.
+                        <DialogTitle className="text-base font-medium text-neutral-900">
+                            Cambiar contraseña
+                        </DialogTitle>
+                        <DialogDescription className="text-xs text-neutral-500">
+                            Asigna una nueva contraseña a <span className="font-medium text-neutral-900">{resetPasswordUser?.email}</span>.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <Label>Nueva Contraseña Temporal</Label>
-                            <Input
+                    <div className="space-y-4 py-2">
+                        <div className="space-y-1">
+                            <label className="text-xs text-neutral-500 block">Nueva contraseña temporal</label>
+                            <input
                                 type="text"
                                 value={resetPasswordValue}
                                 onChange={e => setResetPasswordValue(e.target.value)}
                                 placeholder="Ej: Temporal123"
+                                className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
                             />
                         </div>
                     </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setResetPasswordUser(null)}>Cancelar</Button>
-                        <Button onClick={handleResetPassword} disabled={resettingPassword} className="bg-amber-600 text-white hover:bg-amber-700">
-                            {resettingPassword ? "Guardando..." : "Guardar Clave"}
-                        </Button>
+                    <DialogFooter className="mt-4 flex flex-row items-center justify-end gap-5">
+                        <button
+                            type="button"
+                            onClick={() => setResetPasswordUser(null)}
+                            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleResetPassword}
+                            disabled={resettingPassword}
+                            className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
+                        >
+                            {resettingPassword ? "Guardando..." : "Guardar clave"}
+                        </button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* IMPERSONATE CONFIRM DIALOG */}
+            <DeleteConfirmDialog
+                open={!!impersonateEmail}
+                onOpenChange={(open) => !open && setImpersonateEmail(null)}
+                title="Iniciar sesión como este usuario"
+                description={
+                    <>
+                        Tu sesión de administrador actual se cerrará al ingresar como{" "}
+                        <span className="font-medium text-neutral-900">{impersonateEmail}</span>.
+                        Deberás volver a iniciar sesión para regresar al panel de administración.
+                    </>
+                }
+                confirmLabel="Continuar"
+                destructive={false}
+                onConfirm={executeImpersonate}
+            />
         </div>
     )
 }

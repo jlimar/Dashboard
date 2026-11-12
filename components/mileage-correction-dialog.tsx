@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
-import { Loader2, AlertTriangle, Save, CheckCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Loader2, AlertTriangle, Save } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import {
     Dialog,
@@ -88,56 +87,53 @@ export function MileageCorrectionDialog({ isOpen, onClose, vehicleId, vehicleNam
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px] rounded-3xl border-zinc-200 shadow-2xl">
-                <DialogHeader>
-                    <DialogTitle className="text-xl font-bold text-zinc-900">Corregir Kilometraje</DialogTitle>
-                    <DialogDescription className="text-zinc-500">
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader className="pb-4 border-b border-neutral-100">
+                    <DialogTitle className="text-lg font-medium text-neutral-900">Corregir kilometraje</DialogTitle>
+                    <DialogDescription className="text-sm text-neutral-500">
                         {vehicleName}
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="py-4">
+                <div className="py-2">
                     {analyzing ? (
-                        <div className="flex flex-col items-center justify-center py-6 gap-2 text-zinc-500">
-                            <Loader2 className="animate-spin" />
-                            <span className="text-sm">Buscando origen del dato...</span>
+                        <div className="flex flex-col items-center justify-center py-6 gap-2 text-neutral-400">
+                            <Loader2 className="animate-spin w-4 h-4" />
+                            <span className="text-xs">Buscando origen del dato...</span>
                         </div>
                     ) : error ? (
-                        <div className="p-4 bg-yellow-50 text-yellow-800 rounded-xl flex gap-3 items-start text-sm">
-                            <AlertTriangle className="shrink-0 mt-0.5" size={16} />
+                        <div className="py-2 flex gap-2 items-start text-xs text-neutral-600">
+                            <AlertTriangle className="shrink-0 mt-0.5 w-4 h-4 text-neutral-500" strokeWidth={1.5} />
                             <p>{error}</p>
                         </div>
                     ) : (
-                        <div className="space-y-6">
-                            {/* Source Info Card */}
-                            <div className="p-4 bg-zinc-50 border border-zinc-100 rounded-2xl space-y-2">
+                        <div className="space-y-5">
+                            {/* Source Info */}
+                            <div className="pb-4 border-b border-neutral-100 space-y-1.5">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Origen Detectado</span>
-                                    {source?.type === 'fuel_log' ? (
-                                        <div className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full">CARGA COMBUSTIBLE</div>
-                                    ) : (
-                                        <div className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full">REPORTE</div>
-                                    )}
+                                    <span className="text-xs text-neutral-400">Origen detectado</span>
+                                    <span className="text-xs text-neutral-500">
+                                        {source?.type === 'fuel_log' ? 'Carga de combustible' : 'Reporte'}
+                                    </span>
                                 </div>
-                                <div className="font-medium text-zinc-900 flex items-center gap-2">
-                                    <CheckCircle size={16} className="text-emerald-500" />
+                                <div className="text-sm font-medium text-neutral-900">
                                     {source?.description}
                                 </div>
-                                <p className="text-xs text-zinc-500">
+                                <p className="text-xs text-neutral-400">
                                     Registrado el: {source?.date ? new Date(source.date).toLocaleDateString() : 'N/A'}
                                 </p>
                             </div>
 
                             {/* Input Field */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-zinc-700">Nuevo Kilometraje</label>
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-medium text-neutral-500">Nuevo kilometraje</label>
                                 <Input
                                     type="number"
                                     value={newMileage}
                                     onChange={(e) => setNewMileage(e.target.value)}
-                                    className="h-12 text-lg font-mono"
+                                    className="text-base font-mono"
                                 />
-                                <p className="text-xs text-zinc-400">
+                                <p className="text-xs text-neutral-400">
                                     Esto modificará directamente el registro original.
                                 </p>
                             </div>
@@ -145,19 +141,25 @@ export function MileageCorrectionDialog({ isOpen, onClose, vehicleId, vehicleNam
                     )}
                 </div>
 
-                <DialogFooter className="gap-2 sm:gap-0">
-                    <Button variant="outline" onClick={onClose} className="rounded-xl h-12">
+                <DialogFooter className="flex-row items-center justify-end gap-5 pt-4 border-t border-neutral-100">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        disabled={loading}
+                        className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors disabled:opacity-40"
+                    >
                         Cancelar
-                    </Button>
-                    <Button
+                    </button>
+                    <button
+                        type="button"
                         onClick={handleSave}
                         disabled={loading || analyzing || !!error}
-                        className="rounded-xl h-12 bg-black hover:bg-zinc-800 text-white gap-2"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
                     >
-                        {loading && <Loader2 className="animate-spin" size={16} />}
-                        <Save size={18} />
-                        Guardar Corrección
-                    </Button>
+                        {loading && <Loader2 className="animate-spin w-3.5 h-3.5" />}
+                        <Save className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        Guardar corrección
+                    </button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

@@ -7,7 +7,7 @@ import { getFleetStatus } from "./actions"
 import { LiveFleetDashboard } from "./components/live-fleet-dashboard"
 import { RealtimeNotifications } from "./components/realtime-notifications"
 import { NotificationBell } from "./components/notification-bell"
-import { Bell } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -21,27 +21,28 @@ export default async function GerenciaDashboard() {
     const fleet = await getFleetStatus()
 
     return (
-        <main className="min-h-screen bg-zinc-50 p-4 md:p-12 pb-24">
+        <main className="min-h-screen bg-white text-neutral-900 p-4 md:p-12 pb-24">
             <RealtimeNotifications />
 
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* HEADER */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-6 border-b border-neutral-100">
                     <div>
-                        <h1 className="text-3xl md:text-4xl font-bold text-zinc-900 tracking-tight">Centro de Control</h1>
-                        <p className="text-zinc-500 font-medium mt-2 text-base md:text-lg">Monitoreo de flota y operaciones en tiempo real.</p>
+                        <h1 className="text-2xl md:text-3xl font-light text-neutral-900 tracking-tight">Centro de control</h1>
+                        <p className="text-neutral-500 mt-1 text-sm md:text-base">Monitoreo de flota y operaciones en tiempo real.</p>
                     </div>
 
-                    <div className="flex gap-3 items-center">
+                    <div className="flex gap-5 items-center">
                         <NotificationBell />
-                        <Link href="/" className="flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 bg-transparent hover:bg-white/50 px-4 py-2 rounded-full transition-all duration-300">
-                            ⬅ Volver al Menú
+                        <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-900 transition-colors">
+                            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            Volver al menú
                         </Link>
                     </div>
                 </div>
 
                 {/* MAIN DASHBOARD */}
-                <Suspense fallback={<div className="h-96 flex items-center justify-center">Cargando flota...</div>}>
+                <Suspense fallback={<div className="h-96 flex items-center justify-center text-sm text-neutral-400">Cargando flota...</div>}>
                     <LiveFleetDashboard vehicles={fleet} />
                 </Suspense>
             </div>

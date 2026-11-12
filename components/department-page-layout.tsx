@@ -9,38 +9,34 @@ interface DepartmentPageProps {
     colorClass: string
 }
 
-export function DepartmentPageLayout({ title, description, icon: Icon, colorClass }: DepartmentPageProps) {
+export function DepartmentPageLayout({ title, description, icon: Icon }: DepartmentPageProps) {
     return (
-        <main className="min-h-screen bg-zinc-50 pb-20">
+        <main className="min-h-screen bg-background pb-20">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-12">
                 {/* HEADER */}
-                <div className="flex justify-between items-end mb-12">
+                <div className="flex justify-between items-end pb-8 mb-10 border-b border-neutral-100">
                     <div>
-                        <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">{title}</h1>
-                        <p className="text-zinc-500 font-medium mt-1">{description}</p>
+                        <h1 className="text-3xl font-light text-neutral-900 tracking-tight">{title}</h1>
+                        <p className="text-neutral-500 text-sm mt-1">{description}</p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-4">
                         <a
                             href="/"
-                            className="p-2 text-zinc-400 hover:text-zinc-900 transition-colors rounded-full hover:bg-zinc-100 flex items-center justify-center"
+                            className="text-neutral-400 hover:text-neutral-900 transition-colors flex items-center justify-center"
                             title="Ir al inicio"
                         >
-                            <HomeIcon size={24} />
+                            <HomeIcon className="w-4 h-4" strokeWidth={1.5} />
                         </a>
                         <LogoutButton />
                     </div>
                 </div>
 
                 {/* CONTENT PLACEHOLDER */}
-                <div className="bg-white rounded-[32px] p-12 border border-zinc-200 text-center shadow-sm">
-                    <div className={`w-20 h-20 mx-auto rounded-3xl ${colorClass} bg-opacity-10 flex items-center justify-center mb-6`}>
-                        <Icon size={40} className={colorClass.replace('bg-', 'text-')} />
-                    </div>
-                    <h2 className="text-xl font-semibold text-zinc-900 mb-2">Panel de {title}</h2>
-                    <p className="text-zinc-500 max-w-md mx-auto">
-                        Este módulo está habilitado para el departamento de {title}.
-                        <br />
-                        Las funciones específicas estarán disponibles pronto.
+                <div className="py-16 border-b border-neutral-100 text-center space-y-3">
+                    <Icon className="w-6 h-6 mx-auto text-neutral-400" strokeWidth={1.25} />
+                    <h2 className="text-lg font-medium text-neutral-900">Panel de {title}</h2>
+                    <p className="text-sm text-neutral-500 max-w-md mx-auto">
+                        Este módulo está habilitado para el departamento de {title}. Las funciones específicas estarán disponibles pronto.
                     </p>
                 </div>
             </div>

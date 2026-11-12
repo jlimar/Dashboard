@@ -2,15 +2,13 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Home as HomeIcon, Truck, LogOut, ArrowRight, AlertTriangle, Car, Fuel, MapPin, QrCode, FileText } from "lucide-react"
+import { Home as HomeIcon, Truck, LogOut, AlertTriangle, Car, Fuel, QrCode } from "lucide-react"
 import { LogoutButton } from "@/components/ui/logout-button"
 import { useSearchParams, useRouter } from "next/navigation"
 import { SalidaFormDialog } from "@/components/salida-form-dialog"
 import { EntradaFormDialog } from "@/components/entrada-form-dialog"
 import { ReportFaultDialog } from "@/components/report-fault-dialog"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { toast } from "sonner"
 import QRCode from "react-qr-code"
 import Link from "next/link"
@@ -298,30 +296,30 @@ export default function TransportePage() {
     // --- RENDER HELPERS ---
 
     if (loading) {
-        return <div className="min-h-screen flex items-center justify-center bg-zinc-50 text-zinc-400">Cargando panel...</div>
+        return <div className="min-h-screen flex items-center justify-center bg-white text-sm text-neutral-400">Cargando panel...</div>
     }
 
     return (
-        <main className="min-h-screen bg-zinc-50 pb-20">
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-12">
+        <main className="min-h-screen bg-white text-neutral-900 pb-20">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-10 md:pt-14">
 
                 {/* HEADER STANDARDIZED */}
-                <div className="flex justify-between items-end mb-12">
+                <div className="flex justify-between items-end pb-6 mb-8 border-b border-neutral-100">
                     <div>
-                        <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wide mb-1">
-                            {assignedVehicle ? "Modo Chofer" : "Panel de Operaciones"}
-                        </h2>
-                        <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">
+                        <p className="text-xs text-neutral-400 mb-1">
+                            {assignedVehicle ? "Modo chofer" : "Panel de operaciones"}
+                        </p>
+                        <h1 className="text-2xl font-light tracking-tight text-neutral-900">
                             Hola, {profile?.first_name || 'Usuario'}
                         </h1>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-4">
                         <Link
                             href="/"
-                            className="p-2 text-zinc-400 hover:text-zinc-900 transition-colors rounded-full hover:bg-zinc-100 flex items-center justify-center"
+                            className="p-1 text-neutral-400 hover:text-neutral-900 transition-colors flex items-center justify-center"
                             title="Ir al inicio"
                         >
-                            <HomeIcon size={24} />
+                            <HomeIcon className="w-4 h-4" strokeWidth={1.5} />
                         </Link>
                         <LogoutButton />
                     </div>
@@ -329,12 +327,11 @@ export default function TransportePage() {
 
                 {/* DRIVER SPECIFIC HEADER */}
                 {assignedVehicle && (
-                    <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
-                        <div className="bg-white rounded-[2rem] p-6 border border-zinc-100 shadow-sm relative"> {/* Removed overflow-hidden to allow absolute if needed, but top-6 is fine inside */}
-
-                            {/* [MOVED] Cambio de Unidad - Absolute Top Right of Card */}
-                            <Button
-                                variant="ghost"
+                    <div className="pb-8 mb-6 border-b border-neutral-100 animate-in fade-in slide-in-from-top-4 duration-500">
+                        <div className="flex items-center justify-between gap-4 mb-4">
+                            <span className="text-xs text-neutral-500">Vehículo asignado</span>
+                            <button
+                                type="button"
                                 disabled={!!activeTripReport} // [FIX] Disable if in trip
                                 onClick={() => {
                                     if (activeTripReport) {
@@ -343,90 +340,86 @@ export default function TransportePage() {
                                     }
                                     setVehicleSelectOpen(true)
                                 }}
-                                className={`absolute top-6 right-6 h-10 px-4 rounded-xl text-xs font-semibold flex items-center gap-2 ${activeTripReport ? 'text-zinc-300 cursor-not-allowed' : 'text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50'}`}
+                                className={`text-xs inline-flex items-center gap-1.5 transition-colors ${activeTripReport ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-500 hover:text-neutral-900'}`}
                             >
-                                <Car size={16} />
-                                Cambiar Unidad
-                            </Button>
+                                <Car className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                Cambiar unidad
+                            </button>
+                        </div>
 
-                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mt-2"> {/* Added margin top to avoid overlap if on mobile */}
-                                <div>
-                                    <h3 className="text-zinc-400 text-xs font-bold uppercase tracking-widest mb-2">Vehículo Asignado</h3>
-                                    <div className="flex items-center gap-4">
-                                        {/* [NEW] Image Logic */}
-                                        {(assignedVehicle.foto_url || assignedVehicle.modelo.toUpperCase().includes('MITSUBISHI L300')) ? (
-                                            <div className="h-16 w-16 bg-zinc-100 rounded-2xl flex items-center justify-center overflow-hidden border border-zinc-200">
-                                                <img
-                                                    src={assignedVehicle.foto_url || "/vehicles/mitsubishi_l300.png"}
-                                                    alt={assignedVehicle.modelo}
-                                                    className="h-full w-full object-cover"
-                                                />
-                                            </div>
-                                        ) : (
-                                            <div className="h-16 w-16 bg-zinc-100 rounded-2xl flex items-center justify-center text-zinc-900">
-                                                <Car size={32} />
-                                            </div>
-                                        )}
-                                        <div>
-                                            <h2 className="text-2xl font-bold text-zinc-900 leading-tight">{assignedVehicle.modelo}</h2>
-                                            <div className="flex items-center gap-3 mt-1">
-                                                <span className="font-mono text-zinc-500 bg-zinc-50 px-2 py-0.5 rounded-lg border border-zinc-200 text-sm">
-                                                    {assignedVehicle.placa}
-                                                </span>
-                                                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold border border-blue-100">
-                                                    <Fuel size={12} />
-                                                    {assignedVehicle.current_fuel_level || 0}%
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <div className="flex items-center gap-4">
+                            {(assignedVehicle.foto_url || assignedVehicle.modelo.toUpperCase().includes('MITSUBISHI L300')) ? (
+                                <div className="h-14 w-14 bg-neutral-50 rounded-md flex items-center justify-center overflow-hidden shrink-0">
+                                    <img
+                                        src={assignedVehicle.foto_url || "/vehicles/mitsubishi_l300.png"}
+                                        alt={assignedVehicle.modelo}
+                                        className="h-full w-full object-cover"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="h-14 w-14 bg-neutral-50 rounded-md flex items-center justify-center text-neutral-400 shrink-0">
+                                    <Car className="w-6 h-6" strokeWidth={1.5} />
+                                </div>
+                            )}
+                            <div>
+                                <h2 className="text-xl font-medium text-neutral-900 leading-tight">{assignedVehicle.modelo}</h2>
+                                <div className="flex items-center gap-3 mt-1 text-xs text-neutral-500">
+                                    <span className="font-mono">{assignedVehicle.placa}</span>
+                                    <span>·</span>
+                                    <span className="inline-flex items-center gap-1">
+                                        <Fuel className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                        {assignedVehicle.current_fuel_level || 0}%
+                                    </span>
                                 </div>
                             </div>
+                        </div>
 
-                            <div className="flex gap-2 relative mt-4">
-                                {/* QR BUTTON FOR DRIVER (Centered or full width on mobile) */}
-                                <Dialog open={qrOpen} onOpenChange={setQrOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button className="h-14 px-6 rounded-2xl bg-black text-white hover:bg-zinc-800 shadow-lg shadow-zinc-200/50 active:scale-95 transition-all text-sm font-semibold flex items-center gap-2 w-full sm:w-auto justify-center">
-                                            <QrCode size={18} />
-                                            <span>Código de Combustible</span>
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-md bg-white border-none shadow-2xl rounded-[2.5rem] p-8 flex flex-col items-center">
-                                        <DialogHeader>
-                                            <DialogTitle className="text-center text-2xl font-bold">Código de Carga</DialogTitle>
-                                            <DialogDescription className="text-center text-zinc-400">Autorización Digital</DialogDescription>
-                                        </DialogHeader>
-                                        <div className="p-6 bg-white border border-zinc-100 shadow-lg rounded-[2rem] mb-4 w-full max-w-[280px]">
-                                            <div style={{ height: "auto", margin: "0 auto", width: "100%" }}>
-                                                <QRCode
-                                                    size={256}
-                                                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                                                    value={JSON.stringify({
-                                                        type: 'FUEL_AUTH',
-                                                        driverId: profile?.id,
-                                                        vehicleId: assignedVehicle.id,
-                                                        placa: assignedVehicle.placa,
-                                                        driverName: `${profile?.first_name} ${profile?.last_name}`
-                                                    })}
-                                                    viewBox={`0 0 256 256`}
-                                                />
-                                            </div>
+                        <div className="mt-5">
+                            <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+                                <DialogTrigger asChild>
+                                    <button
+                                        type="button"
+                                        className="inline-flex items-center gap-2 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
+                                    >
+                                        <QrCode className="w-4 h-4" strokeWidth={1.5} />
+                                        <span>Código de combustible</span>
+                                    </button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-sm p-6 flex flex-col items-center">
+                                    <DialogHeader className="text-center">
+                                        <DialogTitle className="text-center text-lg font-medium text-neutral-900">Código de carga</DialogTitle>
+                                        <DialogDescription className="text-center text-xs text-neutral-500">Autorización digital</DialogDescription>
+                                    </DialogHeader>
+                                    <div className="p-4 my-2 w-full max-w-[240px]">
+                                        <div style={{ height: "auto", margin: "0 auto", width: "100%" }}>
+                                            <QRCode
+                                                size={256}
+                                                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                                                value={JSON.stringify({
+                                                    type: 'FUEL_AUTH',
+                                                    driverId: profile?.id,
+                                                    vehicleId: assignedVehicle.id,
+                                                    placa: assignedVehicle.placa,
+                                                    driverName: `${profile?.first_name} ${profile?.last_name}`
+                                                })}
+                                                viewBox={`0 0 256 256`}
+                                            />
                                         </div>
-                                        <p className="font-mono text-sm font-bold text-zinc-900 tracking-widest bg-zinc-50 px-4 py-2 rounded-xl border border-zinc-100">
-                                            {assignedVehicle.placa}
-                                        </p>
-                                    </DialogContent>
-                                </Dialog>
-                            </div>
+                                    </div>
+                                    <p className="font-mono text-xs text-neutral-600 tracking-wider">
+                                        {assignedVehicle.placa}
+                                    </p>
+                                </DialogContent>
+                            </Dialog>
                         </div>
                     </div>
                 )}
 
-                {/* UNIFIED ACTION GRID (3 CARDS) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* CARD 1: SALIDA */}
+                {/* UNIFIED ACTION LIST */}
+                <div className="divide-y divide-neutral-100 border-b border-neutral-100">
+                    {/* SALIDA */}
                     <button
+                        type="button"
                         disabled={!!activeTripReport} // [NEW] Disable if in trip
                         onClick={() => {
                             if (activeTripReport) return // Prevent click if disabled check fails
@@ -438,33 +431,29 @@ export default function TransportePage() {
                                 setSalidaOpen(true)
                             }
                         }}
-                        className={`group relative overflow-hidden bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm transition-all duration-300 text-left h-full ${activeTripReport ? 'opacity-60 cursor-not-allowed bg-zinc-50' : 'hover:shadow-xl hover:border-zinc-300'}`}
+                        className="group w-full py-6 flex items-center justify-between gap-4 text-left transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                        <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                            <Truck size={100} />
-                        </div>
-                        <div className="relative z-10 flex flex-col h-full justify-between space-y-6">
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${activeTripReport ? 'bg-zinc-100 text-zinc-400' : 'bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white'}`}>
-                                <Truck size={24} />
-                            </div>
+                        <div className="flex items-start gap-4">
+                            <Truck className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.5} />
                             <div>
-                                <h2 className="text-xl font-bold text-zinc-900 mb-2">
-                                    {activeTripReport ? "En Ruta (Activo)" : "Registrar Salida"}
+                                <h2 className="text-base font-medium text-neutral-900">
+                                    {activeTripReport ? "En ruta (Activo)" : "Registrar salida"}
                                 </h2>
-                                <p className="text-zinc-500 text-sm font-medium">
+                                <p className="text-sm text-neutral-500 mt-0.5">
                                     {activeTripReport ? "Tienes un viaje en curso. Registra la entrada para iniciar otro." : (assignedVehicle ? "Iniciar ruta con tu unidad asignada." : "Seleccionar vehículo del departamento para iniciar ruta.")}
                                 </p>
                             </div>
-                            {!activeTripReport && (
-                                <div className="flex items-center text-indigo-600 font-bold text-sm group-hover:translate-x-1 transition-transform">
-                                    Iniciar <ArrowRight size={16} className="ml-2" />
-                                </div>
-                            )}
                         </div>
+                        {!activeTripReport && (
+                            <span className="text-xs font-medium text-neutral-500 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
+                                Iniciar →
+                            </span>
+                        )}
                     </button>
 
-                    {/* CARD 2: ENTRADA */}
+                    {/* ENTRADA */}
                     <button
+                        type="button"
                         disabled={!activeTripReport} // [NEW] Disable if NOT in trip
                         onClick={() => {
                             if (!activeTripReport) return // Prevent click
@@ -475,33 +464,29 @@ export default function TransportePage() {
                                 setEntradaOpen(true)
                             }
                         }}
-                        className={`group relative overflow-hidden bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm transition-all duration-300 text-left h-full ${!activeTripReport ? 'opacity-60 cursor-not-allowed bg-zinc-50' : 'hover:shadow-xl hover:border-zinc-300'}`}
+                        className="group w-full py-6 flex items-center justify-between gap-4 text-left transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                        <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                            <LogOut size={100} className="scale-x-[-1]" />
-                        </div>
-                        <div className="relative z-10 flex flex-col h-full justify-between space-y-6">
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${!activeTripReport ? 'bg-zinc-100 text-zinc-400' : 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white'}`}>
-                                <LogOut size={24} className="scale-x-[-1]" />
-                            </div>
+                        <div className="flex items-start gap-4">
+                            <LogOut className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0 scale-x-[-1]" strokeWidth={1.5} />
                             <div>
-                                <h2 className="text-xl font-bold text-zinc-900 mb-2">
-                                    {!activeTripReport ? "Sin Viaje Activo" : "Registrar Entrada"}
+                                <h2 className="text-base font-medium text-neutral-900">
+                                    {!activeTripReport ? "Sin viaje activo" : "Registrar entrada"}
                                 </h2>
-                                <p className="text-zinc-500 text-sm font-medium">
+                                <p className="text-sm text-neutral-500 mt-0.5">
                                     {!activeTripReport ? "No tienes un vehículo en ruta actualmente. Registra una salida primero." : (assignedVehicle ? "Finalizar ruta y reportar kilometraje." : "Cerrar ruta, registrar kilometraje y liberar vehículo.")}
                                 </p>
                             </div>
-                            {activeTripReport && (
-                                <div className="flex items-center text-emerald-600 font-bold text-sm group-hover:translate-x-1 transition-transform">
-                                    Registrar <ArrowRight size={16} className="ml-2" />
-                                </div>
-                            )}
                         </div>
+                        {activeTripReport && (
+                            <span className="text-xs font-medium text-neutral-500 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
+                                Registrar →
+                            </span>
+                        )}
                     </button>
 
-                    {/* CARD 3: FALLA */}
+                    {/* FALLA */}
                     <button
+                        type="button"
                         onClick={() => {
                             if (assignedVehicle) {
                                 setSelectedVehicleId(assignedVehicle.id)
@@ -510,25 +495,20 @@ export default function TransportePage() {
                                 startFaultReportingPool()
                             }
                         }}
-                        className="group relative overflow-hidden bg-white rounded-[32px] p-8 border border-zinc-200 shadow-sm hover:shadow-xl hover:border-red-200 transition-all duration-300 text-left h-full"
+                        className="group w-full py-6 flex items-center justify-between gap-4 text-left transition-colors"
                     >
-                        <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-                            <AlertTriangle size={100} />
-                        </div>
-                        <div className="relative z-10 flex flex-col h-full justify-between space-y-6">
-                            <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
-                                <AlertTriangle size={24} />
-                            </div>
+                        <div className="flex items-start gap-4">
+                            <AlertTriangle className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.5} />
                             <div>
-                                <h2 className="text-xl font-bold text-zinc-900 mb-2">Reportar Falla</h2>
-                                <p className="text-zinc-500 text-sm font-medium">
+                                <h2 className="text-base font-medium text-neutral-900">Reportar falla</h2>
+                                <p className="text-sm text-neutral-500 mt-0.5">
                                     {assignedVehicle ? "Notificar avería en tu unidad asignada." : "Notificar avería en un vehículo de la flota."}
                                 </p>
                             </div>
-                            <div className="flex items-center text-red-600 font-bold text-sm group-hover:translate-x-1 transition-transform">
-                                Reportar <ArrowRight size={16} className="ml-2" />
-                            </div>
                         </div>
+                        <span className="text-xs font-medium text-neutral-500 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
+                            Reportar →
+                        </span>
                     </button>
                 </div>
 
@@ -553,7 +533,7 @@ export default function TransportePage() {
 
                 {/* POOL SELECTOR DIALOG */}
                 <Dialog open={vehicleSelectOpen} onOpenChange={setVehicleSelectOpen}>
-                    <DialogContent className="sm:max-w-md rounded-2xl border-none shadow-2xl">
+                    <DialogContent className="sm:max-w-md">
                         <DialogTitle className="sr-only">Seleccionar Vehículo</DialogTitle> {/* [FIX] Accessiblity */}
                         <DialogDescription className="sr-only">
                             Seleccione un vehículo de la lista disponible para operar.
@@ -571,13 +551,19 @@ export default function TransportePage() {
                                 } else {
                                     // [FIX] Handle Deselection (User clicked 'Cambiar')
                                     setSelectedVehicleId("")
-                                    // Do NOT clear assignedVehicle yet, user is just browsing. 
+                                    // Do NOT clear assignedVehicle yet, user is just browsing.
                                 }
                             }}
-                            label="Seleccionar Unidad"
+                            label="Seleccionar unidad"
                         />
-                        <div className="flex justify-end">
-                            <Button variant="ghost" onClick={() => setVehicleSelectOpen(false)} className="rounded-xl mt-2 text-zinc-400">Cancelar</Button>
+                        <div className="flex justify-end pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setVehicleSelectOpen(false)}
+                                className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                            >
+                                Cancelar
+                            </button>
                         </div>
                     </DialogContent>
                 </Dialog>

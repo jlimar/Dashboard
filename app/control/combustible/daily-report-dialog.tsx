@@ -3,15 +3,13 @@
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
-import { CalendarIcon, FileText, Loader2, CheckCircle2 } from "lucide-react"
+import { CalendarIcon, FileText, Loader2 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -87,41 +85,41 @@ export function DailyReportDialog({ onSuccess }: { onSuccess?: () => void }) {
     return (
         <Dialog open={open} onOpenChange={(val) => !val && reset()}>
             <DialogTrigger asChild>
-                <Button
-                    variant="outline"
+                <button
+                    type="button"
                     onClick={() => setOpen(true)}
-                    className="flex-1 md:flex-none gap-2 rounded-xl h-12 bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-sm"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
                 >
-                    <FileText size={18} className="text-indigo-600" />
-                    <span className="md:inline font-medium">Generar Reporte</span>
-                </Button>
+                    <FileText className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                    <span>Generar reporte</span>
+                </button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] rounded-3xl">
-                <DialogHeader>
-                    <DialogTitle className="text-xl font-bold text-center">Generar Reporte Diario</DialogTitle>
-                    <DialogDescription className="text-center">
+            <DialogContent className="sm:max-w-[425px] bg-white/95 backdrop-blur-xs border border-neutral-200/70 shadow-sm p-6 animate-in fade-in zoom-in-95 duration-150">
+                <DialogHeader className="text-left space-y-1.5">
+                    <DialogTitle className="text-base font-medium text-neutral-900">Generar reporte diario</DialogTitle>
+                    <DialogDescription className="text-sm text-neutral-500">
                         Selecciona la fecha para consolidar el reporte de combustible.
                     </DialogDescription>
                 </DialogHeader>
 
                 {!successData ? (
-                    <div className="py-6 space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-700 ml-1">Fecha del Reporte</label>
+                    <div className="pt-4 space-y-6">
+                        <div className="space-y-1.5">
+                            <label className="text-xs text-neutral-500">Fecha del reporte</label>
                             <Popover>
                                 <PopoverTrigger asChild>
-                                    <Button
-                                        variant={"outline"}
+                                    <button
+                                        type="button"
                                         className={cn(
-                                            "w-full h-14 rounded-xl justify-start text-left font-normal border-slate-200 text-base",
-                                            !date && "text-muted-foreground"
+                                            "w-full flex items-center gap-2 bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-left outline-none transition-colors",
+                                            date ? "text-neutral-900" : "text-neutral-400"
                                         )}
                                     >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        <CalendarIcon className="h-3.5 w-3.5 text-neutral-400" strokeWidth={1.5} />
                                         {date ? format(date, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
-                                    </Button>
+                                    </button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="center">
+                                <PopoverContent className="w-auto p-0 bg-white/95 backdrop-blur-xs border border-neutral-200/70 shadow-sm" align="center">
                                     <Calendar
                                         mode="single"
                                         selected={date}
@@ -132,40 +130,57 @@ export function DailyReportDialog({ onSuccess }: { onSuccess?: () => void }) {
                             </Popover>
                         </div>
 
-                        <Button
-                            onClick={handleGenerate}
-                            disabled={loading}
-                            className="w-full h-14 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-lg font-bold shadow-lg shadow-indigo-200"
-                        >
-                            {loading ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Generando...</> : "Generar Reporte"}
-                        </Button>
+                        <div className="flex items-center justify-end gap-5 pt-2">
+                            <button
+                                type="button"
+                                onClick={reset}
+                                className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleGenerate}
+                                disabled={loading}
+                                className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                            >
+                                {loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generando...</> : "Generar reporte"}
+                            </button>
+                        </div>
                     </div>
                 ) : (
-                    <div className="py-8 flex flex-col items-center animate-in fade-in zoom-in duration-300">
-                        <div className="h-16 w-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
-                            <CheckCircle2 size={32} />
-                        </div>
-                        <h3 className="text-2xl font-bold text-slate-900 mb-1">¡Reporte Guardado!</h3>
-                        <p className="text-slate-500 text-center mb-6">El reporte ha sido archivado exitosamente.</p>
-
-                        <div className="bg-slate-50 rounded-2xl p-4 w-full grid grid-cols-2 gap-4 text-center mb-6">
-                            <div>
-                                <p className="text-xs font-bold uppercase text-slate-400">Total Litros</p>
-                                <p className="text-xl font-bold text-slate-900">{successData.total.toFixed(2)} L</p>
-                            </div>
-                            <div>
-                                <p className="text-xs font-bold uppercase text-slate-400">Registros</p>
-                                <p className="text-xl font-bold text-slate-900">{successData.count}</p>
-                            </div>
+                    <div className="pt-4 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+                        <div>
+                            <h3 className="text-base font-medium text-neutral-900">Reporte guardado</h3>
+                            <p className="text-xs text-neutral-500 mt-1">El reporte ha sido archivado exitosamente.</p>
                         </div>
 
-                        <div className="flex flex-col gap-3 w-full">
-                            <Button onClick={handleWhatsApp} className="w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 font-bold text-white shadow-lg shadow-green-200">
-                                Enviar por WhatsApp
-                            </Button>
-                            <Button variant="ghost" onClick={reset} className="w-full h-12 rounded-xl">
+                        <div className="grid grid-cols-2 gap-6 py-4 border-y border-neutral-100">
+                            <div className="flex flex-col">
+                                <span className="text-xs text-neutral-500 font-normal">Total litros</span>
+                                <span className="text-2xl font-light tracking-tight text-neutral-900 mt-0.5 tabular-nums">{successData.total.toFixed(2)} L</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-xs text-neutral-500 font-normal">Registros</span>
+                                <span className="text-2xl font-light tracking-tight text-neutral-900 mt-0.5 tabular-nums">{successData.count}</span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-end gap-5">
+                            <button
+                                type="button"
+                                onClick={reset}
+                                className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                            >
                                 Cerrar
-                            </Button>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleWhatsApp}
+                                className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
+                            >
+                                Enviar por WhatsApp
+                            </button>
                         </div>
                     </div>
                 )}
