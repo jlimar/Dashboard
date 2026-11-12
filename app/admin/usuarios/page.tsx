@@ -39,6 +39,7 @@ type Profile = {
     department?: string
     job_title?: string
     plain_text_reports?: boolean
+    national_id?: string
 }
 
 const ROLE_OPTIONS = [
@@ -377,9 +378,16 @@ export default function AdminUsersPage() {
                                     <TableRow key={profile.id} className="group hover:bg-neutral-50/50 transition-colors border-b border-neutral-100">
                                         <TableCell className="pl-0 py-3.5">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-medium text-neutral-900">
-                                                    {fullName || "Sin nombre"}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm font-medium text-neutral-900">
+                                                        {fullName || "Sin nombre"}
+                                                    </span>
+                                                    {profile.national_id && (
+                                                        <span className="text-xs font-mono text-neutral-400 font-normal">
+                                                            {profile.national_id}
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <span className="text-xs text-neutral-400 mt-0.5">
                                                     {profile.email}
                                                 </span>
