@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Home as HomeIcon, Truck, LogOut, AlertTriangle, Car, Fuel, QrCode } from "lucide-react"
+import { Home as HomeIcon, ArrowUpRight, ArrowDownLeft, Wrench, Car, Fuel, QrCode } from "lucide-react"
 import { LogoutButton } from "@/components/ui/logout-button"
 import { useSearchParams, useRouter } from "next/navigation"
 import { SalidaFormDialog } from "@/components/salida-form-dialog"
@@ -360,7 +360,7 @@ export default function TransportePage() {
                                 </div>
                             ) : (
                                 <div className="h-14 w-14 bg-neutral-50 rounded-md flex items-center justify-center text-neutral-400 shrink-0">
-                                    <Car className="w-6 h-6" strokeWidth={1.5} />
+                                    <Car className="w-6 h-6" strokeWidth={1.25} />
                                 </div>
                             )}
                             <div>
@@ -369,7 +369,7 @@ export default function TransportePage() {
                                     <span className="font-mono">{assignedVehicle.placa}</span>
                                     <span>·</span>
                                     <span className="inline-flex items-center gap-1">
-                                        <Fuel className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                        <Fuel className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.25} />
                                         {assignedVehicle.current_fuel_level || 0}%
                                     </span>
                                 </div>
@@ -383,7 +383,7 @@ export default function TransportePage() {
                                         type="button"
                                         className="inline-flex items-center gap-2 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
                                     >
-                                        <QrCode className="w-4 h-4" strokeWidth={1.5} />
+                                        <QrCode className="w-4 h-4" strokeWidth={1.25} />
                                         <span>Código de combustible</span>
                                     </button>
                                 </DialogTrigger>
@@ -436,7 +436,7 @@ export default function TransportePage() {
                         className="group w-full py-6 flex items-center justify-between gap-4 text-left transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         <div className="flex items-start gap-4">
-                            <Truck className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.5} />
+                            <ArrowUpRight className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.25} />
                             <div>
                                 <h2 className="text-base font-medium text-neutral-900">
                                     {activeTripReport ? "En ruta (Activo)" : "Registrar salida"}
@@ -469,7 +469,7 @@ export default function TransportePage() {
                         className="group w-full py-6 flex items-center justify-between gap-4 text-left transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         <div className="flex items-start gap-4">
-                            <LogOut className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0 scale-x-[-1]" strokeWidth={1.5} />
+                            <ArrowDownLeft className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.25} />
                             <div>
                                 <h2 className="text-base font-medium text-neutral-900">
                                     {!activeTripReport ? "Sin viaje activo" : "Registrar entrada"}
@@ -500,7 +500,7 @@ export default function TransportePage() {
                         className="group w-full py-6 flex items-center justify-between gap-4 text-left transition-colors"
                     >
                         <div className="flex items-start gap-4">
-                            <AlertTriangle className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.5} />
+                            <Wrench className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.25} />
                             <div>
                                 <h2 className="text-base font-medium text-neutral-900">Reportar falla</h2>
                                 <p className="text-sm text-neutral-500 mt-0.5">

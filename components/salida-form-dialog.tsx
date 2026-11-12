@@ -448,7 +448,7 @@ export function SalidaFormDialog({ isOpen, onClose, initialVehicleId, onSuccess 
 
                 {step === 'success' ? (
                     <div className="p-8 flex flex-col items-center justify-center text-center space-y-5 min-h-[360px]">
-                        <CheckCircle className="w-8 h-8 text-neutral-900" strokeWidth={1.5} />
+                        <CheckCircle className="w-8 h-8 text-neutral-900" strokeWidth={1.25} />
                         <div className="space-y-1">
                             <h2 className="text-lg font-medium text-neutral-900">¡Salida registrada!</h2>
                             <p className="text-neutral-500 text-sm">El vehículo ha sido despachado correctamente.</p>
@@ -460,7 +460,7 @@ export function SalidaFormDialog({ isOpen, onClose, initialVehicleId, onSuccess 
                                 onClick={() => window.location.href = `https://wa.me/?text=${encodeURIComponent(whatsappText)}`}
                                 className="inline-flex items-center justify-center gap-2 text-sm font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
                             >
-                                <Send className="w-4 h-4" strokeWidth={1.5} />
+                                <Send className="w-4 h-4" strokeWidth={1.25} />
                                 Reportar en WhatsApp
                             </button>
                             <button
@@ -752,7 +752,7 @@ export function SalidaFormDialog({ isOpen, onClose, initialVehicleId, onSuccess 
                                             className="text-neutral-400 hover:text-neutral-900 transition-colors p-1 shrink-0"
                                             aria-label="Agregar falla"
                                         >
-                                            <Plus className="w-4 h-4" strokeWidth={1.5} />
+                                            <Plus className="w-4 h-4" strokeWidth={1.25} />
                                         </button>
                                     </div>
 

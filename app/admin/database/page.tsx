@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowLeft, Fuel, Loader2, Stethoscope, CheckCircle2, X } from "lucide-react"
+import { ArrowLeft, Loader2, CheckCircle2, X } from "lucide-react"
 import Link from "next/link"
 import { LogoutButton } from "@/components/ui/logout-button"
 import { useState } from "react"
@@ -129,12 +129,9 @@ export default function DatabaseManagementPage() {
                     {/* FUEL RESET */}
                     <section className="py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                                <Fuel className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
-                                <h2 className="text-sm font-medium text-neutral-900">
-                                    Reiniciar combustible
-                                </h2>
-                            </div>
+                            <h2 className="text-sm font-medium text-neutral-900">
+                                Reiniciar combustible
+                            </h2>
                             <p className="text-xs text-neutral-500">
                                 Borra el historial de carga de combustible. Conserva vehículos y conductores.
                             </p>
@@ -158,14 +155,11 @@ export default function DatabaseManagementPage() {
                     <section className="py-6 space-y-4">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                    <Stethoscope className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
-                                    <h2 className="text-sm font-medium text-neutral-900">
-                                        Verificador de salud
-                                    </h2>
-                                </div>
+                                <h2 className="text-sm font-medium text-neutral-900">
+                                    Verificador de integridad
+                                </h2>
                                 <p className="text-xs text-neutral-500">
-                                    Detecta inconsistencias en la base de datos.
+                                    Detecta inconsistencias o registros huérfanos en la base de datos.
                                 </p>
                             </div>
                             <button
@@ -177,7 +171,7 @@ export default function DatabaseManagementPage() {
                                 {integrityLoading ? (
                                     <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.5} />
                                 ) : (
-                                    <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                    <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.25} />
                                 )}
                                 Escanear base de datos
                             </button>

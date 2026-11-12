@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { AlertTriangle, Car, ArrowRightLeft, Clock, X, Loader2, CheckCircle } from "lucide-react"
+import { AlertTriangle, ArrowUpRight, ArrowDownLeft, CheckCircle2, Clock, X, Loader2 } from "lucide-react"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import type { NotificationItem } from "../actions"
@@ -49,11 +49,11 @@ export function NotificationList({ initialNotifications }: { initialNotification
 
     const getIcon = (type: string) => {
         switch (type) {
-            case 'FALLA': return <AlertTriangle className="w-4 h-4 text-neutral-500" strokeWidth={1.5} />
-            case 'SALIDA': return <Car className="w-4 h-4 text-neutral-500" strokeWidth={1.5} />
-            case 'ENTRADA': return <ArrowRightLeft className="w-4 h-4 text-neutral-500" strokeWidth={1.5} />
-            case 'REPARACION': return <CheckCircle className="w-4 h-4 text-neutral-500" strokeWidth={1.5} />
-            default: return <Clock className="w-4 h-4 text-neutral-500" strokeWidth={1.5} />
+            case 'FALLA': return <AlertTriangle className="w-3.5 h-3.5 text-neutral-500" strokeWidth={1.25} />
+            case 'SALIDA': return <ArrowUpRight className="w-3.5 h-3.5 text-neutral-500" strokeWidth={1.25} />
+            case 'ENTRADA': return <ArrowDownLeft className="w-3.5 h-3.5 text-neutral-500" strokeWidth={1.25} />
+            case 'REPARACION': return <CheckCircle2 className="w-3.5 h-3.5 text-neutral-500" strokeWidth={1.25} />
+            default: return <Clock className="w-3.5 h-3.5 text-neutral-500" strokeWidth={1.25} />
         }
     }
 

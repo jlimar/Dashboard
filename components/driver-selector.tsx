@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Search, User, Loader2, Phone, IdCard, UserX } from "lucide-react"
+import { Search, User, Loader2, UserX } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
@@ -66,23 +66,17 @@ export function DriverSelector({
             {selectedDriver ? (
                 <div className="flex items-center justify-between py-2 border-b border-neutral-100">
                     <div className="flex items-center gap-3 min-w-0">
-                        <User className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.5} />
+                        <User className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.25} />
                         <div className="min-w-0">
                             <div className="font-medium text-sm text-neutral-900 truncate">
                                 {selectedDriver.first_name} {selectedDriver.last_name}
                             </div>
-                            <div className="text-xs text-neutral-500 flex items-center gap-3 mt-0.5">
+                            <div className="text-xs text-neutral-500 font-mono flex items-center gap-3 mt-0.5">
                                 {selectedDriver.national_id && (
-                                    <span className="flex items-center gap-1">
-                                        <IdCard size={12} strokeWidth={1.5} />
-                                        {selectedDriver.national_id}
-                                    </span>
+                                    <span>CI {selectedDriver.national_id}</span>
                                 )}
                                 {selectedDriver.phone && (
-                                    <span className="flex items-center gap-1">
-                                        <Phone size={12} strokeWidth={1.5} />
-                                        {selectedDriver.phone}
-                                    </span>
+                                    <span>{selectedDriver.phone}</span>
                                 )}
                             </div>
                         </div>
@@ -102,7 +96,7 @@ export function DriverSelector({
                     className="w-full flex items-center justify-between gap-2 bg-transparent border-b border-neutral-200 hover:border-neutral-400 py-1.5 text-sm text-neutral-400 hover:text-neutral-700 transition-colors text-left"
                 >
                     <span className="inline-flex items-center gap-2">
-                        <User className="w-4 h-4" strokeWidth={1.5} />
+                        <User className="w-4 h-4" strokeWidth={1.25} />
                         Seleccionar conductor...
                     </span>
                 </button>
@@ -116,7 +110,7 @@ export function DriverSelector({
 
                     <div className="p-5 space-y-4">
                         <div className="flex items-center gap-2 border-b border-neutral-200 focus-within:border-neutral-900 transition-colors">
-                            <Search className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.5} />
+                            <Search className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.25} />
                             <input
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -133,7 +127,7 @@ export function DriverSelector({
                                 className="py-3 px-1 cursor-pointer flex items-center justify-between gap-3 hover:bg-neutral-50/50 transition-colors group"
                             >
                                 <div className="flex items-center gap-3">
-                                    <UserX className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0" strokeWidth={1.5} />
+                                    <UserX className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0" strokeWidth={1.25} />
                                     <span className={`text-sm ${!selectedDriverId ? 'font-medium text-neutral-900' : 'text-neutral-500 group-hover:text-neutral-900'}`}>
                                         Sin conductor (Desasignar)
                                     </span>
@@ -162,15 +156,14 @@ export function DriverSelector({
                                         className="py-3 px-1 cursor-pointer flex justify-between items-center gap-3 hover:bg-neutral-50/50 transition-colors group"
                                     >
                                         <div className="flex items-center gap-3 min-w-0">
-                                            <User className={`w-4 h-4 shrink-0 ${selectedDriverId === d.id ? 'text-neutral-900' : 'text-neutral-400 group-hover:text-neutral-700'}`} strokeWidth={1.5} />
+                                            <User className={`w-4 h-4 shrink-0 ${selectedDriverId === d.id ? 'text-neutral-900' : 'text-neutral-400 group-hover:text-neutral-700'}`} strokeWidth={1.25} />
                                             <div className="min-w-0">
                                                 <div className="font-medium text-sm text-neutral-900 truncate">
                                                     {d.first_name} {d.last_name}
                                                 </div>
                                                 {d.national_id && (
-                                                    <div className="text-xs text-neutral-500 flex items-center gap-1 mt-0.5">
-                                                        <IdCard size={12} className="text-neutral-400" strokeWidth={1.5} />
-                                                        {d.national_id}
+                                                    <div className="text-xs text-neutral-500 font-mono mt-0.5">
+                                                        CI {d.national_id}
                                                     </div>
                                                 )}
                                             </div>

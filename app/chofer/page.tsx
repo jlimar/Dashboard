@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { FileText, QrCode, AlertTriangle, Car, ArrowRight } from "lucide-react"
+import { QrCode, ArrowUpRight, ArrowDownLeft, Wrench, Car, ArrowRight } from "lucide-react"
 import { LogoutButton } from "@/components/ui/logout-button"
 import QRCode from "react-qr-code"
 import Link from "next/link"
@@ -122,13 +122,13 @@ export default function ChoferPage() {
                                 <DialogTrigger asChild>
                                     <button
                                         type="button"
-                                        className="w-full py-4 flex items-center justify-between text-left text-neutral-900 hover:text-neutral-600 transition-colors"
+                                        className="group w-full py-4 flex items-center justify-between text-left text-neutral-900 hover:text-neutral-600 transition-colors cursor-pointer"
                                     >
                                         <span className="flex items-center gap-3 text-sm font-medium">
-                                            <QrCode className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                                            <QrCode className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 transition-colors" strokeWidth={1.25} />
                                             Mi código QR
                                         </span>
-                                        <ArrowRight className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                                        <ArrowRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all" strokeWidth={1.25} />
                                     </button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-sm bg-white/95 backdrop-blur-xs border border-neutral-200/70 shadow-sm p-6 flex flex-col items-center animate-in fade-in zoom-in-95 duration-150">
@@ -153,35 +153,35 @@ export default function ChoferPage() {
 
                             <Link
                                 href={`/transporte?action=salida&vehicle_id=${vehicle.id}`}
-                                className="w-full py-4 flex items-center justify-between text-neutral-900 hover:text-neutral-600 transition-colors"
+                                className="group w-full py-4 flex items-center justify-between text-neutral-900 hover:text-neutral-600 transition-colors"
                             >
                                 <span className="flex items-center gap-3 text-sm font-medium">
-                                    <FileText className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                                    <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 transition-colors" strokeWidth={1.25} />
                                     Registrar salida
                                 </span>
-                                <ArrowRight className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                                <ArrowRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all" strokeWidth={1.25} />
                             </Link>
 
                             <Link
                                 href={`/transporte?action=entrada&vehicle_id=${vehicle.id}`}
-                                className="w-full py-4 flex items-center justify-between text-neutral-900 hover:text-neutral-600 transition-colors"
+                                className="group w-full py-4 flex items-center justify-between text-neutral-900 hover:text-neutral-600 transition-colors"
                             >
                                 <span className="flex items-center gap-3 text-sm font-medium">
-                                    <LogOut className="w-4 h-4 text-neutral-400 scale-x-[-1]" strokeWidth={1.5} />
+                                    <ArrowDownLeft className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 transition-colors" strokeWidth={1.25} />
                                     Registrar entrada
                                 </span>
-                                <ArrowRight className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                                <ArrowRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all" strokeWidth={1.25} />
                             </Link>
 
                             <Link
                                 href="/chofer/reportar"
-                                className="w-full py-4 flex items-center justify-between text-red-600 hover:text-red-700 transition-colors"
+                                className="group w-full py-4 flex items-center justify-between text-neutral-900 hover:text-red-600 transition-colors"
                             >
                                 <span className="flex items-center gap-3 text-sm font-medium">
-                                    <AlertTriangle className="w-4 h-4" strokeWidth={1.5} />
+                                    <Wrench className="w-4 h-4 text-neutral-400 group-hover:text-red-500 transition-colors" strokeWidth={1.25} />
                                     Reportar falla mecánica
                                 </span>
-                                <ArrowRight className="w-4 h-4 opacity-60" strokeWidth={1.5} />
+                                <ArrowRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1.25} />
                             </Link>
                         </div>
                     </>

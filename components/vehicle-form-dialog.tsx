@@ -232,14 +232,14 @@ export function VehicleFormDialog({ isOpen, onClose, onVehicleSaved, vehicleToEd
                                 />
                             ) : (
                                 <div className="text-center text-neutral-400">
-                                    <Camera className="w-6 h-6 mx-auto mb-1" strokeWidth={1.5} />
+                                    <Camera className="w-5 h-5 mx-auto mb-1 text-neutral-400" strokeWidth={1.25} />
                                     <span className="text-xs">Subir foto</span>
                                 </div>
                             )}
 
                             {/* Hover Overlay */}
                             <div className="absolute inset-0 bg-neutral-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Upload className="text-white w-5 h-5" strokeWidth={1.5} />
+                                <Upload className="text-white w-4 h-4" strokeWidth={1.25} />
                             </div>
                         </div>
                         <input

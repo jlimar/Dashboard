@@ -125,7 +125,7 @@ export default function ScanPage() {
             <div className="flex items-center justify-between gap-4 pb-4 border-b border-neutral-100">
                 <div className="flex items-center gap-3">
                     <Link href="/control/combustible" className="text-neutral-400 hover:text-neutral-900 transition-colors">
-                        <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
+                        <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                     </Link>
                     <div>
                         <h1 className="text-xl font-light text-neutral-900 tracking-tight">Escanear conductor</h1>

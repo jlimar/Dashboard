@@ -302,7 +302,7 @@ export function MaintenanceRegistrationDialog({
             <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
                 <DialogContent className="max-w-md p-6 text-center">
                     <div className="flex flex-col items-center gap-4 py-2">
-                        <CheckCircle2 className="w-8 h-8 text-neutral-900" strokeWidth={1.5} />
+                        <CheckCircle2 className="w-8 h-8 text-neutral-900" strokeWidth={1.25} />
                         <DialogTitle className="text-lg font-medium text-neutral-900">
                             {successData.type === 'fault' ? 'Falla reportada' : 'Registro exitoso'}
                         </DialogTitle>
@@ -388,7 +388,7 @@ export function MaintenanceRegistrationDialog({
                         ) : (
                             <div className="flex items-center justify-between py-2 border-b border-neutral-100">
                                 <div className="flex items-center gap-3">
-                                    <Car className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.5} />
+                                    <Car className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.25} />
                                     <div>
                                         <div className="font-medium text-sm text-neutral-900">{selectedVehicle.modelo}</div>
                                         <div className="text-xs text-neutral-500 font-mono">{selectedVehicle.placa}</div>
@@ -500,10 +500,10 @@ export function MaintenanceRegistrationDialog({
                                             className={`w-full py-2.5 flex items-center justify-between text-left transition-colors ${isSelected ? 'text-neutral-900 font-medium' : 'text-neutral-500 hover:text-neutral-900'} ${lockServiceType ? 'cursor-default opacity-70' : ''}`}
                                         >
                                             <span className="inline-flex items-center gap-2.5 text-sm">
-                                                <service.icon className={`w-4 h-4 ${isSelected ? 'text-neutral-900' : 'text-neutral-400'}`} strokeWidth={1.5} />
+                                                <service.icon className={`w-4 h-4 ${isSelected ? 'text-neutral-900' : 'text-neutral-400'}`} strokeWidth={1.25} />
                                                 {service.label}
                                             </span>
-                                            {isSelected && <Check className="w-3.5 h-3.5 text-neutral-900" strokeWidth={1.5} />}
+                                            {isSelected && <Check className="w-3.5 h-3.5 text-neutral-900" strokeWidth={1.25} />}
                                         </button>
                                     )
                                 })}
@@ -603,7 +603,7 @@ export function MaintenanceRegistrationDialog({
 function SearchInput({ value, onChange, placeholder }: any) {
     return (
         <div className="flex items-center gap-2 border-b border-neutral-200 focus-within:border-neutral-900 transition-colors">
-            <Search className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.5} />
+            <Search className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.25} />
             <input
                 value={value}
                 onChange={(e) => onChange(e.target.value)}

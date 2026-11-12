@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { addGeodata, deleteGeodata } from "./actions";
-import { ArrowLeft, ChevronRight, MapPin, Folder, Loader2, Plus, X } from "lucide-react";
+import { ArrowLeft, ChevronRight, Loader2, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
@@ -116,7 +116,7 @@ export default function GeodataManagement() {
               href="/admin"
               className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
             >
-              <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
+              <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
               Volver al panel
             </Link>
             <LogoutButton />
@@ -133,7 +133,7 @@ export default function GeodataManagement() {
             </button>
             {level > 0 && (
               <>
-                <ChevronRight className="w-3.5 h-3.5 text-neutral-300 shrink-0" strokeWidth={1.5} />
+                <ChevronRight className="w-3.5 h-3.5 text-neutral-300 shrink-0" strokeWidth={1.25} />
                 <button
                   type="button"
                   onClick={() => handleBreadcrumbClick(1)}
@@ -145,7 +145,7 @@ export default function GeodataManagement() {
             )}
             {level > 1 && (
               <>
-                <ChevronRight className="w-3.5 h-3.5 text-neutral-300 shrink-0" strokeWidth={1.5} />
+                <ChevronRight className="w-3.5 h-3.5 text-neutral-300 shrink-0" strokeWidth={1.25} />
                 <button
                   type="button"
                   onClick={() => handleBreadcrumbClick(2)}
@@ -157,7 +157,7 @@ export default function GeodataManagement() {
             )}
             {level > 2 && (
               <>
-                <ChevronRight className="w-3.5 h-3.5 text-neutral-300 shrink-0" strokeWidth={1.5} />
+                <ChevronRight className="w-3.5 h-3.5 text-neutral-300 shrink-0" strokeWidth={1.25} />
                 <span className="text-neutral-900 font-medium whitespace-nowrap">
                   {selection.parroquia}
                 </span>
@@ -187,9 +187,9 @@ export default function GeodataManagement() {
                   className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.5} />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.25} />
                   ) : (
-                    <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
+                    <Plus className="w-3.5 h-3.5" strokeWidth={1.25} />
                   )}
                   Guardar
                 </button>
@@ -206,7 +206,7 @@ export default function GeodataManagement() {
           <div className="lg:col-span-3">
             {loading ? (
               <div className="flex items-center justify-center h-48">
-                <Loader2 className="w-5 h-5 animate-spin text-neutral-300" strokeWidth={1.5} />
+                <Loader2 className="w-5 h-5 animate-spin text-neutral-300" strokeWidth={1.25} />
               </div>
             ) : items.length === 0 ? (
               <div className="py-16 text-center border-t border-b border-neutral-100">
@@ -218,29 +218,27 @@ export default function GeodataManagement() {
                   <div
                     key={val}
                     onClick={() => handleNavigate(val)}
-                    className="group flex items-center justify-between py-3.5 px-2 -mx-2 hover:bg-neutral-50/50 transition-colors cursor-pointer"
+                    className="group flex items-center justify-between py-3 px-2 -mx-2 hover:bg-neutral-50/50 transition-colors cursor-pointer"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      {level === 3 ? (
-                        <MapPin className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0" strokeWidth={1.5} />
-                      ) : (
-                        <Folder className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0" strokeWidth={1.5} />
-                      )}
-                      <span className="text-sm text-neutral-900 truncate">{val}</span>
-                    </div>
+                    <span className="text-sm text-neutral-900 truncate">{val}</span>
 
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 shrink-0">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeletingItem(val);
-                        }}
-                        title={`Eliminar ${val}`}
-                        className="text-neutral-400 hover:text-neutral-900 transition-colors"
-                      >
-                        <X className="w-3.5 h-3.5" strokeWidth={1.5} />
-                      </button>
+                    <div className="flex items-center gap-3 shrink-0">
+                      {level < 3 && (
+                        <ChevronRight className="w-3.5 h-3.5 text-neutral-300 group-hover:text-neutral-600 transition-colors" strokeWidth={1.25} />
+                      )}
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeletingItem(val);
+                          }}
+                          title={`Eliminar ${val}`}
+                          className="text-neutral-400 hover:text-neutral-900 transition-colors p-0.5"
+                        >
+                          <X className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

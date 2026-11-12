@@ -30,7 +30,7 @@ export function NotificationBell() {
             title="Ver historial de notificaciones"
         >
             <span className="sr-only">Notificaciones</span>
-            <Bell className="w-4 h-4" strokeWidth={1.5} />
+            <Bell className="w-4 h-4" strokeWidth={1.25} />
 
             {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1.5 text-[10px] font-medium leading-none text-red-600 tabular-nums animate-in zoom-in-50 duration-300">

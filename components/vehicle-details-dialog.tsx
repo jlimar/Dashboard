@@ -176,9 +176,9 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
 
     const getIcon = (tipo: string) => {
         switch (tipo?.toLowerCase()) {
-            case 'moto': return <Bike className="w-4 h-4" strokeWidth={1.5} />;
-            case 'carga': return <Truck className="w-4 h-4" strokeWidth={1.5} />;
-            default: return <Car className="w-4 h-4" strokeWidth={1.5} />;
+            case 'moto': return <Bike className="w-4 h-4" strokeWidth={1.25} />;
+            case 'carga': return <Truck className="w-4 h-4" strokeWidth={1.25} />;
+            default: return <Car className="w-4 h-4" strokeWidth={1.25} />;
         }
     }
 
@@ -240,7 +240,7 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                         <div>
                                             <div className="text-neutral-400 text-xs mb-2">Conductor asignado</div>
                                             <div className="flex items-center gap-3">
-                                                <User className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.5} />
+                                                <User className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.25} />
                                                 <div>
                                                     <div className="font-medium text-sm text-neutral-900">
                                                         {drivers.find(d => d.id === vehicle.assigned_driver_id)?.first_name} {drivers.find(d => d.id === vehicle.assigned_driver_id)?.last_name || "Sin asignar"}
@@ -365,7 +365,7 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                         <div className="py-3.5">
                                             <div className="flex justify-between items-center mb-1.5">
                                                 <div className="flex items-center gap-2">
-                                                    <Droplets className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                                    <Droplets className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.25} />
                                                     <span className="text-sm text-neutral-700">Cambio de aceite</span>
                                                 </div>
                                                 <span className="text-xs text-neutral-400 font-mono">
@@ -414,7 +414,7 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                                 <div className="py-3.5">
                                                     <div className="flex justify-between items-center mb-1.5">
                                                         <div className="flex items-center gap-2">
-                                                            <Gauge className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                                            <Gauge className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.25} />
                                                             <span className="text-sm text-neutral-700">Correa de tiempo</span>
                                                         </div>
                                                         <span className="text-xs text-neutral-400 font-mono">
@@ -457,7 +457,7 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                             <div className="py-3.5">
                                                 <div className="flex justify-between items-center mb-1.5">
                                                     <div className="flex items-center gap-2">
-                                                        <Bike className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                                        <Bike className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.25} />
                                                         <span className="text-sm text-neutral-700">Kit de arrastre</span>
                                                     </div>
                                                     <span className="text-xs text-neutral-400 font-mono">
@@ -497,7 +497,7 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                         {/* Washing */}
                                         <div className="py-3.5">
                                             <div className="flex items-center gap-2 mb-1">
-                                                <Droplets className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                                <Droplets className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.25} />
                                                 <span className="text-sm text-neutral-700">Lavado y aspirado</span>
                                             </div>
 
@@ -552,8 +552,7 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
 
                                 {/* Faults History */}
                                 <div className="pt-5">
-                                    <h3 className="text-sm font-medium text-neutral-900 mb-3 flex items-center gap-2">
-                                        <Wrench className="text-neutral-400 w-4 h-4" strokeWidth={1.5} />
+                                    <h3 className="text-sm font-medium text-neutral-900 mb-3">
                                         Historial de fallas
                                     </h3>
 
@@ -623,9 +622,9 @@ function CheckItem({ label, checked }: { label: string, checked: boolean }) {
     return (
         <div className="flex items-center gap-2">
             {checked ? (
-                <CheckCircle2 className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={1.5} />
+                <CheckCircle2 className="w-3.5 h-3.5 text-neutral-900 shrink-0" strokeWidth={1.25} />
             ) : (
-                <X className="w-3.5 h-3.5 text-neutral-300 shrink-0" strokeWidth={1.5} />
+                <X className="w-3.5 h-3.5 text-neutral-300 shrink-0" strokeWidth={1.25} />
             )}
             <span className={`text-xs ${checked ? 'text-neutral-700' : 'text-neutral-400'}`}>{label}</span>
         </div>

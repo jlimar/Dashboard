@@ -25,7 +25,7 @@ export function DepartmentPageLayout({ title, description, icon: Icon }: Departm
                             className="text-neutral-400 hover:text-neutral-900 transition-colors flex items-center justify-center"
                             title="Ir al inicio"
                         >
-                            <HomeIcon className="w-4 h-4" strokeWidth={1.5} />
+                            <HomeIcon className="w-4 h-4" strokeWidth={1.25} />
                         </a>
                         <LogoutButton />
                     </div>

@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
-import { Loader2, MapPin, User, Calendar } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
 interface VehicleHistoryDialogProps {
     isOpen: boolean
@@ -101,10 +101,9 @@ export function VehicleHistoryDialog({ isOpen, onClose, vehicleId, vehiclePlate 
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-2 text-sm text-neutral-700">
-                                                <User className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                            <span className="text-sm text-neutral-700">
                                                 {trip.conductor}
-                                            </div>
+                                            </span>
                                         </TableCell>
                                         <TableCell>
                                             <span className="text-xs text-neutral-600">

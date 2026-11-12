@@ -319,9 +319,9 @@ function VehiculosContent() {
 
     const getIcon = (tipo: string) => {
         switch (tipo?.toLowerCase()) {
-            case 'moto': return <Bike className="w-4 h-4" strokeWidth={1.5} />
-            case 'carga': return <Truck className="w-4 h-4" strokeWidth={1.5} />
-            default: return <Car className="w-4 h-4" strokeWidth={1.5} />
+            case 'moto': return <Bike className="w-4 h-4" strokeWidth={1.25} />
+            case 'carga': return <Truck className="w-4 h-4" strokeWidth={1.25} />
+            default: return <Car className="w-4 h-4" strokeWidth={1.25} />
         }
     }
 
@@ -336,7 +336,7 @@ function VehiculosContent() {
                             className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
                             title="Ir al inicio"
                         >
-                            <HomeIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            <HomeIcon className="w-3.5 h-3.5" strokeWidth={1.25} />
                             Inicio
                         </a>
                         <LogoutButton />
@@ -358,7 +358,7 @@ function VehiculosContent() {
                                 disabled={exporting}
                                 className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-900 transition-colors disabled:opacity-40"
                             >
-                                <Download className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                <Download className="w-3.5 h-3.5" strokeWidth={1.25} />
                                 {exporting ? "Exportando..." : "Exportar"}
                             </button>
                             <button
@@ -369,7 +369,7 @@ function VehiculosContent() {
                                 }}
                                 className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
                             >
-                                <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                <Plus className="w-3.5 h-3.5" strokeWidth={1.25} />
                                 Agregar vehículo
                             </button>
                         </div>
@@ -379,7 +379,7 @@ function VehiculosContent() {
                 {/* SEARCH */}
                 <div className="mb-8 max-w-md">
                     <div className="relative flex items-center">
-                        <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-0 pointer-events-none" strokeWidth={1.5} />
+                        <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-0 pointer-events-none" strokeWidth={1.25} />
                         <input
                             type="text"
                             placeholder="Buscar por placa, modelo o código..."
@@ -496,16 +496,16 @@ function VehiculosContent() {
                                                         title="Más opciones"
                                                         className="text-neutral-400 hover:text-neutral-900 transition-colors"
                                                     >
-                                                        <MoreVertical className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                                        <MoreVertical className="w-3.5 h-3.5" strokeWidth={1.25} />
                                                     </button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-xs border border-neutral-200/70 rounded-lg shadow-sm">
                                                     <DropdownMenuItem onClick={() => setCorrectionVehicle(vehicle)}>
-                                                        <Wrench className="mr-2 h-3.5 w-3.5 text-neutral-500" strokeWidth={1.5} />
+                                                        <Wrench className="mr-2 h-3.5 w-3.5 text-neutral-500" strokeWidth={1.25} />
                                                         <span className="text-xs">Corregir kilometraje</span>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem onClick={() => setTalonarioVehicle(vehicle)}>
-                                                        <FileDigit className="mr-2 h-3.5 w-3.5 text-neutral-500" strokeWidth={1.5} />
+                                                        <FileDigit className="mr-2 h-3.5 w-3.5 text-neutral-500" strokeWidth={1.25} />
                                                         <span className="text-xs">Corregir talonario</span>
                                                     </DropdownMenuItem>
                                                     {openTrip && (
@@ -517,7 +517,7 @@ function VehiculosContent() {
                                                                 setForceCloseDialog(true)
                                                             }}
                                                         >
-                                                            <XCircle className="mr-2 h-3.5 w-3.5 text-neutral-500" strokeWidth={1.5} />
+                                                            <XCircle className="mr-2 h-3.5 w-3.5 text-neutral-500" strokeWidth={1.25} />
                                                             <span className="text-xs">Forzar entrada</span>
                                                         </DropdownMenuItem>
                                                     )}

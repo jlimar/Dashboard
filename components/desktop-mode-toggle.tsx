@@ -1,7 +1,6 @@
 "use client"
 
 import { Monitor, Smartphone } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
@@ -32,14 +31,18 @@ export function DesktopModeToggle() {
     // skipping for simplicity.
 
     return (
-        <Button
-            variant="ghost"
-            size="icon"
+        <button
+            type="button"
             onClick={toggleMode}
-            className="rounded-full text-slate-400 hover:text-slate-900 transition-colors flex"
+            className="text-neutral-400 hover:text-neutral-900 transition-colors p-1.5 active:scale-[0.985] flex items-center justify-center cursor-pointer"
+            title={isDesktopMode ? "Cambiar a vista móvil" : "Cambiar a vista de escritorio"}
         >
-            {isDesktopMode ? <Smartphone size={20} /> : <Monitor size={20} />}
-        </Button>
+            {isDesktopMode ? (
+                <Smartphone className="w-4 h-4" strokeWidth={1.25} />
+            ) : (
+                <Monitor className="w-4 h-4" strokeWidth={1.25} />
+            )}
+        </button>
     )
 }
 

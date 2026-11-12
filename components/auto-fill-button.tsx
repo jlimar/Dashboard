@@ -1,6 +1,6 @@
 "use client"
 
-import { Wand2 } from "lucide-react"
+import { FlaskConical } from "lucide-react"
 import { toast } from "sonner"
 
 type Phase = "assignment" | "review" | "closure"
@@ -76,17 +76,17 @@ export function AutoFillButton({ phase, onFill, existingData }: AutoFillButtonPr
         }
 
         onFill(baseData)
-        toast.success("Formulario rellenado con datos de prueba 🪄")
+        toast.success("Formulario rellenado con datos de prueba")
     }
 
     return (
         <button
             type="button"
             onClick={handleAutoFill}
-            title="Auto-rellenar (Test)"
-            className="fixed bottom-6 right-6 z-50 text-neutral-400 hover:text-neutral-900 transition-colors"
+            title="Auto-rellenar datos de prueba"
+            className="fixed bottom-6 right-6 z-50 text-neutral-400 hover:text-neutral-900 transition-all duration-150 active:scale-[0.985] p-2 bg-white/90 backdrop-blur-xs border border-neutral-200/60 rounded-full shadow-xs cursor-pointer"
         >
-            <Wand2 className="w-4 h-4" strokeWidth={1.5} />
+            <FlaskConical className="w-3.5 h-3.5" strokeWidth={1.25} />
         </button>
     )
 }

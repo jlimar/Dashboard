@@ -1,7 +1,7 @@
 "use client"
 
 import { createClient } from "@/lib/supabase/client"
-import { Chrome } from "lucide-react"
+import { GoogleIcon } from "@/components/ui/icons/google-icon"
 import Image from "next/image"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -184,7 +184,7 @@ export default function LoginPage() {
                             className="inline-flex items-center gap-2 text-xs text-neutral-600 hover:text-neutral-900 transition-all duration-150 active:scale-[0.985] disabled:opacity-40 cursor-pointer"
                             disabled={loading}
                         >
-                            <Chrome className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                            <GoogleIcon className="w-3.5 h-3.5 shrink-0" />
                             <span>{loading ? "Conectando..." : "Continuar con Google"}</span>
                         </button>
                     </div>

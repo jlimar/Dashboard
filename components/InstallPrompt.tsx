@@ -51,7 +51,7 @@ export function InstallPrompt() {
                         className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
                         onClick={() => window.open("/app-release.apk", "_blank")}
                     >
-                        <Download className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        <Download className="w-3.5 h-3.5" strokeWidth={1.25} />
                         Descargar APK
                     </button>
                     <button

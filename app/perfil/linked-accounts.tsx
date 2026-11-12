@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Chrome, Link2, Unlink } from "lucide-react"
+import { Link2, Unlink } from "lucide-react"
+import { GoogleIcon } from "@/components/ui/icons/google-icon"
 import { toast } from "sonner"
 import { UserIdentity } from "@supabase/supabase-js"
 import { useRouter } from "next/navigation"
@@ -59,7 +60,7 @@ export function LinkedAccounts({ identities }: LinkedAccountsProps) {
       <span className="text-xs text-neutral-400 block">Cuentas vinculadas</span>
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-3">
-          <Chrome className="h-4 w-4 text-neutral-400" strokeWidth={1.5} />
+          <GoogleIcon className="h-4 w-4 shrink-0" />
           <div>
             <p className="text-sm text-neutral-900">Google</p>
             <p className="text-xs text-neutral-500">

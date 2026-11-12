@@ -50,7 +50,7 @@ export function VehicleSelector({
                 <Label className="text-xs font-medium text-neutral-500">{label}</Label>
                 <div className="flex items-center justify-between py-2 border-b border-neutral-100">
                     <div className="flex items-center gap-3 min-w-0">
-                        <Car className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.5} />
+                        <Car className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.25} />
                         <div className="min-w-0">
                             <div className="font-medium text-sm text-neutral-900 truncate">{selectedVehicle.modelo}</div>
                             <div className="text-xs text-neutral-500 font-mono flex items-center gap-2">
@@ -81,7 +81,7 @@ export function VehicleSelector({
             <Label className="text-xs font-medium text-neutral-500">{label}</Label>
             <div className="relative">
                 <div className="flex items-center gap-2 border-b border-neutral-200 focus-within:border-neutral-900 transition-colors">
-                    <Search className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.5} />
+                    <Search className="w-4 h-4 text-neutral-400 shrink-0" strokeWidth={1.25} />
                     <input
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}

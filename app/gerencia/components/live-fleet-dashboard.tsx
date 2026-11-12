@@ -187,7 +187,7 @@ export function LiveFleetDashboard({ vehicles: initialVehicles }: { vehicles: Fl
                                     <Avatar className="h-8 w-8">
                                         <AvatarImage src={vehicle.driverImg || ""} />
                                         <AvatarFallback className="bg-neutral-100 text-neutral-500 text-xs">
-                                            {vehicle.driver ? vehicle.driver.charAt(0) : <User className="w-3.5 h-3.5" strokeWidth={1.5} />}
+                                            {vehicle.driver ? vehicle.driver.charAt(0) : <User className="w-3.5 h-3.5" strokeWidth={1.25} />}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="min-w-0">
@@ -206,7 +206,7 @@ export function LiveFleetDashboard({ vehicles: initialVehicles }: { vehicles: Fl
                                             className="text-neutral-400 hover:text-neutral-900 transition-colors"
                                             title="Llamar al conductor"
                                         >
-                                            <Phone className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                            <Phone className="w-3.5 h-3.5" strokeWidth={1.25} />
                                         </a>
                                     )}
                                     <button
@@ -215,7 +215,7 @@ export function LiveFleetDashboard({ vehicles: initialVehicles }: { vehicles: Fl
                                         className="text-neutral-400 hover:text-neutral-900 transition-colors"
                                         title="Ver detalles"
                                     >
-                                        <MoreVertical className="w-4 h-4" strokeWidth={1.5} />
+                                        <MoreVertical className="w-3.5 h-3.5" strokeWidth={1.25} />
                                     </button>
                                 </div>
                             </div>

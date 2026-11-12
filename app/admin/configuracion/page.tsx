@@ -114,7 +114,7 @@ export default function AdminConfigModulesPage() {
                             href="/admin"
                             className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
                         >
-                            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                             Volver al panel
                         </Link>
                         <LogoutButton />
@@ -192,7 +192,7 @@ create policy "Admin Update" on app_settings for all using (true); -- Ajustar en
                             disabled={saving || !tableExists}
                             className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                         >
-                            <Save className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            <Save className="w-3.5 h-3.5" strokeWidth={1.25} />
                             {saving ? "Guardando..." : "Guardar cambios"}
                         </button>
                     </div>

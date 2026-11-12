@@ -13,24 +13,14 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
 import {
-    Mail,
-    Calendar,
-    Settings2,
-    Building2,
-    Briefcase,
-    User as UserIcon,
     ArrowLeft,
     PenLine,
     Shield,
     LogIn,
-    LayoutDashboard,
-    Truck,
-    Wrench,
-    ClipboardCheck,
-    Lock,
     Key,
-    FileText,
-    MapPin,
+    Plus,
+    X,
+    Loader2,
 } from "lucide-react"
 import Link from "next/link"
 import { updateProfileDetails, impersonateUserAction, createUserAction, adminResetPassword } from "./user-actions"
@@ -388,29 +378,23 @@ export default function AdminUsersPage() {
                                 return (
                                     <TableRow key={profile.id} className="group hover:bg-neutral-50/50 transition-colors border-b border-neutral-100">
                                         <TableCell className="pl-0 py-3.5">
-                                            <div className="flex items-center gap-3">
-                                                <UserIcon className="w-4 h-4 text-neutral-300 shrink-0" strokeWidth={1.5} />
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-medium text-neutral-900">
-                                                        {fullName || "Sin nombre"}
-                                                    </span>
-                                                    <div className="flex items-center gap-1.5 text-xs text-neutral-400">
-                                                        <Mail className="w-3 h-3" strokeWidth={1.5} />
-                                                        {profile.email}
-                                                    </div>
-                                                </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-medium text-neutral-900">
+                                                    {fullName || "Sin nombre"}
+                                                </span>
+                                                <span className="text-xs text-neutral-400 mt-0.5">
+                                                    {profile.email}
+                                                </span>
                                             </div>
                                         </TableCell>
                                         <TableCell className="py-3.5">
-                                            <div className="flex flex-col gap-0.5">
-                                                <div className="flex items-center gap-1.5 text-xs text-neutral-700">
-                                                    <Briefcase className="w-3 h-3 text-neutral-400" strokeWidth={1.5} />
-                                                    <span>{profile.job_title || "Sin cargo"}</span>
-                                                </div>
-                                                <div className="flex items-center gap-1.5 text-xs text-neutral-400">
-                                                    <Building2 className="w-3 h-3" strokeWidth={1.5} />
-                                                    <span>{profile.department || "Sin departamento"}</span>
-                                                </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-xs text-neutral-700 font-medium">
+                                                    {profile.job_title || "Sin cargo"}
+                                                </span>
+                                                <span className="text-xs text-neutral-400 mt-0.5">
+                                                    {profile.department || "Sin departamento"}
+                                                </span>
                                             </div>
                                         </TableCell>
                                         <TableCell className="py-3.5">
@@ -431,10 +415,9 @@ export default function AdminUsersPage() {
                                             </div>
                                         </TableCell>
                                         <TableCell className="py-3.5">
-                                            <div className="flex items-center gap-1.5 text-neutral-500 text-xs">
-                                                <Calendar className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.5} />
+                                            <span className="text-neutral-500 text-xs font-mono tabular-nums">
                                                 {new Date(profile.created_at).toLocaleDateString()}
-                                            </div>
+                                            </span>
                                         </TableCell>
                                         <TableCell className="text-right pr-0 py-3.5">
                                             <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center justify-end gap-3">
@@ -453,7 +436,7 @@ export default function AdminUsersPage() {
                                                     className="text-neutral-400 hover:text-neutral-900 transition-colors"
                                                     title="Cambiar contraseña"
                                                 >
-                                                    <Key className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                                    <Key className="w-3.5 h-3.5" strokeWidth={1.25} />
                                                 </button>
 
                                                 <button
@@ -462,7 +445,7 @@ export default function AdminUsersPage() {
                                                     className="text-neutral-400 hover:text-neutral-900 transition-colors"
                                                     title="Iniciar sesión como..."
                                                 >
-                                                    <LogIn className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                                    <LogIn className="w-3.5 h-3.5" strokeWidth={1.25} />
                                                 </button>
 
                                                 <button
@@ -470,7 +453,7 @@ export default function AdminUsersPage() {
                                                     onClick={() => setPermissionsUser(profile)}
                                                     className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors inline-flex items-center gap-1"
                                                 >
-                                                    <Shield className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                                    <Shield className="w-3.5 h-3.5" strokeWidth={1.25} />
                                                     <span className="hidden sm:inline">Permisos</span>
                                                 </button>
                                             </div>
@@ -592,9 +575,8 @@ export default function AdminUsersPage() {
                                 Configuración especial
                             </h4>
                             <div className="divide-y divide-neutral-100 border-t border-b border-neutral-100">
-                                <div className="flex items-start gap-3 py-3.5">
-                                    <Settings2 className="w-4 h-4 text-neutral-400 mt-0.5 shrink-0" strokeWidth={1.5} />
-                                    <div className="flex-1 space-y-0.5">
+                                <div className="py-3.5">
+                                    <div className="space-y-0.5">
                                         <div className="flex items-center justify-between gap-4">
                                             <label htmlFor="plain-text" className="text-sm font-medium text-neutral-900 cursor-pointer">
                                                 WhatsApp sin emojis

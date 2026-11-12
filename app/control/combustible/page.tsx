@@ -255,7 +255,7 @@ export default function FuelControlPage() {
                                 href="/control/combustible/scan"
                                 className="inline-flex items-center gap-2 text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
                             >
-                                <QrCode className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                                <QrCode className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.25} />
                                 <span>Escanear QR</span>
                             </Link>
                         </div>
@@ -265,7 +265,7 @@ export default function FuelControlPage() {
                                 onClick={exportToExcel}
                                 className="inline-flex items-center gap-2 text-xs text-neutral-500 hover:text-neutral-900 transition-colors text-left"
                             >
-                                <FileSpreadsheet className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />
+                                <FileSpreadsheet className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.25} />
                                 <span>Exportar Excel</span>
                             </button>
                         </div>
@@ -274,16 +274,14 @@ export default function FuelControlPage() {
                     <TabsList className="flex w-full justify-start gap-6 bg-transparent border-b border-neutral-100 p-0 rounded-none h-auto mb-6">
                         <TabsTrigger
                             value="logs"
-                            className="rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-2.5 px-0 text-sm font-normal text-neutral-400 data-[state=active]:text-neutral-900 data-[state=active]:font-medium transition-colors gap-2"
+                            className="rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-2.5 px-0 text-sm font-normal text-neutral-400 data-[state=active]:text-neutral-900 data-[state=active]:font-medium transition-colors"
                         >
-                            <Fuel className="w-3.5 h-3.5 hidden sm:inline" strokeWidth={1.5} />
                             Historial de cargas
                         </TabsTrigger>
                         <TabsTrigger
                             value="reports"
-                            className="rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-2.5 px-0 text-sm font-normal text-neutral-400 data-[state=active]:text-neutral-900 data-[state=active]:font-medium transition-colors gap-2"
+                            className="rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-2.5 px-0 text-sm font-normal text-neutral-400 data-[state=active]:text-neutral-900 data-[state=active]:font-medium transition-colors"
                         >
-                            <FileSpreadsheet className="w-3.5 h-3.5 hidden sm:inline" strokeWidth={1.5} />
                             Cierres y reportes
                         </TabsTrigger>
                     </TabsList>

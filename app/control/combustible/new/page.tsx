@@ -240,7 +240,7 @@ function NewFuelLogContent() {
                 <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <Link href="/control/combustible" className="text-neutral-400 hover:text-neutral-900 transition-colors">
-                            <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
+                            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                         </Link>
                         <div>
                             <h1 className="text-xl font-light text-neutral-900 leading-none tracking-tight">Nuevo ticket</h1>
@@ -563,7 +563,7 @@ function NewFuelLogContent() {
                                     </div>
                                 ) : (
                                     <div className="relative border-b border-dashed border-neutral-200 py-8 flex flex-col items-center gap-2 hover:border-neutral-400 transition-colors cursor-pointer">
-                                        <Camera className="w-5 h-5 text-neutral-400" strokeWidth={1.5} />
+                                        <Camera className="w-5 h-5 text-neutral-400" strokeWidth={1.25} />
                                         <div className="text-center">
                                             <p className="text-sm text-neutral-700">Tomar foto del ticket</p>
                                             <p className="text-xs text-neutral-400">Usa la cámara o sube desde la galería</p>

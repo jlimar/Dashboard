@@ -264,7 +264,7 @@ export default function CuadrillasManager() {
                 onClick={() => setIsAddingTecnico(true)}
                 className="flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
               >
-                <UserPlus className="w-3.5 h-3.5" strokeWidth={1.5} /> Nuevo técnico
+                <UserPlus className="w-3.5 h-3.5" strokeWidth={1.25} /> Nuevo técnico
               </button>
             )}
           </div>
@@ -290,7 +290,7 @@ export default function CuadrillasManager() {
                   onClick={handleAddTecnico}
                   className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors flex items-center gap-1.5"
                 >
-                  <Save className="w-3.5 h-3.5" strokeWidth={1.5} /> Guardar
+                  <Save className="w-3.5 h-3.5" strokeWidth={1.25} /> Guardar
                 </button>
                 <button
                   type="button"
@@ -298,7 +298,7 @@ export default function CuadrillasManager() {
                   className="text-neutral-400 hover:text-neutral-900 transition-colors"
                   title="Cancelar"
                 >
-                  <X className="w-4 h-4" strokeWidth={1.5} />
+                  <X className="w-3.5 h-3.5" strokeWidth={1.5} />
                 </button>
               </div>
             </div>
@@ -331,7 +331,7 @@ export default function CuadrillasManager() {
                             onClick={handleSaveTecnicoEdit}
                             className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors flex items-center gap-1.5"
                           >
-                            <Save className="w-3.5 h-3.5" strokeWidth={1.5} /> Guardar
+                            <Save className="w-3.5 h-3.5" strokeWidth={1.25} /> Guardar
                           </button>
                           <button
                             type="button"
@@ -339,7 +339,7 @@ export default function CuadrillasManager() {
                             className="text-neutral-400 hover:text-neutral-900 transition-colors"
                             title="Cancelar"
                           >
-                            <X className="w-4 h-4" strokeWidth={1.5} />
+                            <X className="w-3.5 h-3.5" strokeWidth={1.5} />
                           </button>
                         </div>
                       </div>
@@ -404,7 +404,7 @@ export default function CuadrillasManager() {
                 onClick={() => setIsAdding(true)}
                 className="flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
               >
-                <Plus className="w-3.5 h-3.5" strokeWidth={1.5} /> Nueva cuadrilla
+                <Plus className="w-3.5 h-3.5" strokeWidth={1.25} /> Nueva cuadrilla
               </button>
             )}
           </div>
@@ -459,7 +459,7 @@ export default function CuadrillasManager() {
                   onClick={handleAdd}
                   className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors flex items-center gap-1.5"
                 >
-                  <Save className="w-3.5 h-3.5" strokeWidth={1.5} /> Guardar
+                  <Save className="w-3.5 h-3.5" strokeWidth={1.25} /> Guardar
                 </button>
                 <button
                   type="button"
@@ -467,7 +467,7 @@ export default function CuadrillasManager() {
                   className="text-neutral-400 hover:text-neutral-900 transition-colors"
                   title="Cancelar"
                 >
-                  <X className="w-4 h-4" strokeWidth={1.5} />
+                  <X className="w-3.5 h-3.5" strokeWidth={1.5} />
                 </button>
               </div>
             </div>
@@ -528,7 +528,7 @@ export default function CuadrillasManager() {
                         onClick={handleSaveEdit}
                         className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors flex items-center gap-1.5"
                       >
-                        <Save className="w-3.5 h-3.5" strokeWidth={1.5} /> Guardar
+                        <Save className="w-3.5 h-3.5" strokeWidth={1.25} /> Guardar
                       </button>
                       <button
                         type="button"
@@ -536,7 +536,7 @@ export default function CuadrillasManager() {
                         className="text-neutral-400 hover:text-neutral-900 transition-colors"
                         title="Cancelar"
                       >
-                        <X className="w-4 h-4" strokeWidth={1.5} />
+                        <X className="w-3.5 h-3.5" strokeWidth={1.5} />
                       </button>
                     </div>
                   </div>
