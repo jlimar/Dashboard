@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { getActiveFaults, submitEntryReport } from "@/app/transporte/actions"
+import { TireConditionSelector } from "@/components/tire-condition-selector"
 
 type Reporte = {
     id: string
@@ -166,8 +167,16 @@ function EntradaContent() {
     }
 
     async function handleSubmit() {
-        if (!reporteId || !kmEntrada || !estadoCauchos) {
-            toast.error("Complete todos los campos obligatorios")
+        if (!reporteId) {
+            toast.error("Seleccione el viaje o vehículo a cerrar")
+            return
+        }
+        if (!kmEntrada) {
+            toast.error("Ingrese el kilometraje de llegada")
+            return
+        }
+        if (!estadoCauchos) {
+            toast.error("Por favor seleccione el estado de los cauchos")
             return
         }
 
@@ -554,26 +563,12 @@ function EntradaContent() {
                                 <Switch id="frenos" checked={checks.frenos} onCheckedChange={() => toggleCheck('frenos')} />
                             </div>
 
-                            <div className="flex items-center justify-between gap-4 py-3">
-                                <Label htmlFor="estado_cauchos" className="text-sm text-neutral-700 font-normal shrink-0">
-                                    Estado de cauchos / neumáticos
-                                </Label>
-                                <div className="w-56 sm:w-64">
-                                    <CustomDropdown
-                                        id="estado_cauchos"
-                                        value={estadoCauchos}
-                                        onChange={setEstadoCauchos}
-                                        placeholder="Seleccionar estado"
-                                        align="end"
-                                        options={[
-                                            { value: "100% al 80% Estado Óptimo", label: "100% al 80% Estado Óptimo" },
-                                            { value: "79% al 50% Desgaste Medio", label: "79% al 50% Desgaste Medio" },
-                                            { value: "49% al 20% Planificar Cambio", label: "49% al 20% Planificar Cambio" },
-                                            { value: "19% al 1% Riesgo Crítico", label: "19% al 1% Riesgo Crítico" },
-                                        ]}
-                                    />
-                                </div>
-                            </div>
+                            {/* ESTADO DE CAUCHOS / NEUMÁTICOS - DESTACADO Y ACCESIBLE */}
+                            <TireConditionSelector
+                                id="estado_cauchos"
+                                value={estadoCauchos}
+                                onChange={setEstadoCauchos}
+                            />
 
                             <div className="flex items-center justify-between py-3">
                                 <Label htmlFor="corneta" className="text-sm text-neutral-700 font-normal cursor-pointer">

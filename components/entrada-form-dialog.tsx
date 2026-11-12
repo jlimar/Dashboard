@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { getActiveFaults, submitEntryReport } from "@/app/transporte/actions" // [UPDATED]
+import { TireConditionSelector } from "@/components/tire-condition-selector"
 
 type Reporte = {
     id: string
@@ -186,8 +187,16 @@ export function EntradaFormDialog({ isOpen, onClose, initialVehicleId, onSuccess
     }
 
     async function handleSubmit() {
-        if (!reporteId || !kmEntrada || !estadoCauchos) {
-            toast.error("Complete todos los campos obligatorios")
+        if (!reporteId) {
+            toast.error("Seleccione el viaje o vehículo a cerrar")
+            return
+        }
+        if (!kmEntrada) {
+            toast.error("Ingrese el kilometraje de llegada")
+            return
+        }
+        if (!estadoCauchos) {
+            toast.error("Por favor seleccione el estado de los cauchos")
             return
         }
 
@@ -579,24 +588,12 @@ export function EntradaFormDialog({ isOpen, onClose, initialVehicleId, onSuccess
                                                 <Label htmlFor="frenos" className="text-sm font-normal text-neutral-700 cursor-pointer">Sistema de frenos</Label>
                                                 <Switch id="frenos" checked={checks.frenos} onCheckedChange={() => toggleCheck('frenos')} />
                                             </div>
-                                            <div className="flex items-center justify-between gap-4 py-2.5">
-                                                <Label htmlFor="estado_cauchos" className="text-sm font-normal text-neutral-700 shrink-0">Estado de cauchos</Label>
-                                                <div className="w-[210px]">
-                                                    <CustomDropdown
-                                                        id="estado_cauchos"
-                                                        value={estadoCauchos}
-                                                        onChange={setEstadoCauchos}
-                                                        placeholder="Seleccionar"
-                                                        align="end"
-                                                        options={[
-                                                            { value: "100% al 80% Estado Óptimo", label: "100% al 80% Estado Óptimo" },
-                                                            { value: "79% al 50% Desgaste Medio", label: "79% al 50% Desgaste Medio" },
-                                                            { value: "49% al 20% Planificar Cambio", label: "49% al 20% Planificar Cambio" },
-                                                            { value: "19% al 1% Riesgo Crítico", label: "19% al 1% Riesgo Crítico" },
-                                                        ]}
-                                                    />
-                                                </div>
-                                            </div>
+                                                {/* ESTADO DE CAUCHOS / NEUMÁTICOS - DESTACADO Y ACCESIBLE */}
+                                                <TireConditionSelector
+                                                    id="estado_cauchos"
+                                                    value={estadoCauchos}
+                                                    onChange={setEstadoCauchos}
+                                                />
                                             <div className="flex items-center justify-between py-2.5">
                                                 <Label htmlFor="corneta" className="text-sm font-normal text-neutral-700 cursor-pointer">Corneta</Label>
                                                 <Switch id="corneta" checked={checks.corneta} onCheckedChange={() => toggleCheck('corneta')} />

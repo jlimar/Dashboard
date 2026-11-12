@@ -6,6 +6,7 @@ import { crearSalida, registrarEntrada } from '@/app/transporte/actions';
 import { ArrowUpRight, ArrowDownLeft, ArrowLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { CustomDropdown } from '@/components/ui/custom-dropdown';
+import { TireConditionSelector } from '@/components/tire-condition-selector';
 
 type Vehiculo = { id: string; placa: string; modelo: string; codigo: string; tipo?: string };
 
@@ -534,19 +535,12 @@ export default function ReporteManager({
                                         <span className="text-sm text-neutral-900">Sistema de frenos</span>
                                         <input name="frenos_salida" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
                                     </label>
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 gap-3">
-                                        <span className="text-sm text-neutral-900">Cauchos</span>
-                                        <div className="w-full sm:w-56">
-                                            <CustomDropdown
-                                                name="estado_cauchos_salida"
-                                                required
-                                                value={estadoCauchosSalida}
-                                                onChange={setEstadoCauchosSalida}
-                                                options={CAUCHOS_OPTIONS}
-                                                placeholder="Seleccionar"
-                                            />
-                                        </div>
-                                    </div>
+                                    <TireConditionSelector
+                                        name="estado_cauchos_salida"
+                                        required
+                                        value={estadoCauchosSalida}
+                                        onChange={setEstadoCauchosSalida}
+                                    />
                                     <label className="flex items-center justify-between py-3.5 cursor-pointer">
                                         <span className="text-sm text-neutral-900">Corneta</span>
                                         <input name="corneta_salida" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
@@ -720,19 +714,12 @@ export default function ReporteManager({
                                                 <span className="text-sm text-neutral-900">Sistema de frenos</span>
                                                 <input name="frenos_entrada" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
                                             </label>
-                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3.5 gap-3">
-                                                <span className="text-sm text-neutral-900">Cauchos</span>
-                                                <div className="w-full sm:w-56">
-                                                    <CustomDropdown
-                                                        name="estado_cauchos_entrada"
-                                                        required
-                                                        value={estadoCauchosEntrada}
-                                                        onChange={setEstadoCauchosEntrada}
-                                                        options={CAUCHOS_OPTIONS}
-                                                        placeholder="Seleccionar"
-                                                    />
-                                                </div>
-                                            </div>
+                                            <TireConditionSelector
+                                                name="estado_cauchos_entrada"
+                                                required
+                                                value={estadoCauchosEntrada}
+                                                onChange={setEstadoCauchosEntrada}
+                                            />
                                             <label className="flex items-center justify-between py-3.5 cursor-pointer">
                                                 <span className="text-sm text-neutral-900">Corneta</span>
                                                 <input name="corneta_entrada" type="checkbox" className="w-4 h-4 accent-neutral-900 cursor-pointer" />
