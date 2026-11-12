@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { ArrowLeft, ArrowUpRight, ArrowDownLeft, Wrench, Car, Fuel, QrCode } from "lucide-react"
+import { ArrowLeft, ArrowUpRight, ArrowDownLeft, AlertCircle, ChevronRight, Car, Fuel, QrCode } from "lucide-react"
 import { LogoutButton } from "@/components/ui/logout-button"
 import { useSearchParams, useRouter } from "next/navigation"
 import { SalidaFormDialog } from "@/components/salida-form-dialog"
@@ -445,9 +445,10 @@ export default function TransportePage() {
                             </div>
                         </div>
                         {!activeTripReport && (
-                            <span className="text-xs font-medium text-neutral-500 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
-                                Iniciar →
-                            </span>
+                            <ChevronRight
+                                className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0"
+                                strokeWidth={1.25}
+                            />
                         )}
                     </button>
 
@@ -478,9 +479,10 @@ export default function TransportePage() {
                             </div>
                         </div>
                         {activeTripReport && (
-                            <span className="text-xs font-medium text-neutral-500 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
-                                Registrar →
-                            </span>
+                            <ChevronRight
+                                className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0"
+                                strokeWidth={1.25}
+                            />
                         )}
                     </button>
 
@@ -498,7 +500,7 @@ export default function TransportePage() {
                         className="group w-full py-6 flex items-center justify-between gap-4 text-left transition-colors"
                     >
                         <div className="flex items-start gap-4">
-                            <Wrench className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.25} />
+                            <AlertCircle className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.25} />
                             <div>
                                 <h2 className="text-base font-medium text-neutral-900">Reportar falla</h2>
                                 <p className="text-sm text-neutral-500 mt-0.5">
@@ -506,9 +508,10 @@ export default function TransportePage() {
                                 </p>
                             </div>
                         </div>
-                        <span className="text-xs font-medium text-neutral-500 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
-                            Reportar →
-                        </span>
+                        <ChevronRight
+                            className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0"
+                            strokeWidth={1.25}
+                        />
                     </button>
                 </div>
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { QrCode, ArrowUpRight, ArrowDownLeft, Wrench, Car, ArrowRight } from "lucide-react"
+import { QrCode, ArrowUpRight, ArrowDownLeft, AlertCircle, Car, ChevronRight } from "lucide-react"
 import { LogoutButton } from "@/components/ui/logout-button"
 import QRCode from "react-qr-code"
 import Link from "next/link"
@@ -128,7 +128,7 @@ export default function ChoferPage() {
                                             <QrCode className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 transition-colors" strokeWidth={1.25} />
                                             Mi código QR
                                         </span>
-                                        <ArrowRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all" strokeWidth={1.25} />
+                                        <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0" strokeWidth={1.25} />
                                     </button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-sm bg-white/95 backdrop-blur-xs border border-neutral-200/70 shadow-sm p-6 flex flex-col items-center animate-in fade-in zoom-in-95 duration-150">
@@ -159,7 +159,7 @@ export default function ChoferPage() {
                                     <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 transition-colors" strokeWidth={1.25} />
                                     Registrar salida
                                 </span>
-                                <ArrowRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all" strokeWidth={1.25} />
+                                <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0" strokeWidth={1.25} />
                             </Link>
 
                             <Link
@@ -170,7 +170,7 @@ export default function ChoferPage() {
                                     <ArrowDownLeft className="w-4 h-4 text-neutral-400 group-hover:text-neutral-900 transition-colors" strokeWidth={1.25} />
                                     Registrar entrada
                                 </span>
-                                <ArrowRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all" strokeWidth={1.25} />
+                                <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0" strokeWidth={1.25} />
                             </Link>
 
                             <Link
@@ -178,10 +178,10 @@ export default function ChoferPage() {
                                 className="group w-full py-4 flex items-center justify-between text-neutral-900 hover:text-red-600 transition-colors"
                             >
                                 <span className="flex items-center gap-3 text-sm font-medium">
-                                    <Wrench className="w-4 h-4 text-neutral-400 group-hover:text-red-500 transition-colors" strokeWidth={1.25} />
+                                    <AlertCircle className="w-4 h-4 text-neutral-400 group-hover:text-red-500 transition-colors" strokeWidth={1.25} />
                                     Reportar falla mecánica
                                 </span>
-                                <ArrowRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all" strokeWidth={1.25} />
+                                <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all duration-150 shrink-0" strokeWidth={1.25} />
                             </Link>
                         </div>
                     </>
