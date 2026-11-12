@@ -145,7 +145,7 @@ export default function ChoferPage() {
                             </Dialog>
 
                             <Link
-                                href={`/transporte?action=salida&vehicle_id=${vehicle.id}`}
+                                href={`/transporte/salida?vehicle_id=${vehicle.id}`}
                                 className="group w-full py-4 flex items-center justify-between text-neutral-900 hover:text-neutral-600 transition-colors"
                             >
                                 <span className="flex items-center gap-3 text-sm font-medium">
@@ -156,7 +156,7 @@ export default function ChoferPage() {
                             </Link>
 
                             <Link
-                                href={`/transporte?action=entrada&vehicle_id=${vehicle.id}`}
+                                href={`/transporte/entrada?vehicle_id=${vehicle.id}`}
                                 className="group w-full py-4 flex items-center justify-between text-neutral-900 hover:text-neutral-600 transition-colors"
                             >
                                 <span className="flex items-center gap-3 text-sm font-medium">

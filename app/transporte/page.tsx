@@ -4,8 +4,6 @@ import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { ArrowLeft, ArrowUpRight, ArrowDownLeft, AlertCircle, ChevronRight, Car, Fuel, QrCode } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { SalidaFormDialog } from "@/components/salida-form-dialog"
-import { EntradaFormDialog } from "@/components/entrada-form-dialog"
 import { ReportFaultDialog } from "@/components/report-fault-dialog"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { toast } from "sonner"
@@ -69,12 +67,10 @@ export default function TransportePage() {
         const action = searchParams.get('action')
         const vId = searchParams.get('vehicle_id')
 
-        if (vId) setInitialVehicleId(vId)
-
-        if (action === 'salida' && vId) {
-            setSalidaOpen(true)
-        } else if (action === 'entrada' && vId) {
-            setEntradaOpen(true)
+        if (action === 'salida') {
+            router.replace(vId ? `/transporte/salida?vehicle_id=${vId}` : `/transporte/salida`)
+        } else if (action === 'entrada') {
+            router.replace(vId ? `/transporte/entrada?vehicle_id=${vId}` : `/transporte/entrada`)
         }
     }, [searchParams])
 
@@ -415,15 +411,12 @@ export default function TransportePage() {
                         disabled={!!activeTripReport} // [NEW] Disable if in trip
                         onClick={() => {
                             if (activeTripReport) return // Prevent click if disabled check fails
-                            if (assignedVehicle) {
-                                setInitialVehicleId(assignedVehicle.id)
-                                setSalidaOpen(true)
-                            } else {
-                                setInitialVehicleId("")
-                                setSalidaOpen(true)
-                            }
+                            const targetUrl = assignedVehicle
+                                ? `/transporte/salida?vehicle_id=${assignedVehicle.id}`
+                                : `/transporte/salida`
+                            router.push(targetUrl)
                         }}
-                        className="group w-full py-6 flex items-center justify-between gap-4 text-left transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="group w-full py-6 flex items-center justify-between gap-4 text-left transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
                         <div className="flex items-start gap-4">
                             <ArrowUpRight className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.25} />
@@ -450,14 +443,12 @@ export default function TransportePage() {
                         disabled={!activeTripReport} // [NEW] Disable if NOT in trip
                         onClick={() => {
                             if (!activeTripReport) return // Prevent click
-
-                            // [NEW] Logic: If active trip, PRE-SELECT that vehicle
-                            if (activeTripReport) {
-                                setInitialVehicleId(activeTripReport.vehiculo_id)
-                                setEntradaOpen(true)
-                            }
+                            const targetUrl = activeTripReport?.vehiculo_id
+                                ? `/transporte/entrada?vehicle_id=${activeTripReport.vehiculo_id}`
+                                : `/transporte/entrada`
+                            router.push(targetUrl)
                         }}
-                        className="group w-full py-6 flex items-center justify-between gap-4 text-left transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="group w-full py-6 flex items-center justify-between gap-4 text-left transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
                         <div className="flex items-start gap-4">
                             <ArrowDownLeft className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.25} />
@@ -506,25 +497,6 @@ export default function TransportePage() {
                         />
                     </button>
                 </div>
-
-                {/* MODALS */}
-                <SalidaFormDialog
-                    isOpen={salidaOpen}
-                    onClose={() => setSalidaOpen(false)}
-                    initialVehicleId={initialVehicleId}
-                    onSuccess={() => {
-                        loadData(true) // [NEW] Silent reload to keep dialog open
-                    }}
-                />
-
-                <EntradaFormDialog
-                    isOpen={entradaOpen}
-                    onClose={() => setEntradaOpen(false)}
-                    initialVehicleId={initialVehicleId}
-                    onSuccess={() => {
-                        loadData(true) // [NEW] Silent reload to keep dialog open
-                    }}
-                />
 
                 {/* POOL SELECTOR DIALOG */}
                 <Dialog open={vehicleSelectOpen} onOpenChange={setVehicleSelectOpen}>
