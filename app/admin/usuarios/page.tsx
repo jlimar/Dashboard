@@ -31,7 +31,7 @@ import {
     MapPin,
 } from "lucide-react"
 import Link from "next/link"
-import { updateProfileDetails, impersonateUserAction, createUserAction, adminResetPassword } from "./user-actions"
+import { updateProfileDetails, impersonateUserAction, createUserAction, adminResetPassword, deleteUserAction, deduplicateUsersAction } from "./user-actions"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { DEPARTMENTS, JOB_TITLES_BY_DEPARTMENT } from "@/lib/constants"
 import { CustomDropdown } from "@/components/ui/custom-dropdown"
@@ -165,6 +165,11 @@ export default function AdminUsersPage() {
 
     // Impersonate Confirm State
     const [impersonateEmail, setImpersonateEmail] = useState<string | null>(null)
+
+    // Delete User State
+    const [userToDelete, setUserToDelete] = useState<Profile | null>(null)
+    const [deleting, setDeleting] = useState(false)
+    const [deduplicating, setDeduplicating] = useState(false)
 
     useEffect(() => {
         loadProfiles()
@@ -322,6 +327,42 @@ export default function AdminUsersPage() {
         }
     }
 
+    const handleDeleteUser = async () => {
+        if (!userToDelete) return
+        setDeleting(true)
+        const result = await deleteUserAction(userToDelete.id)
+        setDeleting(false)
+
+        if (result.error) {
+            toast.error(result.error)
+        } else {
+            toast.success("Usuario eliminado exitosamente")
+            setUserToDelete(null)
+            loadProfiles()
+        }
+    }
+
+    const handleDeduplicate = async () => {
+        setDeduplicating(true)
+        const result = await deduplicateUsersAction()
+        setDeduplicating(false)
+
+        if (result.error) {
+            toast.error(result.error)
+        } else {
+            toast.success(`Se fusionaron ${result.mergedCount} registros duplicados`)
+            loadProfiles()
+        }
+    }
+
+    const duplicateCountByCleanId = profiles.reduce<Record<string, number>>((acc, p) => {
+        const clean = p.national_id?.replace(/\D/g, "")
+        if (clean) acc[clean] = (acc[clean] || 0) + 1
+        return acc
+    }, {})
+
+    const hasDuplicates = Object.values(duplicateCountByCleanId).some((count) => count > 1)
+
     const departmentOptions = DEPARTMENTS.map((dept) => ({ value: dept, label: dept }))
     const jobTitleOptions = editForm.department
         ? (JOB_TITLES_BY_DEPARTMENT[editForm.department] || []).map((title) => ({ value: title, label: title }))
@@ -351,13 +392,25 @@ export default function AdminUsersPage() {
                                 Administra los permisos y roles del personal.
                             </p>
                         </div>
-                        <button
-                            type="button"
-                            onClick={() => setIsCreateOpen(true)}
-                            className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors self-start sm:self-auto"
-                        >
-                            + Nuevo usuario
-                        </button>
+                        <div className="flex items-center gap-4 self-start sm:self-auto">
+                            {hasDuplicates && (
+                                <button
+                                    type="button"
+                                    onClick={handleDeduplicate}
+                                    disabled={deduplicating}
+                                    className="text-xs font-medium text-amber-600 hover:text-amber-700 transition-colors disabled:opacity-40"
+                                >
+                                    {deduplicating ? "Fusionando duplicados..." : "Fusionar duplicados"}
+                                </button>
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => setIsCreateOpen(true)}
+                                className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
+                            >
+                                + Nuevo usuario
+                            </button>
+                        </div>
                     </div>
                 </header>
 
@@ -382,6 +435,9 @@ export default function AdminUsersPage() {
                             ) : profiles.map((profile) => {
                                 const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(" ")
                                 const roles = profile.roles || []
+                                const cleanId = profile.national_id?.replace(/\D/g, "")
+                                const isDuplicate = !!cleanId && (duplicateCountByCleanId[cleanId] || 0) > 1
+
                                 return (
                                     <TableRow key={profile.id} className="group hover:bg-neutral-50/50 transition-colors border-b border-neutral-100">
                                         <TableCell className="pl-0 py-3.5">
@@ -393,6 +449,11 @@ export default function AdminUsersPage() {
                                                     {profile.national_id && (
                                                         <span className="text-xs font-mono text-neutral-400 font-normal">
                                                             {profile.national_id}
+                                                        </span>
+                                                    )}
+                                                    {isDuplicate && (
+                                                        <span className="text-[10px] text-amber-600 font-normal">
+                                                            (Cédula repetida)
                                                         </span>
                                                     )}
                                                 </div>
@@ -469,6 +530,15 @@ export default function AdminUsersPage() {
                                                 >
                                                     <Shield className="w-3.5 h-3.5" strokeWidth={1.25} />
                                                     <span className="hidden sm:inline">Permisos</span>
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setUserToDelete(profile)}
+                                                    className="text-neutral-400 hover:text-neutral-900 transition-colors"
+                                                    title="Eliminar usuario"
+                                                >
+                                                    <X className="w-3.5 h-3.5" strokeWidth={1.5} />
                                                 </button>
                                             </div>
                                         </TableCell>
@@ -768,6 +838,25 @@ export default function AdminUsersPage() {
                 confirmLabel="Continuar"
                 destructive={false}
                 onConfirm={executeImpersonate}
+            />
+
+            {/* DELETE USER CONFIRM DIALOG */}
+            <DeleteConfirmDialog
+                open={!!userToDelete}
+                onOpenChange={(open) => !open && setUserToDelete(null)}
+                title="Eliminar usuario"
+                description={
+                    <>
+                        ¿Estás seguro de que deseas eliminar permanentemente a{" "}
+                        <span className="font-medium text-neutral-900">
+                            {[userToDelete?.first_name, userToDelete?.last_name].filter(Boolean).join(" ") || userToDelete?.email}
+                        </span>{" "}
+                        ({userToDelete?.email})? Se liberarán sus asignaciones de vehículos y se eliminará su cuenta de acceso.
+                    </>
+                }
+                confirmLabel={deleting ? "Eliminando..." : "Eliminar usuario"}
+                destructive={true}
+                onConfirm={handleDeleteUser}
             />
         </div>
     )
