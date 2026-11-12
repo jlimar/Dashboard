@@ -5,7 +5,7 @@ Documento maestro de directrices de diseño visual, interfaz de usuario (UI) y e
 ---
 
 ## 🎯 Filosofía General de Diseño
-El proyecto adopta una estética de **minimalismo radical, diseño abierto y tipografía limpia**. La interfaz debe respirar de forma natural sobre el lienzo, prescindiendo de recuadros saturados, bordes perimetrales agresivos, sombras pesadas y colores estridentes.
+El proyecto adopta una estética de **minimalismo radical, diseño abierto, tipografía limpia y artesanía de interfaz Anti-Slop (Taste-Skill)**. Inspirado en el nivel de ejecución y sobriedad de referentes como *Linear, Figma y x.ai*, la interfaz debe respirar de forma natural sobre el lienzo, prescindiendo de recuadros saturados, bordes perimetrales agresivos, sombras pesadas, botones de pastilla y colores estridentes. Toda interacción debe contar con micro-animaciones tranquilas y precisas.
 
 ---
 
@@ -128,13 +128,50 @@ El proyecto adopta una estética de **minimalismo radical, diseño abierto y tip
 
 ---
 
+## 7. Micro-interacciones y Capa de Movimiento (Taste-Skill Motion)
+
+### 🚫 Prohibido
+* **Animaciones exageradas o gratuitas**: Prohibido el uso de rebotes excesivos (*bounces*), rotaciones dramáticas, sombras difusas pesadas al hacer hover, o transiciones largas lentas (>300ms en UI común).
+* **Ausencia total de respuesta interactiva**: Un botón, enlace o fila interactiva nunca debe quedarse estático o sin respuesta inmediata al toque o clic.
+
+### ✅ Estándar Aprobado
+* **Tokens de tiempo y curvas de aceleración**:
+  * Entrada rápida: `150ms` (`--m-in`).
+  * Salida rápida: `120ms` (`--m-out`).
+  * Presión táctil/clic: `90ms` (`--m-press`).
+  * Curva UI orgánica: `cubic-bezier(0.2, 0.8, 0.2, 1)`.
+* **Micro-interacciones en botones y enlaces**:
+  * **Efecto de presión táctil (*press scale*)**: Todo botón o enlace accionable reduce sutilmente su escala a `scale-[0.985]` durante el clic activo (`active:scale-[0.985]`).
+  * **Desplazamiento sutil de flechas**: Enlaces de navegación con flecha `→` desplazan la flecha 3px a la derecha al hacer hover (`group-hover:translate-x-1 transition-transform duration-150`).
+  * **Elevación sutil en filas / listas**: Las filas interactivas pueden elevarse sutilmente `1.5px` (`hover:-translate-y-0.5`) o aplicar un tinte ultra-sutil (`hover:bg-neutral-50/80 active:scale-[0.99]`).
+  * **Zoom sutil en fotografías**: Fotografías de vehículos o imágenes de producto dentro de marcos con `overflow-hidden` aplican un zoom suave a `scale-[1.025]` en `duration-500`.
+
+---
+
+## 8. Lectura, Contraste de Tinta y Hairlines de Precisión
+
+### 🚫 Prohibido
+* **Líneas de lectura infinitas**: Párrafos explicativos que se extienden sin control por toda la pantalla, dificultando la lectura.
+* **Bordes oscuros o gruesos**: Líneas divisorias gruesas o negras que fracturan la vista.
+
+### ✅ Estándar Aprobado
+* **Medida de confort de lectura (*measure*)**: Máximo de ~62 caracteres por línea en textos descriptivos (`max-w-[62ch]` o `measure-copy`).
+* **Jerarquía de contraste de tinta (90-95% neutra)**:
+  * **Tinta primaria (*Ink*)**: `text-neutral-900` para títulos, valores activos y etiquetas principales.
+  * **Metadatos y contexto**: `text-neutral-500` y `text-neutral-400` para información secundaria y fechas.
+  * **Números y cifras operativas**: `font-mono tabular-nums` para alinear números, kilometrajes, litros y tiempos de forma técnica.
+* **Separadores ultradelgados (*Hairlines*)**: Trazos finos al 8-14% de opacidad (`border-neutral-100` o `border-neutral-200/60`), delimitando sin encerrar.
+
+---
+
 ## 📋 Resumen Rápido (Cheatsheet)
 
-| Elemento | ❌ Prohibido | ✅ Estándar del Proyecto |
+| Elemento | ❌ Prohibido | ✅ Estándar del Proyecto (Taste-Skill) |
 | :--- | :--- | :--- |
 | **Contenedor** | `border rounded-xl shadow-sm bg-white` | Lienzo abierto con divisores `border-b border-neutral-100` |
-| **Botón de acción** | Botones con bordes, sombras o pastillas de fondo | Solo el icono `text-neutral-400 hover:text-neutral-900` |
-| **Botón de texto** | Pastillas con fondo o marcos | Palabra limpia sin marco `text-neutral-500 hover:text-neutral-900` |
+| **Botón de acción** | Botones con bordes, sombras o pastillas de fondo | Solo el icono `text-neutral-400 hover:text-neutral-900 active:scale-[0.985]` |
+| **Botón de texto** | Pastillas con fondo o marcos | Palabra limpia sin marco `text-neutral-500 hover:text-neutral-900 active:scale-[0.985]` |
+| **Micro-interacción de clic** | Respuesta rígida o sin feedback | Presión sutil `active:scale-[0.985]` y transición en `150ms` |
 | **Selector** | `<select><option>...</option></select>` | `CustomDropdown` personalizado |
 | **Input de texto** | `border rounded-md px-3 py-2` | Línea inferior `border-b border-neutral-200 bg-transparent py-1.5` |
 | **Eliminar fila** | Icono `Trash2` (bote de basura) | **Únicamente `X` (`stroke-[1.5]`)** |
@@ -142,4 +179,6 @@ El proyecto adopta una estética de **minimalismo radical, diseño abierto y tip
 | **Alertas** | Banners en bloque (`bg-emerald-50`, `bg-red-50`) | Texto neutro en línea o microindicadores sutiles |
 | **Confirmaciones** | `window.confirm()` o `window.alert()` | Modales en interfaz con `backdrop-blur-xs` |
 | **Títulos y KPIs** | `uppercase` e iconos decorativos | Sentence case limpio, tipografía pura sin iconos decorativos |
+| **Fotografías e imágenes** | Marcos estáticos o sin proporción | `overflow-hidden` con micro-zoom `group-hover:scale-[1.025] duration-500` |
+| **Textos descriptivos** | Párrafos anchos sin límite | Ancho de lectura controlado `max-w-[62ch]` (`measure-copy`) |
 

@@ -128,7 +128,7 @@ export default function LoginPage() {
                     <div className="flex flex-col items-center gap-4 pt-2">
                         <button
                             type="submit"
-                            className="text-sm font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
+                            className="text-sm font-medium text-neutral-900 hover:text-neutral-600 transition-all duration-150 active:scale-[0.985] disabled:opacity-40 cursor-pointer"
                             disabled={loading || !username || !password}
                         >
                             {loading ? "Procesando..." : (isRegistering ? "Registrarse" : "Iniciar sesión")}
@@ -157,7 +157,7 @@ export default function LoginPage() {
                                         setLoading(false);
                                     }
                                 }}
-                                className="text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
+                                className="text-xs text-neutral-400 hover:text-neutral-900 transition-all duration-150 active:scale-[0.985] cursor-pointer"
                                 disabled={loading}
                             >
                                 ¿Olvidaste tu contraseña?
@@ -167,7 +167,7 @@ export default function LoginPage() {
                         <button
                             type="button"
                             onClick={() => setIsRegistering(!isRegistering)}
-                            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                            className="text-xs text-neutral-500 hover:text-neutral-900 transition-all duration-150 active:scale-[0.985] cursor-pointer"
                         >
                             {isRegistering ? "¿Ya tienes cuenta? Inicia sesión" : "¿No tienes cuenta? Regístrate aquí"}
                         </button>
@@ -181,7 +181,7 @@ export default function LoginPage() {
                         <button
                             type="button"
                             onClick={handleLogin}
-                            className="inline-flex items-center gap-2 text-xs text-neutral-600 hover:text-neutral-900 transition-colors disabled:opacity-40"
+                            className="inline-flex items-center gap-2 text-xs text-neutral-600 hover:text-neutral-900 transition-all duration-150 active:scale-[0.985] disabled:opacity-40 cursor-pointer"
                             disabled={loading}
                         >
                             <Chrome className="w-4 h-4 text-neutral-400" strokeWidth={1.5} />

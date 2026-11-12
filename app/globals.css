@@ -24,6 +24,13 @@
   --input: oklch(0.922 0 0);
   --ring: oklch(0 0 0); /* black ring */
   --radius: 0.75rem; /* rounded-xl by default, components will override */
+
+  /* Taste-Skill Motion & Rhythm Tokens */
+  --ease-taste: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+  --m-in: 150ms;
+  --m-out: 120ms;
+  --m-press: 90ms;
 }
 
 @theme inline {
@@ -57,5 +64,38 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer utilities {
+  /* Taste-Skill Anti-Slop Motion Utilities */
+  .taste-press {
+    transition: transform var(--m-press) var(--ease-taste);
+  }
+  .taste-press:active {
+    transform: scale(0.985);
+  }
+
+  .taste-lift {
+    transition: transform var(--m-in) var(--ease-taste), color var(--m-in) var(--ease-taste), background-color var(--m-in) var(--ease-taste);
+  }
+  .taste-lift:hover {
+    transform: translateY(-1.5px);
+  }
+  .taste-lift:active {
+    transform: translateY(0) scale(0.985);
+  }
+
+  .taste-zoom {
+    transition: transform 500ms var(--ease-taste);
+  }
+  .group:hover .taste-zoom {
+    transform: scale(1.025);
+  }
+
+  /* Reading comfort max measure */
+  .measure-copy {
+    max-width: 62ch;
   }
 }

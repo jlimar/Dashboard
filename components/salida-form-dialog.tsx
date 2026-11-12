@@ -782,7 +782,7 @@ export function SalidaFormDialog({ isOpen, onClose, initialVehicleId, onSuccess 
                                 type="button"
                                 onClick={onClose}
                                 disabled={loading}
-                                className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors disabled:opacity-40"
+                                className="text-xs text-neutral-500 hover:text-neutral-900 transition-all duration-150 active:scale-[0.985] disabled:opacity-40 cursor-pointer"
                             >
                                 Cancelar
                             </button>
@@ -790,7 +790,7 @@ export function SalidaFormDialog({ isOpen, onClose, initialVehicleId, onSuccess 
                                 type="button"
                                 onClick={handleSubmit}
                                 disabled={loading}
-                                className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
+                                className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-all duration-150 active:scale-[0.985] disabled:opacity-40 cursor-pointer"
                             >
                                 {loading ? "Registrando..." : "Confirmar salida"}
                             </button>

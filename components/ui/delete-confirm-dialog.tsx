@@ -68,7 +68,7 @@ export function DeleteConfirmDialog({
             type="button"
             disabled={busy}
             onClick={() => onOpenChange(false)}
-            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors disabled:opacity-50"
+            className="text-xs text-neutral-500 hover:text-neutral-900 transition-all duration-150 active:scale-[0.985] disabled:opacity-50 cursor-pointer"
           >
             {cancelLabel}
           </button>
@@ -77,7 +77,7 @@ export function DeleteConfirmDialog({
             disabled={busy}
             onClick={handleConfirm}
             className={cn(
-              'text-xs font-medium transition-colors disabled:opacity-50',
+              'text-xs font-medium transition-all duration-150 active:scale-[0.985] disabled:opacity-50 cursor-pointer',
               destructive
                 ? 'text-red-600 hover:text-red-700'
                 : 'text-neutral-900 hover:text-neutral-600',

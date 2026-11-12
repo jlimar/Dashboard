@@ -59,35 +59,37 @@ export default async function SupervisionHubPage() {
         <div className="divide-y divide-neutral-100 border-b border-neutral-100">
           <Link
             href="/supervision/reporte-diario"
-            className="group flex items-center justify-between gap-4 py-4 sm:py-5 px-2 -mx-2 rounded-md hover:bg-neutral-50/70 active:bg-neutral-100/70 transition-colors"
+            className="group flex items-center justify-between gap-4 py-4 sm:py-5 px-2.5 -mx-2.5 rounded-md hover:bg-neutral-50/80 active:scale-[0.99] transition-all duration-150"
           >
             <div className="min-w-0 pr-2">
-              <h2 className="text-sm sm:text-base font-medium text-neutral-900 group-hover:text-neutral-600 transition-colors">
+              <h2 className="text-sm sm:text-base font-medium text-neutral-900 group-hover:text-neutral-700 transition-colors">
                 Reporte diario
               </h2>
-              <p className="text-xs sm:text-sm text-neutral-500 mt-0.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-neutral-500 mt-0.5 leading-relaxed measure-copy">
                 Llenar el reporte de las operaciones realizadas.
               </p>
             </div>
-            <span className="text-xs text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
-              Acceder →
+            <span className="text-xs text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0 flex items-center gap-1">
+              <span>Acceder</span>
+              <span className="inline-block transition-transform duration-150 group-hover:translate-x-1">→</span>
             </span>
           </Link>
 
           <Link
             href="/supervision/control-equipamiento"
-            className="group flex items-center justify-between gap-4 py-4 sm:py-5 px-2 -mx-2 rounded-md hover:bg-neutral-50/70 active:bg-neutral-100/70 transition-colors"
+            className="group flex items-center justify-between gap-4 py-4 sm:py-5 px-2.5 -mx-2.5 rounded-md hover:bg-neutral-50/80 active:scale-[0.99] transition-all duration-150"
           >
             <div className="min-w-0 pr-2">
-              <h2 className="text-sm sm:text-base font-medium text-neutral-900 group-hover:text-neutral-600 transition-colors">
+              <h2 className="text-sm sm:text-base font-medium text-neutral-900 group-hover:text-neutral-700 transition-colors">
                 Control de equipamiento
               </h2>
-              <p className="text-xs sm:text-sm text-neutral-500 mt-0.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-neutral-500 mt-0.5 leading-relaxed measure-copy">
                 Auditoría de herramientas y kits FTTH del equipo de técnicos.
               </p>
             </div>
-            <span className="text-xs text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
-              Auditar equipos →
+            <span className="text-xs text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0 flex items-center gap-1">
+              <span>Auditar equipos</span>
+              <span className="inline-block transition-transform duration-150 group-hover:translate-x-1">→</span>
             </span>
           </Link>
         </div>

@@ -100,7 +100,7 @@ export default function CompleteProfilePage() {
                     <div className="pt-2">
                         <button
                             type="submit"
-                            className="text-sm font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40"
+                            className="text-sm font-medium text-neutral-900 hover:text-neutral-600 transition-all duration-150 active:scale-[0.985] disabled:opacity-40 cursor-pointer"
                             disabled={loading}
                         >
                             {loading ? "Habilitando funciones..." : "Activar y continuar"}

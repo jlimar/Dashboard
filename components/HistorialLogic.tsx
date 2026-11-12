@@ -87,7 +87,7 @@ export default function HistorialLogic({ usuarioActual }: { usuarioActual: { id:
               <div
                 key={report.id}
                 onClick={() => setSelectedReport(isSelected ? null : report)}
-                className="py-5 px-1 transition-colors cursor-pointer hover:bg-neutral-50/50"
+                className="py-5 px-2 -mx-2 rounded-md transition-all duration-150 cursor-pointer hover:bg-neutral-50/80 active:scale-[0.995]"
               >
                 <div className="flex justify-between items-center gap-4">
                   <div className="space-y-1 min-w-0">
@@ -137,7 +137,7 @@ export default function HistorialLogic({ usuarioActual }: { usuarioActual: { id:
                       type="button"
                       onClick={(e) => handleWhatsApp(report, e)}
                       disabled={report.status !== "COMPLETED"}
-                      className="inline-flex items-center gap-2 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="inline-flex items-center gap-2 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-all duration-150 active:scale-[0.985] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
                       <MessageCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
                       {report.status === "COMPLETED"

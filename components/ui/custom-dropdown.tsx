@@ -142,10 +142,10 @@ export function CustomDropdown({
                       setOpen(false)
                     }}
                     className={cn(
-                      'w-full flex items-center justify-between gap-2 px-2.5 py-1.5 text-left text-sm rounded-md transition-colors',
+                      'w-full flex items-center justify-between gap-2 px-2.5 py-1.5 text-left text-sm rounded-md transition-all duration-150',
                       option.disabled
                         ? 'opacity-40 cursor-not-allowed'
-                        : 'hover:bg-neutral-50 cursor-pointer',
+                        : 'hover:bg-neutral-50 active:scale-[0.99] cursor-pointer',
                       isSelected ? 'text-neutral-900 font-medium' : 'text-neutral-600 font-normal',
                     )}
                   >

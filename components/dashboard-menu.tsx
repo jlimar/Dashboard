@@ -112,18 +112,19 @@ export function DashboardMenu() {
                 <Link
                     key={item.href}
                     href={item.href}
-                    className="group flex items-center justify-between gap-4 py-4 sm:py-5 px-2 -mx-2 rounded-md hover:bg-neutral-50/70 active:bg-neutral-100/70 transition-colors"
+                    className="group flex items-center justify-between gap-4 py-4 sm:py-5 px-2.5 -mx-2.5 rounded-md hover:bg-neutral-50/80 active:scale-[0.99] transition-all duration-150"
                 >
                     <div className="min-w-0 pr-2">
-                        <h2 className="text-sm sm:text-base font-medium text-neutral-900 group-hover:text-neutral-600 transition-colors">
+                        <h2 className="text-sm sm:text-base font-medium text-neutral-900 group-hover:text-neutral-700 transition-colors">
                             {item.title}
                         </h2>
-                        <p className="text-xs sm:text-sm text-neutral-500 mt-0.5 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-neutral-500 mt-0.5 leading-relaxed measure-copy">
                             {item.description}
                         </p>
                     </div>
-                    <span className="text-xs text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
-                        {item.action} →
+                    <span className="text-xs text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0 flex items-center gap-1">
+                        <span>{item.action}</span>
+                        <span className="inline-block transition-transform duration-150 group-hover:translate-x-1">→</span>
                     </span>
                 </Link>
             ))}
