@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm, useFieldArray, useWatch, Controller } from "react-hook-form";
 import { createClient } from "@/lib/supabase/client";
-import { CheckCircle2, UploadCloud, Loader2, Plus, X, MessageCircle } from "lucide-react";
+import { CheckCircle2, Loader2, Plus, X, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { CustomDropdown } from "@/components/ui/custom-dropdown";
 import { generateWhatsAppMessage } from "@/lib/whatsappFormatter";
@@ -1005,9 +1005,7 @@ export default function SupervisionFormLogic({ usuarioActual }: SupervisionFormP
                   <Loader2 className="w-4 h-4 animate-spin" /> Finalizando...
                 </>
               ) : (
-                <>
-                  Enviar reporte final <UploadCloud className="w-4 h-4" strokeWidth={1.5} />
-                </>
+                "Enviar reporte final"
               )}
             </button>
           </div>

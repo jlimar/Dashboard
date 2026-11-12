@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { createClient } from "@/lib/supabase/client";
-import { CheckCircle2, UploadCloud, Loader2, MessageCircle, Download, History } from "lucide-react";
+import { CheckCircle2, Loader2, MessageCircle, Download, History } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { CustomDropdown } from "@/components/ui/custom-dropdown";
@@ -467,9 +467,7 @@ export default function EquipmentControlFormLogic({ usuarioActual }: EquipmentFo
                 <Loader2 className="w-4 h-4 animate-spin" /> Guardando...
               </>
             ) : (
-              <>
-                Guardar auditoría <UploadCloud className="w-4 h-4" strokeWidth={1.5} />
-              </>
+              "Guardar auditoría"
             )}
           </button>
         </div>

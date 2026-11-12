@@ -341,9 +341,8 @@ export default function TransportePage() {
                                     }
                                     setVehicleSelectOpen(true)
                                 }}
-                                className={`text-xs inline-flex items-center gap-1.5 transition-colors ${activeTripReport ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-500 hover:text-neutral-900'}`}
+                                className={`text-xs transition-colors ${activeTripReport ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-500 hover:text-neutral-900'}`}
                             >
-                                <Car className="w-3.5 h-3.5" strokeWidth={1.5} />
                                 Cambiar unidad
                             </button>
                         </div>

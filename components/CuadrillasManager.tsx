@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Plus, PenLine, Loader2, Save, X, UserPlus } from "lucide-react"
+import { Plus, PenLine, Loader2, X } from "lucide-react"
 import { toast } from "sonner"
 import { CustomDropdown } from "@/components/ui/custom-dropdown"
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog"
@@ -262,9 +262,9 @@ export default function CuadrillasManager() {
               <button
                 type="button"
                 onClick={() => setIsAddingTecnico(true)}
-                className="flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
+                className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
               >
-                <UserPlus className="w-3.5 h-3.5" strokeWidth={1.25} /> Nuevo técnico
+                + Nuevo técnico
               </button>
             )}
           </div>
@@ -288,9 +288,9 @@ export default function CuadrillasManager() {
                 <button
                   type="button"
                   onClick={handleAddTecnico}
-                  className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors flex items-center gap-1.5"
+                  className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
                 >
-                  <Save className="w-3.5 h-3.5" strokeWidth={1.25} /> Guardar
+                  Guardar
                 </button>
                 <button
                   type="button"
@@ -329,9 +329,9 @@ export default function CuadrillasManager() {
                           <button
                             type="button"
                             onClick={handleSaveTecnicoEdit}
-                            className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors flex items-center gap-1.5"
+                            className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
                           >
-                            <Save className="w-3.5 h-3.5" strokeWidth={1.25} /> Guardar
+                            Guardar
                           </button>
                           <button
                             type="button"
@@ -402,9 +402,9 @@ export default function CuadrillasManager() {
               <button
                 type="button"
                 onClick={() => setIsAdding(true)}
-                className="flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
+                className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
               >
-                <Plus className="w-3.5 h-3.5" strokeWidth={1.25} /> Nueva cuadrilla
+                + Nueva cuadrilla
               </button>
             )}
           </div>
@@ -457,9 +457,9 @@ export default function CuadrillasManager() {
                 <button
                   type="button"
                   onClick={handleAdd}
-                  className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors flex items-center gap-1.5"
+                  className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
                 >
-                  <Save className="w-3.5 h-3.5" strokeWidth={1.25} /> Guardar
+                  Guardar
                 </button>
                 <button
                   type="button"
@@ -526,9 +526,9 @@ export default function CuadrillasManager() {
                       <button
                         type="button"
                         onClick={handleSaveEdit}
-                        className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors flex items-center gap-1.5"
+                        className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
                       >
-                        <Save className="w-3.5 h-3.5" strokeWidth={1.25} /> Guardar
+                        Guardar
                       </button>
                       <button
                         type="button"
