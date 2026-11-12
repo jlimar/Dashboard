@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { DashboardMenu } from "@/components/dashboard-menu"
+import { INITIAL_MODULES_CONFIG } from "@/lib/constants"
 
 export default async function Home() {
   const supabase = await createClient()
@@ -14,12 +15,26 @@ export default async function Home() {
     return redirect("/login")
   }
 
-  // Fetch Profile
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("first_name, last_name, department, job_title, national_id")
-    .eq("id", user.id)
-    .single()
+  // Fetch Profile and App Settings in PARALLEL
+  const [profileRes, settingsRes] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("first_name, last_name, department, job_title, national_id")
+      .eq("id", user.id)
+      .single(),
+    supabase.from("app_settings").select("*")
+  ])
+
+  const profile = profileRes.data
+
+  // Build settings map
+  const settings: Record<string, boolean> = {}
+  INITIAL_MODULES_CONFIG.forEach(m => settings[m.key] = m.default)
+  if (settingsRes.data) {
+    settingsRes.data.forEach((item: any) => {
+      settings[item.key] = item.value
+    })
+  }
 
   // Redirect to complete profile if necessary info is missing
   if (!profile?.first_name || !profile?.last_name || !profile?.national_id) {
@@ -50,7 +65,7 @@ export default async function Home() {
         </header>
 
         {/* MODULE LIST */}
-        <DashboardMenu />
+        <DashboardMenu initialSettings={settings} />
 
       </div>
     </main>

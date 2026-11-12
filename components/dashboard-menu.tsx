@@ -8,37 +8,44 @@ import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { INITIAL_MODULES_CONFIG } from "@/lib/constants"
 
-export function DashboardMenu() {
+interface DashboardMenuProps {
+    initialSettings?: Record<string, boolean>
+}
+
+export function DashboardMenu({ initialSettings }: DashboardMenuProps = {}) {
     const { hasRole, isAdmin, isLoading: isUserLoading } = useUser()
-    const [enabledModules, setEnabledModules] = useState<Record<string, boolean>>({})
-    const [loadingSettings, setLoadingSettings] = useState(true)
+    const [enabledModules, setEnabledModules] = useState<Record<string, boolean>>(() => {
+        if (initialSettings && Object.keys(initialSettings).length > 0) {
+            return initialSettings
+        }
+        const defaults: Record<string, boolean> = {}
+        INITIAL_MODULES_CONFIG.forEach(m => defaults[m.key] = m.default)
+        return defaults
+    })
 
     useEffect(() => {
-        const loadSettings = async () => {
+        // Asynchronously refresh in background without blocking UI
+        const refreshSettings = async () => {
             try {
-                // Initialize with defaults
-                const settings: Record<string, boolean> = {}
-                INITIAL_MODULES_CONFIG.forEach(m => settings[m.key] = m.default)
-
                 const supabase = createClient()
                 const { data, error } = await supabase.from('app_settings').select('*')
 
                 if (data && !error) {
+                    const fresh: Record<string, boolean> = {}
+                    INITIAL_MODULES_CONFIG.forEach(m => fresh[m.key] = m.default)
                     data.forEach((item: any) => {
-                        settings[item.key] = item.value
+                        fresh[item.key] = item.value
                     })
+                    setEnabledModules(fresh)
                 }
-                setEnabledModules(settings)
             } catch (e) {
-                console.error("Error loading module settings", e)
-            } finally {
-                setLoadingSettings(false)
+                console.error("Error refreshing module settings", e)
             }
         }
-        loadSettings()
+        refreshSettings()
     }, [])
 
-    if (isUserLoading || loadingSettings) {
+    if (isUserLoading) {
         return <div className="text-neutral-400 text-sm py-10">Cargando panel...</div>
     }
 

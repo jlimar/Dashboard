@@ -86,8 +86,10 @@ function SalidaContent() {
                 // Fallback: If vehicle is not in 'available', fetch it directly
                 if (!found) {
                     const supabase = createClient()
-                    const { data: vData } = await supabase.from('vehiculos').select('*').eq('id', initialVehicleId).single()
-                    const { data: kData } = await supabase.from('vista_ultimos_kilometrajes').select('ultimo_kilometraje').eq('vehiculo_id', initialVehicleId).single()
+                    const [{ data: vData }, { data: kData }] = await Promise.all([
+                        supabase.from('vehiculos').select('*').eq('id', initialVehicleId).single(),
+                        supabase.from('vista_ultimos_kilometrajes').select('ultimo_kilometraje').eq('vehiculo_id', initialVehicleId).single()
+                    ])
 
                     if (vData) {
                         found = {
@@ -108,7 +110,7 @@ function SalidaContent() {
     async function loadVehicles() {
         const supabase = createClient()
 
-        // 1. Get User Profile
+        // 1. Get User
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
             router.push('/login')
@@ -117,11 +119,22 @@ function SalidaContent() {
 
         setCurrentUserId(user.id)
 
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('department, roles, first_name, last_name, plain_text_reports')
-            .eq('id', user.id)
-            .single()
+        // 2. Fetch Profile, Vehicles, Busy Reports, and Mileage in PARALLEL
+        const [profileRes, vehiclesRes, busyRes, mileageRes] = await Promise.all([
+            supabase
+                .from('profiles')
+                .select('department, roles, first_name, last_name, plain_text_reports')
+                .eq('id', user.id)
+                .single(),
+            supabase.from('vehiculos').select('*').order('codigo'),
+            supabase.from('reportes').select('vehiculo_id').is('km_entrada', null),
+            supabase.from('vista_ultimos_kilometrajes').select('*')
+        ])
+
+        const profile = profileRes.data
+        const allVehicles = vehiclesRes.data
+        const busyReports = busyRes.data
+        const kData = mileageRes.data
 
         setUsePlainText(!!profile?.plain_text_reports)
 
@@ -132,11 +145,6 @@ function SalidaContent() {
             const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
             setConductor(fullName)
         }
-
-        // 2. Get Vehicles
-        const { data: allVehicles } = await supabase.from('vehiculos').select('*').order('codigo')
-        const { data: busyReports } = await supabase.from('reportes').select('vehiculo_id').is('km_entrada', null)
-        const { data: kData } = await supabase.from('vista_ultimos_kilometrajes').select('*')
 
         const busyIds = new Set(busyReports?.map(r => r.vehiculo_id))
 

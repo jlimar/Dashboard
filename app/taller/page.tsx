@@ -72,21 +72,24 @@ export default function TallerPage() {
             setLoading(true)
             const supabase = createClient()
 
-            // 1. Fetch Existing Faults
-            const { data: faultsData, error } = await supabase
-                .from('fallas')
-                .select(`id, vehiculo_id, descripcion, tipo_falla, prioridad, created_at, estado, fecha_solucion, reported_by, vehiculos (placa, modelo, foto_url)`)
-                .neq('estado', 'Reparado')
-                .neq('estado', 'Descartado')
-                .order('created_at', { ascending: false })
+            // 1. Fetch Existing Faults, Vehicles, and Mileage in PARALLEL
+            const [faultsRes, vehiclesRes, mileageRes] = await Promise.all([
+                supabase
+                    .from('fallas')
+                    .select(`id, vehiculo_id, descripcion, tipo_falla, prioridad, created_at, estado, fecha_solucion, reported_by, vehiculos (placa, modelo, foto_url)`)
+                    .neq('estado', 'Reparado')
+                    .neq('estado', 'Descartado')
+                    .order('created_at', { ascending: false }),
+                supabase.from('vehiculos').select('*').order('modelo', { ascending: true }),
+                supabase.from('vista_ultimos_kilometrajes').select('*')
+            ])
 
-            if (error) throw error
+            if (faultsRes.error) throw faultsRes.error
 
-            // 2. Fetch Vehicles & Mileage
-            const { data: vehiclesData } = await supabase.from('vehiculos').select('*').order('modelo', { ascending: true })
-            setVehicles(vehiclesData || [])
-            const vehiclesList = vehiclesData || []
-            const { data: mileageData } = await supabase.from('vista_ultimos_kilometrajes').select('*')
+            const faultsData = faultsRes.data
+            const vehiclesList = vehiclesRes.data || []
+            const mileageData = mileageRes.data
+            setVehicles(vehiclesList)
 
             // 3. Generate Maintenance Alerts
             const maintenanceAlerts: Fault[] = []

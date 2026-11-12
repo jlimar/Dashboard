@@ -225,25 +225,30 @@ function VehiculosContent() {
         try {
             const supabase = createClient()
 
-            const { data: vehiclesData, error: vehiclesError } = await supabase
-                .from('vehiculos')
-                .select('*')
-                .order('created_at', { ascending: false })
+            // Fetch Vehicles, Mileage, and Active Faults in PARALLEL
+            const [vehiclesRes, mileageRes, faultsRes] = await Promise.all([
+                supabase
+                    .from('vehiculos')
+                    .select('*')
+                    .order('created_at', { ascending: false }),
+                supabase
+                    .from('vista_ultimos_kilometrajes')
+                    .select('vehiculo_id, ultimo_kilometraje'),
+                supabase
+                    .from('fallas')
+                    .select('vehiculo_id, prioridad, tipo_falla')
+                    .neq('estado', 'Reparado')
+                    .neq('estado', 'Descartado')
+            ])
 
-            if (vehiclesError) throw vehiclesError
+            if (vehiclesRes.error) throw vehiclesRes.error
 
-            const { data: mileageData, error: mileageError } = await supabase
-                .from('vista_ultimos_kilometrajes')
-                .select('vehiculo_id, ultimo_kilometraje')
+            const vehiclesData = vehiclesRes.data
+            const mileageData = mileageRes.data
+            const faultsData = faultsRes.data
 
-            const { data: faultsData, error: faultsError } = await supabase
-                .from('fallas')
-                .select('vehiculo_id, prioridad, tipo_falla')
-                .neq('estado', 'Reparado')
-                .neq('estado', 'Descartado')
-
-            if (mileageError) console.error('Error fetching mileages:', JSON.stringify(mileageError, null, 2))
-            if (faultsError) console.error('Error fetching defaults:', JSON.stringify(faultsError, null, 2))
+            if (mileageRes.error) console.error('Error fetching mileages:', JSON.stringify(mileageRes.error, null, 2))
+            if (faultsRes.error) console.error('Error fetching faults:', JSON.stringify(faultsRes.error, null, 2))
 
             const mergedVehicles = vehiclesData?.map(vehicle => {
                 const mileageRecord = mileageData?.find(m => m.vehiculo_id === vehicle.id)

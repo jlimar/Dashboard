@@ -83,82 +83,55 @@ export default function TransportePage() {
                 return
             }
 
-            // 1. Fetch Profile
-            const { data: profileData } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single()
-            setProfile(profileData)
-
-            // 2. Check for Assigned Vehicle (Driver Mode)
-            // IF user is 'mecanico', we SKIP Driver Mode to allow them to see ALL vehicles
-            // Normalize roles to avoid case sensitivity issues
-            const isMecanico = (profileData.roles || []).map((r: string) => r.toLowerCase()).includes('mecanico')
-            let myVehicle = null
-
-            if (!isMecanico) {
-                const { data } = await supabase
+            // 1. Fetch Profile, Assigned Vehicle, and Active Trip (with vehicle join) in PARALLEL
+            const [profileRes, assignedVehRes, activeTripRes] = await Promise.all([
+                supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single(),
+                supabase
                     .from('vehiculos')
                     .select('*')
                     .eq('assigned_driver_id', user.id)
                     .limit(1)
+                    .maybeSingle(),
+                supabase
+                    .from('reportes')
+                    .select('*, vehiculos(*)')
+                    .eq('user_id', user.id)
+                    .is('km_entrada', null)
+                    .limit(1)
                     .maybeSingle()
-                myVehicle = data
+            ])
+
+            const profileData = profileRes.data
+            setProfile(profileData)
+
+            const activeTripData = activeTripRes.data
+            let myVehicle = assignedVehRes.data
+
+            // IF user is 'mecanico', we SKIP Driver Mode to allow them to see ALL vehicles
+            const isMecanico = (profileData?.roles || []).map((r: string) => r.toLowerCase()).includes('mecanico')
+            if (isMecanico) {
+                myVehicle = null
             }
-
-            if (myVehicle) {
-                setAssignedVehicle(myVehicle)
-            }
-
-            // 3. Always load Pool for Selector availability
-            // [FIX] 'kilometraje' is not in 'vehiculos' table. We must fetch it from view or omit.
-            // Fetch Vehicles
-            const { data: allVehicles } = await supabase
-                .from('vehiculos')
-                .select('id, modelo, placa, codigo, foto_url')
-                .order('modelo', { ascending: true })
-
-            // 4. [FIX] Check for Active Trip (PRIORITY over Assigned)
-            // Logic: If user has an open trip, THAT is the context vehicle.
-            const { data: activeTripData } = await supabase
-                .from('reportes')
-                .select('*')
-                .eq('user_id', user.id)
-                .is('km_entrada', null)
-                .limit(1)
-                .maybeSingle()
 
             let contextVehicle = null
 
-            // If active trip exists, fetch THAT vehicle and use it
+            // If active trip exists, that vehicle has top priority
             if (activeTripData) {
-                const { data: tripVehicle } = await supabase
-                    .from('vehiculos')
-                    .select('*')
-                    .eq('id', activeTripData.vehiculo_id)
-                    .single()
-
-                if (tripVehicle) {
-                    contextVehicle = tripVehicle
-                    setActiveTripReport(activeTripData)
-                }
+                contextVehicle = activeTripData.vehiculos
+                setActiveTripReport(activeTripData)
             } else {
-                // If no active trip, fallback to Assigned Vehicle
                 if (myVehicle) {
                     contextVehicle = myVehicle
                 }
                 setActiveTripReport(null)
             }
 
-            // Set the vehicle context
             if (contextVehicle) {
                 setAssignedVehicle(contextVehicle)
-            } else {
-                // Optimization: Only load pool if NO context vehicle to show
-                // Actually, we moved pool load to 'loadVehicleList' on demand (for selector),
-                // BUT we might want to pre-load for speed or just leave it lazy.
-                // Let's leave it lazy OR empty.
             }
 
         } catch (error: any) {

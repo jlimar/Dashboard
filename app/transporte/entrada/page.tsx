@@ -110,27 +110,32 @@ function EntradaContent() {
             return []
         }
 
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('plain_text_reports')
-            .eq('id', user.id)
-            .single()
+        // Fetch Profile and Pending Reports in PARALLEL
+        const [profileRes, reportesRes] = await Promise.all([
+            supabase
+                .from('profiles')
+                .select('plain_text_reports')
+                .eq('id', user.id)
+                .single(),
+            supabase
+                .from('reportes')
+                .select(`
+                    id, 
+                    vehiculo_id,
+                    km_salida, 
+                    conductor,
+                    departamento,
+                    created_at,
+                    vehiculos ( modelo, placa, codigo, tipo, department, odometro_averiado, kilometraje )
+                `)
+                .is('km_entrada', null)
+                .order('created_at', { ascending: false })
+        ])
+
+        const profile = profileRes.data
+        const data = reportesRes.data
 
         setUsePlainText(!!profile?.plain_text_reports)
-
-        const { data } = await supabase
-            .from('reportes')
-            .select(`
-                id, 
-                vehiculo_id,
-                km_salida, 
-                conductor,
-                departamento,
-                created_at,
-                vehiculos ( modelo, placa, codigo, tipo, department, odometro_averiado, kilometraje )
-            `)
-            .is('km_entrada', null)
-            .order('created_at', { ascending: false })
 
         if (data) {
             // @ts-ignore

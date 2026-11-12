@@ -28,21 +28,21 @@ function cleanTicketNumber(ticket: string): string {
 
 export async function getVehicles() {
     const supabase = await createClient()
-    const { data: vehicles } = await supabase
-        .from("vehiculos")
-        .select(`
-            id, placa, modelo, codigo, 
-            assigned_driver_id,
-            driver:profiles!assigned_driver_id(first_name, last_name)
-        `)
-        .order("codigo", { ascending: true })
+    const [{ data: vehicles }, { data: mileageData }] = await Promise.all([
+        supabase
+            .from("vehiculos")
+            .select(`
+                id, placa, modelo, codigo, 
+                assigned_driver_id,
+                driver:profiles!assigned_driver_id(first_name, last_name)
+            `)
+            .order("codigo", { ascending: true }),
+        supabase
+            .from("vista_ultimos_kilometrajes")
+            .select("vehiculo_id, ultimo_kilometraje")
+    ])
 
     if (!vehicles) return []
-
-    // Fetch mileage for all vehicles
-    const { data: mileageData } = await supabase
-        .from("vista_ultimos_kilometrajes")
-        .select("vehiculo_id, ultimo_kilometraje")
 
     // Merge
     return vehicles.map(v => ({

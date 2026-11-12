@@ -29,25 +29,26 @@ export default function ChoferPage() {
             return
         }
 
-        // Fetch Profile
-        const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single()
+        // Fetch Profile & Assigned Vehicle in PARALLEL
+        const [profileRes, vehicleRes] = await Promise.all([
+            supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single(),
+            supabase
+                .from('vehiculos')
+                .select('*')
+                .eq('assigned_driver_id', user.id)
+                .maybeSingle()
+        ])
 
-        setProfile(profileData)
+        if (profileRes.data) {
+            setProfile(profileRes.data)
+        }
 
-        // Fetch Assigned Vehicle
-        // We look for a vehicle where assigned_driver_id matches
-        const { data: vehicleData } = await supabase
-            .from('vehiculos')
-            .select('*')
-            .eq('assigned_driver_id', user.id)
-            .single()
-
-        if (vehicleData) {
-            setVehicle(vehicleData)
+        if (vehicleRes.data) {
+            setVehicle(vehicleRes.data)
         }
 
         setLoading(false)
