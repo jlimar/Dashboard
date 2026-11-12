@@ -1,18 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import {
-    Wrench, Truck, ShieldCheck, UserCog, Package, Settings,
-    Headset, CalendarRange, Network, Activity, Users2, Cpu, FileText, ShoppingBag,
-    LayoutGrid, ClipboardCheck
-} from "lucide-react"
 import { useUser } from "@/components/providers/user-provider"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { INITIAL_MODULES_CONFIG } from "@/lib/constants"
 
 export function DashboardMenu() {
-    const { hasRole, isAdmin, isLoading: isUserLoading, profile } = useUser()
+    const { hasRole, isAdmin, isLoading: isUserLoading } = useUser()
     const [enabledModules, setEnabledModules] = useState<Record<string, boolean>>({})
     const [loadingSettings, setLoadingSettings] = useState(true)
 
@@ -58,7 +53,6 @@ export function DashboardMenu() {
         ...(isModuleEnabled("module_transporte") && (canAccess("transporte") || hasRole("chofer"))
             ? [{
                 href: "/transporte",
-                icon: Truck,
                 title: "Transporte",
                 description: "Control de flota y salidas de vehículos.",
                 action: "Acceder",
@@ -67,7 +61,6 @@ export function DashboardMenu() {
         ...(isModuleEnabled("module_taller") && (canAccess("taller") || hasRole("mecanico" as any))
             ? [{
                 href: "/taller",
-                icon: Wrench,
                 title: "Taller mecánico",
                 description: "Gestión de fallas y mantenimiento.",
                 action: "Ir al taller",
@@ -76,7 +69,6 @@ export function DashboardMenu() {
         ...(isModuleEnabled("module_combustible") && canAccess("supervisor")
             ? [{
                 href: "/control/combustible",
-                icon: ClipboardCheck,
                 title: "Control",
                 description: "Control de combustible y auditorías.",
                 action: "Ver control",
@@ -85,7 +77,6 @@ export function DashboardMenu() {
         ...(isAdmin
             ? [{
                 href: "/admin",
-                icon: Settings,
                 title: "Panel admin",
                 description: "Configuración global y ajustes del sistema.",
                 action: "Configurar",
@@ -94,7 +85,6 @@ export function DashboardMenu() {
         ...(canAccess("gerencia")
             ? [{
                 href: "/gerencia",
-                icon: Activity,
                 title: "Gerencia",
                 description: "Tablero de control y resumen operativo.",
                 action: "Acceder",
@@ -103,7 +93,6 @@ export function DashboardMenu() {
         ...(isModuleEnabled("module_supervision") && canAccess("reportes")
             ? [{
                 href: "/supervision",
-                icon: FileText,
                 title: "Supervisión",
                 description: "Módulo de control para operaciones en calle y almacén.",
                 action: "Acceder",
@@ -111,7 +100,6 @@ export function DashboardMenu() {
             : []),
         {
             href: "/perfil",
-            icon: UserCog,
             title: "Mi perfil",
             description: "Ver información de cuenta y roles asignados.",
             action: "Ver perfil",
@@ -120,31 +108,26 @@ export function DashboardMenu() {
 
     return (
         <div className="divide-y divide-neutral-100 border-b border-neutral-100">
-            {items.map((item) => {
-                const Icon = item.icon
-                return (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className="group flex items-center justify-between gap-6 py-5 hover:bg-neutral-50/50 transition-colors"
-                    >
-                        <div className="flex items-start gap-4 min-w-0">
-                            <Icon className="w-4 h-4 mt-1 text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0" strokeWidth={1.5} />
-                            <div className="min-w-0">
-                                <h2 className="text-base font-medium text-neutral-900">
-                                    {item.title}
-                                </h2>
-                                <p className="text-sm text-neutral-500 mt-0.5">
-                                    {item.description}
-                                </p>
-                            </div>
-                        </div>
-                        <span className="text-xs text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
-                            {item.action} →
-                        </span>
-                    </Link>
-                )
-            })}
+            {items.map((item) => (
+                <Link
+                    key={item.href}
+                    href={item.href}
+                    className="group flex items-center justify-between gap-4 py-4 sm:py-5 px-2 -mx-2 rounded-md hover:bg-neutral-50/70 active:bg-neutral-100/70 transition-colors"
+                >
+                    <div className="min-w-0 pr-2">
+                        <h2 className="text-sm sm:text-base font-medium text-neutral-900 group-hover:text-neutral-600 transition-colors">
+                            {item.title}
+                        </h2>
+                        <p className="text-xs sm:text-sm text-neutral-500 mt-0.5 leading-relaxed">
+                            {item.description}
+                        </p>
+                    </div>
+                    <span className="text-xs text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
+                        {item.action} →
+                    </span>
+                </Link>
+            ))}
         </div>
     )
 }
+

@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/client"
 import { LogOut } from "lucide-react"
 
-export function LogoutButton() {
+export function LogoutButton({ className = "" }: { className?: string }) {
     const handleLogout = async () => {
         const supabase = createClient()
         await supabase.auth.signOut()
@@ -14,9 +14,12 @@ export function LogoutButton() {
         <button
             type="button"
             onClick={handleLogout}
-            className="text-xs text-neutral-400 hover:text-neutral-900 font-normal inline-flex items-center justify-center gap-1.5 mx-auto transition-colors py-1"
+            className={`text-xs text-neutral-400 hover:text-neutral-900 font-normal inline-flex items-center gap-1.5 transition-colors py-1 shrink-0 ${className}`}
+            title="Cerrar sesión"
         >
-            <LogOut className="w-3.5 h-3.5" strokeWidth={1.5} /> Cerrar sesión
+            <LogOut className="w-3.5 h-3.5" strokeWidth={1.5} />
+            <span>Cerrar sesión</span>
         </button>
     )
 }
+

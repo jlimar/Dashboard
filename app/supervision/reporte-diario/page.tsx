@@ -4,6 +4,7 @@ import SupervisionFormLogic from "@/components/SupervisionFormLogic"
 
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { LogoutButton } from "@/components/ui/logout-button"
 
 export default async function ReporteDiarioPage() {
   const supabase = await createClient()
@@ -37,29 +38,32 @@ export default async function ReporteDiarioPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white text-neutral-900 px-6 py-10 md:py-14">
+    <main className="min-h-screen bg-white text-neutral-900 px-4 sm:px-6 py-6 sm:py-10">
       {/* Navegación Pestañas y Volver */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 mb-8 border-b border-neutral-100 max-w-5xl mx-auto gap-4">
-        <Link
-          href="/supervision"
-          className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
-          Volver a Supervisión
-        </Link>
+      <div className="flex flex-col gap-4 pb-4 mb-8 border-b border-neutral-100 max-w-5xl mx-auto">
+        <div className="flex items-center justify-between gap-4">
+          <Link
+            href="/supervision"
+            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
+            Volver a supervisión
+          </Link>
+          <LogoutButton />
+        </div>
 
         <div className="flex items-center gap-6">
           <Link
             href="/supervision/reporte-diario"
             className="text-sm font-medium text-neutral-900 border-b border-neutral-900 pb-1"
           >
-            Nuevo Reporte
+            Nuevo reporte
           </Link>
           <Link
             href="/supervision/historial-reportes"
             className="text-sm text-neutral-400 hover:text-neutral-900 transition-colors pb-1"
           >
-            Mi Historial
+            Mi historial
           </Link>
         </div>
       </div>

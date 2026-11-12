@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { FileText, QrCode, LogOut, AlertTriangle, Car, ArrowRight } from "lucide-react"
+import { FileText, QrCode, AlertTriangle, Car, ArrowRight } from "lucide-react"
+import { LogoutButton } from "@/components/ui/logout-button"
 import QRCode from "react-qr-code"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -78,14 +79,7 @@ export default function ChoferPage() {
                     <p className="text-xs text-neutral-400">Panel de control</p>
                     <h1 className="text-2xl font-light text-neutral-900 tracking-tight">Hola, {profile?.first_name || 'Conductor'}</h1>
                 </div>
-                <button
-                    type="button"
-                    onClick={handleLogout}
-                    aria-label="Cerrar sesión"
-                    className="text-neutral-400 hover:text-neutral-900 transition-colors p-1"
-                >
-                    <LogOut className="w-4 h-4" strokeWidth={1.5} />
-                </button>
+                <LogoutButton />
             </header>
 
             {/* Main Content */}

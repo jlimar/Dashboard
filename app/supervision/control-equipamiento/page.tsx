@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { LogoutButton } from "@/components/ui/logout-button"
 import EquipmentControlFormLogic from "@/components/EquipmentControlFormLogic"
 
 export default async function ControlEquipamientoPage() {
@@ -36,16 +37,17 @@ export default async function ControlEquipamientoPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white text-neutral-900 px-6 py-10 md:py-14">
+    <main className="min-h-screen bg-white text-neutral-900 px-4 sm:px-6 py-6 sm:py-10">
       {/* Navegación y Volver */}
-      <div className="flex justify-start mb-8 pb-4 border-b border-neutral-100 max-w-5xl mx-auto">
+      <div className="flex items-center justify-between gap-4 mb-8 pb-4 border-b border-neutral-100 max-w-5xl mx-auto">
         <Link
           href="/supervision"
           className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
-          Volver a Supervisión
+          Volver a supervisión
         </Link>
+        <LogoutButton />
       </div>
 
       {/* Aquí inyectamos el componente modular */}

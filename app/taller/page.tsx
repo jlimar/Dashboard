@@ -10,6 +10,7 @@ import { MaintenanceRegistrationDialog } from "@/components/maintenance-registra
 import { CustomDropdown } from "@/components/ui/custom-dropdown"
 import { VehicleHistoryDialog } from "@/components/vehicle-history-dialog"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { LogoutButton } from "@/components/ui/logout-button"
 
 type Fault = {
     id: string
@@ -277,7 +278,7 @@ export default function TallerPage() {
                         <h1 className="text-xl font-light tracking-tight text-neutral-900 leading-none">Taller</h1>
                         <p className="text-xs text-neutral-500 mt-1">Gestión activa</p>
                     </div>
-                    <div className="flex items-center gap-5">
+                    <div className="flex items-center gap-4 sm:gap-5">
                         <button
                             type="button"
                             onClick={() => { setSelectedVehicleId(undefined); setSelectedServiceType(undefined); setPendingResolveId(null); setMaintenanceOpen(true); }}
@@ -288,11 +289,13 @@ export default function TallerPage() {
                         </button>
                         <a
                             href="/"
-                            className="text-neutral-400 hover:text-neutral-900 transition-colors p-1"
+                            className="inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-900 transition-colors p-1"
                             title="Ir al inicio"
                         >
                             <HomeIcon className="w-4 h-4" strokeWidth={1.5} />
+                            <span className="hidden sm:inline">Inicio</span>
                         </a>
+                        <LogoutButton />
                     </div>
                 </div>
             </header>

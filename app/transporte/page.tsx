@@ -301,29 +301,31 @@ export default function TransportePage() {
 
     return (
         <main className="min-h-screen bg-white text-neutral-900 pb-20">
-            <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-10 md:pt-14">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10">
 
-                {/* HEADER STANDARDIZED */}
-                <div className="flex justify-between items-end pb-6 mb-8 border-b border-neutral-100">
-                    <div>
-                        <p className="text-xs text-neutral-400 mb-1">
-                            {assignedVehicle ? "Modo chofer" : "Panel de operaciones"}
-                        </p>
-                        <h1 className="text-2xl font-light tracking-tight text-neutral-900">
-                            Hola, {profile?.first_name || 'Usuario'}
-                        </h1>
-                    </div>
-                    <div className="flex items-center gap-4">
+                {/* HEADER UNIFORME */}
+                <header className="pb-6 mb-8 border-b border-neutral-100 space-y-4">
+                    <div className="flex items-center justify-between gap-4">
                         <Link
                             href="/"
-                            className="p-1 text-neutral-400 hover:text-neutral-900 transition-colors flex items-center justify-center"
+                            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
                             title="Ir al inicio"
                         >
-                            <HomeIcon className="w-4 h-4" strokeWidth={1.5} />
+                            <HomeIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            Inicio
                         </Link>
                         <LogoutButton />
                     </div>
-                </div>
+
+                    <div className="space-y-1">
+                        <p className="text-xs text-neutral-400">
+                            {assignedVehicle ? "Modo chofer" : "Panel de operaciones"}
+                        </p>
+                        <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-neutral-900">
+                            Hola, {profile?.first_name || 'Usuario'}
+                        </h1>
+                    </div>
+                </header>
 
                 {/* DRIVER SPECIFIC HEADER */}
                 {assignedVehicle && (

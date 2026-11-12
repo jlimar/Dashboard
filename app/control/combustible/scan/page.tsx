@@ -6,6 +6,7 @@ import { Html5Qrcode } from "html5-qrcode"
 import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { LogoutButton } from "@/components/ui/logout-button"
 
 export default function ScanPage() {
     const router = useRouter()
@@ -120,15 +121,18 @@ export default function ScanPage() {
     }, [router])
 
     return (
-        <div className="p-6 max-w-lg mx-auto space-y-6 bg-white min-h-screen text-neutral-900">
-            <div className="flex items-center gap-4 pb-4 border-b border-neutral-100">
-                <Link href="/control/combustible" className="text-neutral-400 hover:text-neutral-900 transition-colors">
-                    <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
-                </Link>
-                <div>
-                    <h1 className="text-xl font-light text-neutral-900 tracking-tight">Escanear conductor</h1>
-                    <p className="text-xs text-neutral-500 mt-0.5">Escanea el código QR del chofer para autorizar.</p>
+        <div className="p-4 sm:p-6 max-w-lg mx-auto space-y-6 bg-white min-h-screen text-neutral-900">
+            <div className="flex items-center justify-between gap-4 pb-4 border-b border-neutral-100">
+                <div className="flex items-center gap-3">
+                    <Link href="/control/combustible" className="text-neutral-400 hover:text-neutral-900 transition-colors">
+                        <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
+                    </Link>
+                    <div>
+                        <h1 className="text-xl font-light text-neutral-900 tracking-tight">Escanear conductor</h1>
+                        <p className="text-xs text-neutral-500 mt-0.5">Escanea el código QR del chofer para autorizar.</p>
+                    </div>
                 </div>
+                <LogoutButton />
             </div>
 
             <div className="overflow-hidden bg-black relative min-h-[300px] flex items-center justify-center">

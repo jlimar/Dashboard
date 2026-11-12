@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
-import { FileText, ArrowLeft, Wrench } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
+import { LogoutButton } from "@/components/ui/logout-button"
 
 export default async function SupervisionHubPage() {
   const supabase = await createClient()
@@ -30,33 +31,43 @@ export default async function SupervisionHubPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white text-neutral-900 px-6 py-10 md:py-14">
-      <div className="max-w-3xl mx-auto">
-        <header className="pb-6 mb-4 border-b border-neutral-100 flex items-end justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-light tracking-tight text-neutral-900">Supervisión</h1>
-            <p className="text-sm text-neutral-500 mt-1">Módulo de control para operaciones en calle y almacén.</p>
+    <main className="min-h-screen bg-white text-neutral-900 px-4 sm:px-6 py-6 sm:py-10">
+      <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8">
+        {/* HEADER UNIFORME */}
+        <header className="pb-6 border-b border-neutral-100 space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
+              Inicio
+            </Link>
+            <LogoutButton />
           </div>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors shrink-0"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
-            Volver al inicio
-          </Link>
+
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-neutral-900">
+              Supervisión
+            </h1>
+            <p className="text-xs sm:text-sm text-neutral-500">
+              Módulo de control para operaciones en calle y almacén.
+            </p>
+          </div>
         </header>
 
-        <div className="divide-y divide-neutral-100">
+        <div className="divide-y divide-neutral-100 border-b border-neutral-100">
           <Link
             href="/supervision/reporte-diario"
-            className="group py-6 flex items-center justify-between gap-4 transition-colors"
+            className="group flex items-center justify-between gap-4 py-4 sm:py-5 px-2 -mx-2 rounded-md hover:bg-neutral-50/70 active:bg-neutral-100/70 transition-colors"
           >
-            <div className="flex items-start gap-4">
-              <FileText className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.5} />
-              <div>
-                <h2 className="text-base font-medium text-neutral-900">Reporte Diario</h2>
-                <p className="text-sm text-neutral-500 mt-0.5">Llenar el reporte de las operaciones realizadas.</p>
-              </div>
+            <div className="min-w-0 pr-2">
+              <h2 className="text-sm sm:text-base font-medium text-neutral-900 group-hover:text-neutral-600 transition-colors">
+                Reporte diario
+              </h2>
+              <p className="text-xs sm:text-sm text-neutral-500 mt-0.5 leading-relaxed">
+                Llenar el reporte de las operaciones realizadas.
+              </p>
             </div>
             <span className="text-xs text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
               Acceder →
@@ -65,14 +76,15 @@ export default async function SupervisionHubPage() {
 
           <Link
             href="/supervision/control-equipamiento"
-            className="group py-6 flex items-center justify-between gap-4 transition-colors"
+            className="group flex items-center justify-between gap-4 py-4 sm:py-5 px-2 -mx-2 rounded-md hover:bg-neutral-50/70 active:bg-neutral-100/70 transition-colors"
           >
-            <div className="flex items-start gap-4">
-              <Wrench className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.5} />
-              <div>
-                <h2 className="text-base font-medium text-neutral-900">Control de Equipamiento</h2>
-                <p className="text-sm text-neutral-500 mt-0.5">Auditoría de herramientas y kits FTTH del equipo de técnicos.</p>
-              </div>
+            <div className="min-w-0 pr-2">
+              <h2 className="text-sm sm:text-base font-medium text-neutral-900 group-hover:text-neutral-600 transition-colors">
+                Control de equipamiento
+              </h2>
+              <p className="text-xs sm:text-sm text-neutral-500 mt-0.5 leading-relaxed">
+                Auditoría de herramientas y kits FTTH del equipo de técnicos.
+              </p>
             </div>
             <span className="text-xs text-neutral-400 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all shrink-0">
               Auditar equipos →
@@ -83,3 +95,4 @@ export default async function SupervisionHubPage() {
     </main>
   )
 }
+

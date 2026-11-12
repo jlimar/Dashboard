@@ -327,47 +327,52 @@ function VehiculosContent() {
 
     return (
         <main className="min-h-screen bg-white text-neutral-900 pb-20">
-            <div className="max-w-5xl mx-auto px-6 pt-10">
-                {/* HEADER */}
-                <header className="pb-6 mb-8 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                    <div>
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10">
+                {/* HEADER UNIFORME */}
+                <header className="pb-6 mb-8 border-b border-neutral-100 space-y-4">
+                    <div className="flex items-center justify-between gap-4">
                         <a
                             href="/"
-                            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors mb-4"
+                            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
                             title="Ir al inicio"
                         >
                             <HomeIcon className="w-3.5 h-3.5" strokeWidth={1.5} />
                             Inicio
                         </a>
-                        <h1 className="text-2xl font-light tracking-tight text-neutral-900">
-                            Flota de vehículos
-                        </h1>
-                        <p className="text-sm text-neutral-500 mt-1">
-                            Panel de administración
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-5">
-                        <button
-                            type="button"
-                            onClick={exportToExcel}
-                            disabled={exporting}
-                            className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-900 transition-colors disabled:opacity-40"
-                        >
-                            <Download className="w-3.5 h-3.5" strokeWidth={1.5} />
-                            {exporting ? "Exportando..." : "Exportar"}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setEditingVehicle(null)
-                                setDialogOpen(true)
-                            }}
-                            className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
-                        >
-                            <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
-                            Agregar vehículo
-                        </button>
                         <LogoutButton />
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                        <div>
+                            <h1 className="text-2xl font-light tracking-tight text-neutral-900">
+                                Flota de vehículos
+                            </h1>
+                            <p className="text-xs sm:text-sm text-neutral-500 mt-1">
+                                Panel de administración
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-4 sm:gap-5">
+                            <button
+                                type="button"
+                                onClick={exportToExcel}
+                                disabled={exporting}
+                                className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-900 transition-colors disabled:opacity-40"
+                            >
+                                <Download className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                {exporting ? "Exportando..." : "Exportar"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setEditingVehicle(null)
+                                    setDialogOpen(true)
+                                }}
+                                className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
+                            >
+                                <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                Agregar vehículo
+                            </button>
+                        </div>
                     </div>
                 </header>
 

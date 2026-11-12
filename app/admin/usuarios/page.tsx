@@ -38,6 +38,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { DEPARTMENTS, JOB_TITLES_BY_DEPARTMENT } from "@/lib/constants"
 import { CustomDropdown } from "@/components/ui/custom-dropdown"
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog"
+import { LogoutButton } from "@/components/ui/logout-button"
 
 type Profile = {
     id: string
@@ -329,31 +330,38 @@ export default function AdminUsersPage() {
         : []
 
     return (
-        <div className="min-h-screen bg-white text-neutral-900 px-6 py-10 md:px-10">
-            <div className="max-w-6xl mx-auto">
-                <header className="pb-6 mb-8 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                    <div>
+        <div className="min-h-screen bg-white text-neutral-900 px-4 sm:px-6 py-6 sm:py-10">
+            <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
+                {/* HEADER UNIFORME */}
+                <header className="pb-6 border-b border-neutral-100 space-y-4">
+                    <div className="flex items-center justify-between gap-4">
                         <Link
                             href="/"
-                            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors mb-4"
+                            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
                         >
                             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
                             Inicio
                         </Link>
-                        <h1 className="text-2xl font-light tracking-tight text-neutral-900">
-                            Gestión de usuarios
-                        </h1>
-                        <p className="text-sm text-neutral-500 mt-1">
-                            Administra los permisos y roles del personal.
-                        </p>
+                        <LogoutButton />
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => setIsCreateOpen(true)}
-                        className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors self-start sm:self-auto"
-                    >
-                        + Nuevo usuario
-                    </button>
+
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                        <div>
+                            <h1 className="text-2xl font-light tracking-tight text-neutral-900">
+                                Gestión de usuarios
+                            </h1>
+                            <p className="text-xs sm:text-sm text-neutral-500 mt-1">
+                                Administra los permisos y roles del personal.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setIsCreateOpen(true)}
+                            className="text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors self-start sm:self-auto"
+                        >
+                            + Nuevo usuario
+                        </button>
+                    </div>
                 </header>
 
                 <div className="overflow-x-auto">

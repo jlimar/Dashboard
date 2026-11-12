@@ -36,6 +36,7 @@ import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
+import { LogoutButton } from "@/components/ui/logout-button"
 
 import { createFuelLog, getVehicles, getVehicleDetailsAction, getActiveDriverAction, registerVoidedTicket } from "../actions"
 
@@ -236,14 +237,17 @@ function NewFuelLogContent() {
         <main className="min-h-screen bg-white pb-20 font-sans text-neutral-900">
             {/* Header */}
             <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-xs border-b border-neutral-100 px-4 py-4">
-                <div className="max-w-3xl mx-auto flex items-center gap-4">
-                    <Link href="/control/combustible" className="text-neutral-400 hover:text-neutral-900 transition-colors">
-                        <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
-                    </Link>
-                    <div>
-                        <h1 className="text-xl font-light text-neutral-900 leading-none tracking-tight">Nuevo ticket</h1>
-                        <p className="text-xs text-neutral-500 mt-1">Registro de combustible</p>
+                <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <Link href="/control/combustible" className="text-neutral-400 hover:text-neutral-900 transition-colors">
+                            <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
+                        </Link>
+                        <div>
+                            <h1 className="text-xl font-light text-neutral-900 leading-none tracking-tight">Nuevo ticket</h1>
+                            <p className="text-xs text-neutral-500 mt-1">Registro de combustible</p>
+                        </div>
                     </div>
+                    <LogoutButton />
                 </div>
             </header>
 

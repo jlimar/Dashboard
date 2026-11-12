@@ -1,4 +1,3 @@
-import { ShieldCheck } from "lucide-react"
 import { LogoutButton } from "@/components/ui/logout-button"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
@@ -29,27 +28,29 @@ export default async function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-16">
-      <div className="max-w-3xl w-full space-y-12">
+    <main className="min-h-screen bg-background flex flex-col justify-start px-4 sm:px-6 py-6 sm:py-12">
+      <div className="max-w-2xl w-full mx-auto space-y-6 sm:space-y-8">
 
-        {/* HEADER */}
-        <header className="pb-8 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2 text-neutral-400 text-xs">
-              <ShieldCheck className="w-3.5 h-3.5" strokeWidth={1.5} />
-              <span>Portal de operaciones</span>
-            </div>
-            <h1 className="text-3xl font-light tracking-tight text-neutral-900">
+        {/* HEADER UNIFORME */}
+        <header className="pb-6 border-b border-neutral-100 space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-xs text-neutral-400">
+              Portal de operaciones
+            </span>
+            <LogoutButton />
+          </div>
+
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-neutral-900">
               Hola, {profile?.first_name || 'Usuario'}
             </h1>
             {profile?.job_title && (
-              <p className="text-sm text-neutral-500">
+              <p className="text-xs sm:text-sm text-neutral-500">
                 {profile.job_title}
                 {profile.department ? ` · ${profile.department}` : ''}
               </p>
             )}
           </div>
-          <LogoutButton />
         </header>
 
         {/* MODULE LIST */}
@@ -59,5 +60,6 @@ export default async function Home() {
     </main>
   )
 }
+
 
 

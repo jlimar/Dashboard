@@ -2,6 +2,7 @@
 
 import { ArrowLeft, Fuel, Loader2, Stethoscope, CheckCircle2, X } from "lucide-react"
 import Link from "next/link"
+import { LogoutButton } from "@/components/ui/logout-button"
 import { useState } from "react"
 import { toast } from "sonner"
 import { resetFuelLogsAction } from "./actions"
@@ -74,22 +75,29 @@ export default function DatabaseManagementPage() {
     }
 
     return (
-        <div className="min-h-screen bg-white text-neutral-900 px-6 py-10 md:px-10">
-            <div className="max-w-3xl mx-auto">
-                <header className="pb-6 mb-2 border-b border-neutral-100">
-                    <Link
-                        href="/admin"
-                        className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors mb-4"
-                    >
-                        <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
-                        Volver al panel
-                    </Link>
-                    <h1 className="text-2xl font-light tracking-tight text-neutral-900">
-                        Gestión de base de datos
-                    </h1>
-                    <p className="text-sm text-neutral-500 mt-1">
-                        Herramientas de limpieza y reinicio para pruebas.
-                    </p>
+        <div className="min-h-screen bg-white text-neutral-900 px-4 sm:px-6 py-6 sm:py-10">
+            <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8">
+                {/* HEADER UNIFORME */}
+                <header className="pb-6 border-b border-neutral-100 space-y-4">
+                    <div className="flex items-center justify-between gap-4">
+                        <Link
+                            href="/admin"
+                            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
+                        >
+                            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            Volver al panel
+                        </Link>
+                        <LogoutButton />
+                    </div>
+
+                    <div className="space-y-1">
+                        <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-neutral-900">
+                            Gestión de base de datos
+                        </h1>
+                        <p className="text-xs sm:text-sm text-neutral-500">
+                            Herramientas de limpieza y reinicio para pruebas.
+                        </p>
+                    </div>
                 </header>
 
                 <div className="divide-y divide-neutral-100">

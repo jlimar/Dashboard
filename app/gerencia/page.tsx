@@ -8,6 +8,7 @@ import { LiveFleetDashboard } from "./components/live-fleet-dashboard"
 import { RealtimeNotifications } from "./components/realtime-notifications"
 import { NotificationBell } from "./components/notification-bell"
 import { ArrowLeft } from "lucide-react"
+import { LogoutButton } from "@/components/ui/logout-button"
 
 export const dynamic = "force-dynamic"
 
@@ -32,12 +33,13 @@ export default async function GerenciaDashboard() {
                         <p className="text-neutral-500 mt-1 text-sm md:text-base">Monitoreo de flota y operaciones en tiempo real.</p>
                     </div>
 
-                    <div className="flex gap-5 items-center">
+                    <div className="flex flex-wrap gap-4 sm:gap-5 items-center">
                         <NotificationBell />
                         <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-900 transition-colors">
                             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
-                            Volver al menú
+                            Inicio
                         </Link>
+                        <LogoutButton />
                     </div>
                 </div>
 
