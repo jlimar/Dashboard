@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowLeft, ArrowRight } from "lucide-react"
+import { ArrowLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { LogoutButton } from "@/components/ui/logout-button"
 
@@ -79,10 +79,10 @@ export default function AdminDashboard() {
                                     {section.description}
                                 </p>
                             </div>
-                            <span className="text-xs text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0 flex items-center gap-1">
-                                <span>Configurar</span>
-                                <span className="inline-block transition-transform duration-150 group-hover:translate-x-1">→</span>
-                            </span>
+                            <ChevronRight
+                                className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0"
+                                strokeWidth={1.25}
+                            />
                         </Link>
                     ))}
                 </div>

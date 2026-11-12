@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, ChevronRight } from "lucide-react"
 import { LogoutButton } from "@/components/ui/logout-button"
 
 export default async function SupervisionHubPage() {
@@ -69,10 +69,10 @@ export default async function SupervisionHubPage() {
                 Llenar el reporte de las operaciones realizadas.
               </p>
             </div>
-            <span className="text-xs text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0 flex items-center gap-1">
-              <span>Acceder</span>
-              <span className="inline-block transition-transform duration-150 group-hover:translate-x-1">→</span>
-            </span>
+            <ChevronRight
+              className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0"
+              strokeWidth={1.25}
+            />
           </Link>
 
           <Link
@@ -87,10 +87,10 @@ export default async function SupervisionHubPage() {
                 Auditoría de herramientas y kits FTTH del equipo de técnicos.
               </p>
             </div>
-            <span className="text-xs text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0 flex items-center gap-1">
-              <span>Auditar equipos</span>
-              <span className="inline-block transition-transform duration-150 group-hover:translate-x-1">→</span>
-            </span>
+            <ChevronRight
+              className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0"
+              strokeWidth={1.25}
+            />
           </Link>
         </div>
       </div>

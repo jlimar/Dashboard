@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { ChevronRight } from "lucide-react"
 import { useUser } from "@/components/providers/user-provider"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
@@ -55,7 +56,6 @@ export function DashboardMenu() {
                 href: "/transporte",
                 title: "Transporte",
                 description: "Control de flota y salidas de vehículos.",
-                action: "Acceder",
             }]
             : []),
         ...(isModuleEnabled("module_taller") && (canAccess("taller") || hasRole("mecanico" as any))
@@ -63,7 +63,6 @@ export function DashboardMenu() {
                 href: "/taller",
                 title: "Taller mecánico",
                 description: "Gestión de fallas y mantenimiento.",
-                action: "Ir al taller",
             }]
             : []),
         ...(isModuleEnabled("module_combustible") && canAccess("supervisor")
@@ -71,7 +70,6 @@ export function DashboardMenu() {
                 href: "/control/combustible",
                 title: "Control",
                 description: "Control de combustible y auditorías.",
-                action: "Ver control",
             }]
             : []),
         ...(isAdmin
@@ -79,7 +77,6 @@ export function DashboardMenu() {
                 href: "/admin",
                 title: "Panel admin",
                 description: "Configuración global y ajustes del sistema.",
-                action: "Configurar",
             }]
             : []),
         ...(canAccess("gerencia")
@@ -87,7 +84,6 @@ export function DashboardMenu() {
                 href: "/gerencia",
                 title: "Gerencia",
                 description: "Tablero de control y resumen operativo.",
-                action: "Acceder",
             }]
             : []),
         ...(isModuleEnabled("module_supervision") && canAccess("reportes")
@@ -95,14 +91,12 @@ export function DashboardMenu() {
                 href: "/supervision",
                 title: "Supervisión",
                 description: "Módulo de control para operaciones en calle y almacén.",
-                action: "Acceder",
             }]
             : []),
         {
             href: "/perfil",
             title: "Mi perfil",
             description: "Ver información de cuenta y roles asignados.",
-            action: "Ver perfil",
         },
     ]
 
@@ -122,10 +116,10 @@ export function DashboardMenu() {
                             {item.description}
                         </p>
                     </div>
-                    <span className="text-xs text-neutral-400 group-hover:text-neutral-900 transition-colors shrink-0 flex items-center gap-1">
-                        <span>{item.action}</span>
-                        <span className="inline-block transition-transform duration-150 group-hover:translate-x-1">→</span>
-                    </span>
+                    <ChevronRight
+                        className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0"
+                        strokeWidth={1.25}
+                    />
                 </Link>
             ))}
         </div>
