@@ -16,12 +16,13 @@ import {
     MoreVertical,
     PenLine,
     X,
-    Home as HomeIcon,
+    ArrowLeft,
     Wrench,
     FileDigit,
     XCircle,
     Download,
 } from "lucide-react"
+import Link from "next/link"
 import { LogoutButton } from "@/components/ui/logout-button"
 import Image from "next/image"
 import { toast } from "sonner"
@@ -331,14 +332,13 @@ function VehiculosContent() {
                 {/* HEADER UNIFORME */}
                 <header className="pb-6 mb-8 border-b border-neutral-100 space-y-4">
                     <div className="flex items-center justify-between gap-4">
-                        <a
+                        <Link
                             href="/"
                             className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
-                            title="Ir al inicio"
                         >
-                            <HomeIcon className="w-3.5 h-3.5" strokeWidth={1.25} />
+                            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                             Inicio
-                        </a>
+                        </Link>
                         <LogoutButton />
                     </div>
 

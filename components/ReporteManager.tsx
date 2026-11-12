@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { crearSalida, registrarEntrada } from '@/app/transporte/actions';
-import { Sun, Moon, ArrowLeft, ChevronRight } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, ArrowLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { CustomDropdown } from '@/components/ui/custom-dropdown';
 
@@ -387,13 +387,13 @@ export default function ReporteManager({
                         className="w-full py-5 flex items-center justify-between text-left group hover:bg-neutral-50/50 px-1 transition-colors"
                     >
                         <div className="flex items-center gap-4">
-                            <Sun className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors" strokeWidth={1.5} />
+                            <ArrowUpRight className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors" strokeWidth={1.25} />
                             <div>
-                                <span className="block text-base font-medium text-neutral-900">Mañana (Salida)</span>
+                                <span className="block text-base font-medium text-neutral-900">Salida</span>
                                 <span className="text-neutral-500 text-xs">Registrar inicio de ruta</span>
                             </div>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 transition-colors" strokeWidth={1.5} />
+                        <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 transition-colors" strokeWidth={1.25} />
                     </button>
 
                     <button
@@ -402,13 +402,13 @@ export default function ReporteManager({
                         className="w-full py-5 flex items-center justify-between text-left group hover:bg-neutral-50/50 px-1 transition-colors"
                     >
                         <div className="flex items-center gap-4">
-                            <Moon className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors" strokeWidth={1.5} />
+                            <ArrowDownLeft className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors" strokeWidth={1.25} />
                             <div>
-                                <span className="block text-base font-medium text-neutral-900">Tarde (Entrada)</span>
+                                <span className="block text-base font-medium text-neutral-900">Entrada</span>
                                 <span className="text-neutral-500 text-xs">Cerrar ruta y novedades</span>
                             </div>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 transition-colors" strokeWidth={1.5} />
+                        <ChevronRight className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 transition-colors" strokeWidth={1.25} />
                     </button>
                 </div>
             )}

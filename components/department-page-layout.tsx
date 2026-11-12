@@ -1,6 +1,6 @@
-import { LucideIcon } from "lucide-react"
+import { ArrowLeft, LucideIcon } from "lucide-react"
+import Link from "next/link"
 import { LogoutButton } from "@/components/ui/logout-button"
-import { Home as HomeIcon } from "lucide-react"
 
 interface DepartmentPageProps {
     title: string
@@ -20,13 +20,13 @@ export function DepartmentPageLayout({ title, description, icon: Icon }: Departm
                         <p className="text-neutral-500 text-sm mt-1">{description}</p>
                     </div>
                     <div className="flex items-center gap-4">
-                        <a
+                        <Link
                             href="/"
-                            className="text-neutral-400 hover:text-neutral-900 transition-colors flex items-center justify-center"
-                            title="Ir al inicio"
+                            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
                         >
-                            <HomeIcon className="w-4 h-4" strokeWidth={1.25} />
-                        </a>
+                            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
+                            Inicio
+                        </Link>
                         <LogoutButton />
                     </div>
                 </div>

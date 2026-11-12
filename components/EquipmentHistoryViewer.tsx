@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Loader2, AlertCircle, ChevronDown, ChevronUp, Calendar, User } from "lucide-react"
+import { Loader2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react"
 import { CustomDropdown } from "@/components/ui/custom-dropdown"
 
 type Report = {
@@ -182,18 +182,12 @@ export default function EquipmentHistoryViewer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
           <div>
             <label className="block text-xs text-neutral-500 mb-1">Fecha</label>
-            <div className="relative">
-              <Calendar
-                className="absolute left-0 top-1/2 -translate-y-1/2 text-neutral-400 w-3.5 h-3.5"
-                strokeWidth={1.5}
-              />
-              <input
-                type="date"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="w-full pl-5 bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 outline-none transition-colors"
-              />
-            </div>
+            <input
+              type="date"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 outline-none transition-colors"
+            />
           </div>
           <div>
             <label className="block text-xs text-neutral-500 mb-1">Equipo</label>
@@ -207,19 +201,13 @@ export default function EquipmentHistoryViewer() {
           </div>
           <div>
             <label className="block text-xs text-neutral-500 mb-1">Técnico</label>
-            <div className="relative">
-              <User
-                className="absolute left-0 top-1/2 -translate-y-1/2 text-neutral-400 w-3.5 h-3.5"
-                strokeWidth={1.5}
-              />
-              <input
-                type="text"
-                placeholder="Buscar nombre..."
-                value={tecnicoFilter}
-                onChange={(e) => setTecnicoFilter(e.target.value)}
-                className="w-full pl-5 bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 outline-none transition-colors placeholder:text-neutral-400"
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Buscar nombre..."
+              value={tecnicoFilter}
+              onChange={(e) => setTecnicoFilter(e.target.value)}
+              className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 py-1.5 text-sm text-neutral-900 outline-none transition-colors placeholder:text-neutral-400"
+            />
           </div>
           <div className="flex items-center justify-between gap-4 pb-1.5">
             <button

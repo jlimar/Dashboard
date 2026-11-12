@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useSearchParams, useRouter } from "next/navigation"
-import { Search, Wrench, Home as HomeIcon, Plus } from "lucide-react"
+import Link from "next/link"
+import { Search, Wrench, ArrowLeft, Plus } from "lucide-react"
 import Image from "next/image"
 import { toast } from "sonner"
 import { MaintenanceRegistrationDialog } from "@/components/maintenance-registration-dialog"
@@ -284,17 +285,16 @@ export default function TallerPage() {
                             onClick={() => { setSelectedVehicleId(undefined); setSelectedServiceType(undefined); setPendingResolveId(null); setMaintenanceOpen(true); }}
                             className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
                         >
-                            <Plus className="w-4 h-4" strokeWidth={1.5} />
+                            <Plus className="w-3.5 h-3.5" strokeWidth={1.25} />
                             <span className="hidden md:inline">Nuevo registro</span>
                         </button>
-                        <a
+                        <Link
                             href="/"
-                            className="inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-900 transition-colors p-1"
-                            title="Ir al inicio"
+                            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
                         >
-                            <HomeIcon className="w-4 h-4" strokeWidth={1.5} />
+                            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                             <span className="hidden sm:inline">Inicio</span>
-                        </a>
+                        </Link>
                         <LogoutButton />
                     </div>
                 </div>

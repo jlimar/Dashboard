@@ -117,7 +117,7 @@ export default function HistorialLogic({ usuarioActual }: { usuarioActual: { id:
                     className={`w-4 h-4 text-neutral-400 shrink-0 transition-transform ${
                       isSelected ? "rotate-90 text-neutral-900" : ""
                     }`}
-                    strokeWidth={1.5}
+                    strokeWidth={1.25}
                   />
                 </div>
 
@@ -139,7 +139,7 @@ export default function HistorialLogic({ usuarioActual }: { usuarioActual: { id:
                       disabled={report.status !== "COMPLETED"}
                       className="inline-flex items-center gap-2 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-all duration-150 active:scale-[0.985] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
-                      <MessageCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
+                      <MessageCircle className="w-3.5 h-3.5" strokeWidth={1.25} />
                       {report.status === "COMPLETED"
                         ? "Reenviar a WhatsApp"
                         : "Termina el reporte para enviarlo"}

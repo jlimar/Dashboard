@@ -210,7 +210,7 @@ export default function FuelControlPage() {
                 <div className="max-w-6xl mx-auto flex justify-between items-center">
                     <div className="flex items-center gap-3">
                         <Link href="/" className="text-neutral-400 hover:text-neutral-900 transition-colors">
-                            <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
+                            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                         </Link>
                         <div>
                             <h1 className="text-xl font-light text-neutral-900 leading-none tracking-tight">Combustible</h1>
@@ -222,7 +222,7 @@ export default function FuelControlPage() {
                             href="/control/combustible/new"
                             className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors"
                         >
-                            <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            <Plus className="w-3.5 h-3.5" strokeWidth={1.25} />
                             <span className="hidden sm:inline">Nuevo ticket</span>
                             <span className="sm:hidden">Nuevo</span>
                         </Link>

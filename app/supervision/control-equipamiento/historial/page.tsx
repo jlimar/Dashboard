@@ -35,7 +35,7 @@ export default async function EquipmentHistoryPage() {
           href="/supervision/control-equipamiento"
           className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="w-3.5 h-3.5 mr-1.5" strokeWidth={1.25} />
           Volver a Control de Equipamiento
         </Link>
       </div>
