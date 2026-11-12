@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Toaster } from 'sonner';
+import { Toaster } from "@/components/ui/sonner";
 import { UserProvider } from "@/components/providers/user-provider";
 
 const geistSans = Geist({
@@ -63,7 +63,7 @@ export default async function RootLayout({
       >
         <UserProvider initialUser={user} initialProfile={profile}>
             {children}
-            <Toaster richColors position="top-center" />
+            <Toaster position="top-center" />
 
 
         </UserProvider>

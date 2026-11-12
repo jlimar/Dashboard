@@ -104,3 +104,66 @@
     max-width: 62ch;
   }
 }
+
+/* Taste-Skill Minimalist Toasts (Anti-Slop / Anti-Banner) */
+[data-sonner-toaster] {
+  --normal-bg: rgba(255, 255, 255, 0.95);
+  --normal-border: rgba(0, 0, 0, 0.08);
+  --normal-text: #171717;
+  --success-bg: rgba(255, 255, 255, 0.95);
+  --success-border: rgba(0, 0, 0, 0.08);
+  --success-text: #171717;
+  --error-bg: rgba(255, 255, 255, 0.95);
+  --error-border: rgba(0, 0, 0, 0.08);
+  --error-text: #171717;
+  --warning-bg: rgba(255, 255, 255, 0.95);
+  --warning-border: rgba(0, 0, 0, 0.08);
+  --warning-text: #171717;
+  --info-bg: rgba(255, 255, 255, 0.95);
+  --info-border: rgba(0, 0, 0, 0.08);
+  --info-text: #171717;
+  font-family: var(--font-sans), sans-serif;
+}
+
+[data-sonner-toast] {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #171717 !important;
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 9999px !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  padding: 8px 16px !important;
+}
+
+[data-sonner-toast]:has([data-description]) {
+  border-radius: 14px !important;
+  padding: 12px 16px !important;
+}
+
+[data-sonner-toast][data-type='success'],
+[data-sonner-toast][data-type='error'],
+[data-sonner-toast][data-type='warning'],
+[data-sonner-toast][data-type='info'] {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #171717 !important;
+}
+
+[data-sonner-toast] [data-icon] {
+  color: #171717 !important;
+  margin-right: 2px !important;
+}
+
+[data-sonner-toast] [data-title] {
+  color: #171717 !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em !important;
+}
+
+[data-sonner-toast] [data-description] {
+  color: #737373 !important;
+  font-size: 11px !important;
+}
