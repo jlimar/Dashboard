@@ -1,37 +1,13 @@
 'use client'
 
 import * as React from 'react'
-import { CustomDropdown } from '@/components/ui/custom-dropdown'
 import { cn } from '@/lib/utils'
 
 export const CAUCHOS_OPTIONS = [
-  {
-    value: '100% al 80% Estado Óptimo',
-    label: '100% al 80% · Estado Óptimo',
-    description: 'Neumáticos nuevos o con desgaste mínimo, dibujo profundo',
-  },
-  {
-    value: '79% al 50% Desgaste Medio',
-    label: '79% al 50% · Desgaste Regular',
-    description: 'Dibujo y presión en condiciones normales para transitar',
-  },
-  {
-    value: '49% al 20% Planificar Cambio',
-    label: '49% al 20% · Planificar Cambio',
-    description: 'Desgaste notable en la banda, requiere reemplazo pronto',
-  },
-  {
-    value: '19% al 1% Riesgo Crítico',
-    label: '19% al 1% · Riesgo Crítico',
-    description: 'Neumático liso o deformado, peligro para circular',
-  },
-]
-
-const QUICK_CHIPS = [
-  { value: '100% al 80% Estado Óptimo', pct: '100% - 80%', title: 'Óptimo' },
-  { value: '79% al 50% Desgaste Medio', pct: '79% - 50%', title: 'Medio' },
-  { value: '49% al 20% Planificar Cambio', pct: '49% - 20%', title: 'Revisar' },
-  { value: '19% al 1% Riesgo Crítico', pct: '19% - 1%', title: 'Crítico' },
+  { value: '100% al 80% Estado Óptimo', pct: '100% – 80%', title: 'Óptimo' },
+  { value: '79% al 50% Desgaste Medio', pct: '79% – 50%', title: 'Medio' },
+  { value: '49% al 20% Planificar Cambio', pct: '49% – 20%', title: 'Revisar' },
+  { value: '19% al 1% Riesgo Crítico', pct: '19% – 1%', title: 'Crítico' },
 ]
 
 export interface TireConditionSelectorProps {
@@ -56,57 +32,53 @@ export function TireConditionSelector({
   const isSelected = !!value
 
   return (
-    <div className={cn('py-4 border-b border-neutral-100 space-y-3', className)}>
-      {/* Header del campo con estado de validación visible */}
+    <div className={cn('py-3.5 space-y-2.5', className)}>
+      {/* Campo oculto para compatibilidad con FormData */}
+      {name && <input type="hidden" name={name} value={value} required={required} />}
+
+      {/* Encabezado limpio: tipografía pura, sin fondos ni sombreados de color */}
       <div className="flex items-center justify-between gap-2">
         <label
           htmlFor={id}
           className="text-xs font-medium text-neutral-900 block tracking-tight"
         >
-          {label}
+          {label}{' '}
+          {!isSelected && (
+            <span className="text-amber-500 font-normal" title="Campo obligatorio">
+              *
+            </span>
+          )}
         </label>
         {!isSelected ? (
-          <span className="text-[11px] font-medium text-amber-700 bg-amber-50/80 px-2 py-0.5 rounded-full">
-            Selección requerida *
+          <span className="text-xs text-neutral-400 font-normal">
+            Selección pendiente
           </span>
         ) : (
-          <span className="text-[11px] font-mono text-neutral-400">
+          <span className="text-xs font-mono text-neutral-400 font-normal">
             Confirmado
           </span>
         )}
       </div>
 
-      {/* Desplegable principal mejorado */}
-      <CustomDropdown
-        id={id}
-        name={name}
-        required={required}
-        value={value}
-        onChange={onChange}
-        placeholder="Toca aquí para seleccionar el estado de los cauchos..."
-        triggerClassName={cn(
-          'w-full py-2.5 text-sm transition-colors',
-          !isSelected
-            ? 'border-amber-400/80 text-neutral-700 font-medium'
-            : 'border-neutral-200 text-neutral-900',
+      {/* Botones de selección directa en 1 toque */}
+      <div
+        className={cn(
+          'grid grid-cols-2 sm:grid-cols-4 gap-2 border-b pb-2.5 transition-colors',
+          !isSelected ? 'border-amber-400/60' : 'border-neutral-100',
         )}
-        options={CAUCHOS_OPTIONS}
-      />
-
-      {/* Botones directos de 1 toque (evita que los choferes se queden atascados) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
-        {QUICK_CHIPS.map((chip) => {
-          const active = value === chip.value
+      >
+        {CAUCHOS_OPTIONS.map((item) => {
+          const active = value === item.value
           return (
             <button
-              key={chip.value}
+              key={item.value}
               type="button"
-              onClick={() => onChange(chip.value)}
+              onClick={() => onChange(item.value)}
               className={cn(
                 'py-2 px-2.5 text-left border-b-2 transition-all duration-150 active:scale-[0.985] cursor-pointer',
                 active
-                  ? 'border-neutral-900 bg-neutral-50 text-neutral-900 font-medium'
-                  : 'border-neutral-200/60 hover:border-neutral-400 text-neutral-500 bg-transparent',
+                  ? 'border-neutral-900 text-neutral-900 font-medium'
+                  : 'border-transparent hover:border-neutral-300 text-neutral-400 hover:text-neutral-700 bg-transparent',
               )}
             >
               <div
@@ -115,15 +87,15 @@ export function TireConditionSelector({
                   active ? 'text-neutral-900 font-medium' : 'text-neutral-500',
                 )}
               >
-                {chip.pct}
+                {item.pct}
               </div>
               <div
                 className={cn(
                   'text-[11px] mt-0.5 leading-tight',
-                  active ? 'text-neutral-900' : 'text-neutral-400',
+                  active ? 'text-neutral-900 font-medium' : 'text-neutral-400',
                 )}
               >
-                {chip.title}
+                {item.title}
               </div>
             </button>
           )
@@ -136,4 +108,3 @@ export function TireConditionSelector({
     </div>
   )
 }
-
