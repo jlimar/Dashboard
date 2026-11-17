@@ -63,41 +63,41 @@ export function DashboardMenu({ initialSettings }: DashboardMenuProps = {}) {
             ? [{
                 href: "/transporte",
                 title: "Reporte vehicular",
-                description: "Control de flota y salidas de vehículos.",
+                description: "Registro de salidas, entradas y novedades de viaje.",
             }]
             : []),
         ...(isModuleEnabled("module_taller") && (canAccess("taller") || hasRole("mecanico" as any))
             ? [{
                 href: "/taller",
                 title: "Taller y mantenimiento",
-                description: "Gestión de fallas y mantenimiento.",
+                description: "Revisión de averías reportadas, reparaciones y servicios técnicos.",
             }]
             : []),
         ...(isModuleEnabled("module_combustible") && canAccess("supervisor")
             ? [{
                 href: "/control/combustible",
                 title: "Control de combustible",
-                description: "Control de combustible y auditorías.",
+                description: "Registro de recargas, comprobantes y auditoría de consumo.",
             }]
             : []),
         ...(isAdmin
             ? [{
                 href: "/admin",
                 title: "Administración",
-                description: "Configuración global y ajustes del sistema.",
+                description: "Gestión de usuarios, permisos de acceso y flota vehicular.",
             }]
             : []),
         ...(canAccess("gerencia")
             ? [{
                 href: "/gerencia",
                 title: "Centro de control",
-                description: "Tablero de control y resumen operativo.",
+                description: "Monitoreo en tiempo real de unidades activas, alertas y estado de flota.",
             }]
             : []),
         {
             href: "/perfil",
             title: "Mi perfil",
-            description: "Ver información de cuenta y roles asignados.",
+            description: "Datos personales, departamento, cargo y roles asignados.",
         },
     ]
 

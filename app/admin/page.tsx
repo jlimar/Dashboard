@@ -47,7 +47,7 @@ export default function AdminDashboard() {
                             Administración
                         </h1>
                         <p className="text-xs sm:text-sm text-neutral-500">
-                            Configuración global del sistema y accesos.
+                            Gestión de usuarios, permisos de acceso y flota vehicular.
                         </p>
                     </div>
                 </header>
