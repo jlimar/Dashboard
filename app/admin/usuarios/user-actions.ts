@@ -201,7 +201,23 @@ export async function deleteUserAction(userId: string) {
             .update({ assigned_driver_id: null })
             .eq("assigned_driver_id", userId)
 
-        // 2. Limpiar referencias en tablas relacionadas
+        // 2. Reasignar registros que exigen supervisor obligatorio (NOT NULL) al administrador actual
+        await adminClient
+            .from("fuel_logs")
+            .update({ supervisor_id: user.id })
+            .eq("supervisor_id", userId)
+
+        await adminClient
+            .from("daily_activities_reports")
+            .update({ supervisor_id: user.id })
+            .eq("supervisor_id", userId)
+
+        await adminClient
+            .from("equipment_control_reports")
+            .update({ supervisor_id: user.id })
+            .eq("supervisor_id", userId)
+
+        // 3. Limpiar referencias en tablas/columnas que admiten null
         await adminClient
             .from("reportes")
             .update({ user_id: null })
@@ -209,25 +225,10 @@ export async function deleteUserAction(userId: string) {
 
         await adminClient
             .from("fuel_logs")
-            .update({ supervisor_id: null })
-            .eq("supervisor_id", userId)
-
-        await adminClient
-            .from("fuel_logs")
             .update({ voided_by: null })
             .eq("voided_by", userId)
 
-        await adminClient
-            .from("daily_activities_reports")
-            .update({ supervisor_id: null })
-            .eq("supervisor_id", userId)
-
-        await adminClient
-            .from("equipment_control_reports")
-            .update({ supervisor_id: null })
-            .eq("supervisor_id", userId)
-
-        // 3. Eliminar de profiles
+        // 4. Eliminar de profiles
         const { error: profileError } = await adminClient
             .from("profiles")
             .delete()
@@ -235,7 +236,7 @@ export async function deleteUserAction(userId: string) {
 
         if (profileError) throw profileError
 
-        // 4. Eliminar de auth.users
+        // 5. Eliminar de auth.users
         const { error: authError } = await adminClient.auth.admin.deleteUser(userId)
         if (authError) {
             console.warn("Advertencia al eliminar de auth.users:", authError.message)
