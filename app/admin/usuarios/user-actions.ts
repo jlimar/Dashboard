@@ -203,11 +203,6 @@ export async function deleteUserAction(userId: string) {
 
         // 2. Limpiar referencias en tablas relacionadas
         await adminClient
-            .from("technician_reports")
-            .update({ user_id: null })
-            .eq("user_id", userId)
-
-        await adminClient
             .from("reportes")
             .update({ user_id: null })
             .eq("user_id", userId)
@@ -218,9 +213,19 @@ export async function deleteUserAction(userId: string) {
             .eq("supervisor_id", userId)
 
         await adminClient
-            .from("user_devices")
-            .delete()
-            .eq("user_id", userId)
+            .from("fuel_logs")
+            .update({ voided_by: null })
+            .eq("voided_by", userId)
+
+        await adminClient
+            .from("daily_activities_reports")
+            .update({ supervisor_id: null })
+            .eq("supervisor_id", userId)
+
+        await adminClient
+            .from("equipment_control_reports")
+            .update({ supervisor_id: null })
+            .eq("supervisor_id", userId)
 
         // 3. Eliminar de profiles
         const { error: profileError } = await adminClient
@@ -330,23 +335,27 @@ export async function deduplicateUsersAction() {
                     .update({ user_id: primary.id })
                     .eq("user_id", dup.id)
 
-                // Migrar technician_reports
-                await adminClient
-                    .from("technician_reports")
-                    .update({ user_id: primary.id })
-                    .eq("user_id", dup.id)
-
                 // Migrar fuel_logs
                 await adminClient
                     .from("fuel_logs")
                     .update({ supervisor_id: primary.id })
                     .eq("supervisor_id", dup.id)
 
-                // Limpiar sesiones/dispositivos
                 await adminClient
-                    .from("user_devices")
-                    .delete()
-                    .eq("user_id", dup.id)
+                    .from("fuel_logs")
+                    .update({ voided_by: primary.id })
+                    .eq("voided_by", dup.id)
+
+                // Migrar reportes de supervisión
+                await adminClient
+                    .from("daily_activities_reports")
+                    .update({ supervisor_id: primary.id })
+                    .eq("supervisor_id", dup.id)
+
+                await adminClient
+                    .from("equipment_control_reports")
+                    .update({ supervisor_id: primary.id })
+                    .eq("supervisor_id", dup.id)
 
                 // Eliminar perfil duplicado
                 await adminClient.from("profiles").delete().eq("id", dup.id)

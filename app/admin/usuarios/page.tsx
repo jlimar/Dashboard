@@ -337,9 +337,9 @@ export default function AdminUsersPage() {
             toast.error(result.error)
         } else {
             toast.success("Usuario eliminado exitosamente")
-            setUserToDelete(null)
-            loadProfiles()
         }
+        setUserToDelete(null)
+        loadProfiles()
     }
 
     const handleDeduplicate = async () => {
