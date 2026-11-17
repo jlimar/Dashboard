@@ -25,10 +25,8 @@ import {
     Truck,
     Wrench,
     ClipboardCheck,
-    FileText,
     User as UserIcon,
     Lock,
-    MapPin,
 } from "lucide-react"
 import Link from "next/link"
 import { updateProfileDetails, impersonateUserAction, createUserAction, adminResetPassword, deleteUserAction, deduplicateUsersAction } from "./user-actions"
@@ -56,9 +54,7 @@ const ROLE_OPTIONS = [
     { value: "admin", label: "Administrador" },
     { value: "gerencia", label: "Gerencia" },
     { value: "supervisor", label: "Supervisor" },
-    { value: "reportes", label: "Supervisión" },
     { value: "chofer", label: "Chofer" },
-    { value: "geodata", label: "Zonas operativas" },
     { value: "invitado", label: "Invitado" },
 ]
 
@@ -91,12 +87,6 @@ const MODULE_ACCESS = [
                 description: 'Acceso al módulo de Control (Combustible y Auditorías).',
                 icon: ClipboardCheck,
             },
-            {
-                role: 'reportes',
-                label: 'Supervisión',
-                description: 'Acceso al módulo de Supervisión (Reportes Diarios y Equipamiento).',
-                icon: FileText,
-            },
         ]
     },
     {
@@ -125,12 +115,6 @@ const MODULE_ACCESS = [
                 description: 'Acceso total a configuración y gestión de usuarios.',
                 icon: Lock,
             },
-            {
-                role: 'geodata',
-                label: 'Zonas operativas',
-                description: 'Gestión global de ubicaciones (Geodata) para los selectores.',
-                icon: MapPin,
-            }
         ]
     }
 ]

@@ -94,13 +94,6 @@ export function DashboardMenu({ initialSettings }: DashboardMenuProps = {}) {
                 description: "Tablero de control y resumen operativo.",
             }]
             : []),
-        ...(isModuleEnabled("module_supervision") && canAccess("reportes")
-            ? [{
-                href: "/supervision",
-                title: "Supervisión",
-                description: "Módulo de control para operaciones en calle y almacén.",
-            }]
-            : []),
         {
             href: "/perfil",
             title: "Mi perfil",

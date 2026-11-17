@@ -64,6 +64,4 @@ export const INITIAL_MODULES_CONFIG = [
     { key: "module_taller", label: "Taller Mecánico", path: "/taller", default: true },
     { key: "module_control", label: "Auditoría / Control", path: "/control", default: true },
     { key: "module_combustible", label: "Combustible", path: "/control/combustible", default: true },
-    { key: "module_supervision", label: "Supervisión", path: "/supervision", default: true },
-    { key: "module_geodata", label: "Zonas Operativas", path: "/admin/geodata", default: true },
 ] as const

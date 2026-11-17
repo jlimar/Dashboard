@@ -101,11 +101,6 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL("/unauthorized", request.url))
     }
 
-    // 7. Supervisión
-    if (path.startsWith("/supervision") && !hasRole("reportes")) {
-        return NextResponse.redirect(new URL("/unauthorized", request.url))
-    }
-
     return response
 }
 

@@ -20,16 +20,6 @@ const ADMIN_SECTIONS = [
         description: "Coches, mantenimiento y asignaciones.",
     },
     {
-        href: "/admin/geodata",
-        title: "Zonas operativas",
-        description: "Gestión de estados, municipios y sectores.",
-    },
-    {
-        href: "/admin/cuadrillas",
-        title: "Gestión de cuadrillas",
-        description: "Equipos de trabajo, líderes y auxiliares.",
-    },
-    {
         href: "/admin/database",
         title: "Base de datos",
         description: "Limpieza y reseteo para testing.",
