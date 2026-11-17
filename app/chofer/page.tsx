@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { QrCode, ArrowUpRight, ArrowDownLeft, AlertCircle, Car, ChevronRight } from "lucide-react"
+import { QrCode, ArrowUpRight, ArrowDownLeft, AlertCircle, Car, ChevronRight, ArrowLeft } from "lucide-react"
 import QRCode from "react-qr-code"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -69,10 +69,19 @@ export default function ChoferPage() {
     return (
         <div className="min-h-screen bg-white text-neutral-900 flex flex-col font-sans pb-10">
             {/* Header */}
-            <header className="bg-white/95 backdrop-blur-xs sticky top-0 z-50 border-b border-neutral-100 pt-10 pb-4 px-6 flex justify-between items-center">
-                <div>
-                    <p className="text-xs text-neutral-400">Panel de control</p>
-                    <h1 className="text-2xl font-light text-neutral-900 tracking-tight">Hola, {profile?.first_name || 'Conductor'}</h1>
+            <header className="bg-white/95 backdrop-blur-xs sticky top-0 z-50 border-b border-neutral-100 px-6 py-4">
+                <div className="max-w-lg mx-auto space-y-3">
+                    <Link
+                        href="/"
+                        className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
+                    >
+                        <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
+                        Inicio
+                    </Link>
+                    <div>
+                        <p className="text-xs text-neutral-400">Panel de control</p>
+                        <h1 className="text-2xl font-light text-neutral-900 tracking-tight">Hola, {profile?.first_name || 'Conductor'}</h1>
+                    </div>
                 </div>
             </header>
 

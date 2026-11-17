@@ -34,7 +34,7 @@ export default async function AdminCuadrillasPage() {
               href="/admin"
               className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
             >
-              <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} />
+              <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
               Volver al panel
             </Link>
           </div>

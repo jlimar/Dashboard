@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Lock } from "lucide-react"
+import { Lock, ArrowLeft } from "lucide-react"
 
 export default function UnauthorizedPage() {
     return (
@@ -13,9 +13,10 @@ export default function UnauthorizedPage() {
             </div>
             <Link
                 href="/"
-                className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
             >
-                ← Volver al inicio
+                <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
+                Inicio
             </Link>
         </div>
     )

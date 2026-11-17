@@ -27,17 +27,22 @@ export default async function GerenciaDashboard() {
             <div className="max-w-7xl mx-auto space-y-8">
                 {/* HEADER */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-6 border-b border-neutral-100">
-                    <div>
-                        <h1 className="text-2xl md:text-3xl font-light text-neutral-900 tracking-tight">Centro de control</h1>
-                        <p className="text-neutral-500 mt-1 text-sm md:text-base">Monitoreo de flota y operaciones en tiempo real.</p>
+                    <div className="space-y-4">
+                        <Link
+                            href="/"
+                            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
+                        >
+                            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
+                            Inicio
+                        </Link>
+                        <div>
+                            <h1 className="text-2xl md:text-3xl font-light text-neutral-900 tracking-tight">Centro de control</h1>
+                            <p className="text-neutral-500 mt-1 text-sm md:text-base">Monitoreo de flota y operaciones en tiempo real.</p>
+                        </div>
                     </div>
 
                     <div className="flex flex-wrap gap-4 sm:gap-5 items-center">
                         <NotificationBell />
-                        <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-900 transition-colors">
-                            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
-                            Inicio
-                        </Link>
                     </div>
                 </div>
 

@@ -20,7 +20,7 @@ export default async function NotificationsPage() {
             <div className="max-w-lg mx-auto">
                 <div className="flex items-center gap-4 mb-6 sticky top-0 bg-white/95 backdrop-blur-xs py-4 z-20 border-b border-neutral-100">
                     <Link href="/gerencia" className="text-neutral-400 hover:text-neutral-900 transition-colors">
-                        <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
+                        <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
                     </Link>
                     <div>
                         <h1 className="text-base font-medium text-neutral-900 tracking-tight">Notificaciones</h1>

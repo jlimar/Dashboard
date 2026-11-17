@@ -29,14 +29,14 @@ export default async function EquipmentHistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] p-4 md:p-8">
-      <div className="max-w-6xl mx-auto mb-6">
+    <div className="min-h-screen bg-white text-neutral-900 px-4 sm:px-6 py-6 sm:py-10">
+      <div className="max-w-6xl mx-auto mb-6 pb-4 border-b border-neutral-100">
         <Link 
           href="/supervision/control-equipamiento"
-          className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
         >
-          <ArrowLeft className="w-3.5 h-3.5 mr-1.5" strokeWidth={1.25} />
-          Volver a Control de Equipamiento
+          <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
+          Volver a control de equipamiento
         </Link>
       </div>
 

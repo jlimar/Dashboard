@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { generateWhatsAppMessage } from "@/lib/whatsappFormatter";
-import { Loader2, MessageCircle, ChevronRight, ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { Loader2, MessageCircle, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -48,14 +47,6 @@ export default function HistorialLogic({ usuarioActual }: { usuarioActual: { id:
   return (
     <div className="w-full max-w-5xl mx-auto pb-12 relative">
       <div className="pb-6 mb-4 border-b border-neutral-100">
-        <div className="mb-3">
-          <Link
-            href="/supervision/reporte-diario"
-            className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors inline-flex items-center gap-1.5"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.5} /> Volver al formulario
-          </Link>
-        </div>
         <h2 className="text-2xl font-semibold text-neutral-900 tracking-tight">
           Historial de reportes
         </h2>

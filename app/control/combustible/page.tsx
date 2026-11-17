@@ -207,10 +207,15 @@ export default function FuelControlPage() {
             {/* Header */}
             <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-xs border-b border-neutral-100 px-4 py-4">
                 <div className="max-w-6xl mx-auto flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                        <Link href="/" className="text-neutral-400 hover:text-neutral-900 transition-colors">
+                    <div className="flex items-center gap-4">
+                        <Link
+                            href="/"
+                            className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-900 transition-colors"
+                        >
                             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
+                            Inicio
                         </Link>
+                        <div className="h-4 w-px bg-neutral-200" />
                         <div>
                             <h1 className="text-xl font-light text-neutral-900 leading-none tracking-tight">Combustible</h1>
                             <p className="text-xs text-neutral-500 mt-1">Control de cargas</p>
