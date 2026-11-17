@@ -65,26 +65,26 @@ const MODULE_ACCESS = [
         items: [
             {
                 role: 'gerencia',
-                label: 'Gerencia',
-                description: 'Acceso al módulo de Gerencia (Dashboard y Métricas).',
+                label: 'Centro de control',
+                description: 'Acceso al Centro de control (Monitoreo de flota y alertas en vivo).',
                 icon: LayoutDashboard,
             },
             {
                 role: 'transporte',
-                label: 'Transporte',
-                description: 'Acceso al módulo de Transporte (Salidas y Vehículos).',
+                label: 'Reporte vehicular',
+                description: 'Acceso a Reporte vehicular (Salidas, entradas y novedades).',
                 icon: Truck,
             },
             {
                 role: 'taller',
-                label: 'Taller',
-                description: 'Acceso al módulo de Taller (Fallas y Preventivos).',
+                label: 'Taller y mantenimiento',
+                description: 'Acceso a Taller y mantenimiento (Fallas y servicios).',
                 icon: Wrench,
             },
             {
                 role: 'supervisor',
-                label: 'Control',
-                description: 'Acceso al módulo de Control (Combustible y Auditorías).',
+                label: 'Control de combustible',
+                description: 'Acceso a Control de combustible (Cargas, facturas y auditorías).',
                 icon: ClipboardCheck,
             },
         ]

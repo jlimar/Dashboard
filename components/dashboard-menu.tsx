@@ -62,35 +62,35 @@ export function DashboardMenu({ initialSettings }: DashboardMenuProps = {}) {
         ...(isModuleEnabled("module_transporte") && (canAccess("transporte") || hasRole("chofer"))
             ? [{
                 href: "/transporte",
-                title: "Transporte",
+                title: "Reporte vehicular",
                 description: "Control de flota y salidas de vehículos.",
             }]
             : []),
         ...(isModuleEnabled("module_taller") && (canAccess("taller") || hasRole("mecanico" as any))
             ? [{
                 href: "/taller",
-                title: "Taller mecánico",
+                title: "Taller y mantenimiento",
                 description: "Gestión de fallas y mantenimiento.",
             }]
             : []),
         ...(isModuleEnabled("module_combustible") && canAccess("supervisor")
             ? [{
                 href: "/control/combustible",
-                title: "Control",
+                title: "Control de combustible",
                 description: "Control de combustible y auditorías.",
             }]
             : []),
         ...(isAdmin
             ? [{
                 href: "/admin",
-                title: "Panel admin",
+                title: "Administración",
                 description: "Configuración global y ajustes del sistema.",
             }]
             : []),
         ...(canAccess("gerencia")
             ? [{
                 href: "/gerencia",
-                title: "Gerencia",
+                title: "Centro de control",
                 description: "Tablero de control y resumen operativo.",
             }]
             : []),

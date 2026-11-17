@@ -44,7 +44,7 @@ export default function AdminDashboard() {
 
                     <div className="space-y-1">
                         <h1 className="text-2xl sm:text-3xl font-light tracking-tight text-neutral-900">
-                            Panel de administración
+                            Administración
                         </h1>
                         <p className="text-xs sm:text-sm text-neutral-500">
                             Configuración global del sistema y accesos.

@@ -60,8 +60,8 @@ export const ALL_JOB_TITLES = Array.from(new Set(
 
 // Module Feature Flags (Initial State)
 export const INITIAL_MODULES_CONFIG = [
-    { key: "module_transporte", label: "Transporte / Chofer", path: "/transporte", default: true },
-    { key: "module_taller", label: "Taller Mecánico", path: "/taller", default: true },
-    { key: "module_control", label: "Auditoría / Control", path: "/control", default: true },
-    { key: "module_combustible", label: "Combustible", path: "/control/combustible", default: true },
+    { key: "module_transporte", label: "Reporte vehicular", path: "/transporte", default: true },
+    { key: "module_taller", label: "Taller y mantenimiento", path: "/taller", default: true },
+    { key: "module_control", label: "Control de combustible", path: "/control", default: true },
+    { key: "module_combustible", label: "Control de combustible", path: "/control/combustible", default: true },
 ] as const

@@ -287,7 +287,7 @@ export default function TallerPage() {
                         </Link>
                         <div className="h-4 w-px bg-neutral-200" />
                         <div>
-                            <h1 className="text-xl font-light tracking-tight text-neutral-900 leading-none">Taller</h1>
+                            <h1 className="text-xl font-light tracking-tight text-neutral-900 leading-none">Taller y mantenimiento</h1>
                             <p className="text-xs text-neutral-500 mt-1">Gestión activa</p>
                         </div>
                     </div>
