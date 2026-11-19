@@ -10,8 +10,9 @@ import { toast } from "sonner"
 import QRCode from "react-qr-code"
 import Link from "next/link"
 import { VehicleSelector } from "@/components/vehicle-selector" // [FIX] Import added
+import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog"
 
-import { assignVehicleToDriver } from "./actions" // [FIX] Import server action
+import { assignVehicleToDriver, releaseVehicleAction } from "./actions" // [FIX] Import server actions
 
 // ... inside component ...
 
@@ -52,6 +53,8 @@ export default function TransportePage() {
     const [faultOpen, setFaultOpen] = useState(false)
     const [vehicleSelectOpen, setVehicleSelectOpen] = useState(false) // For manual select in Pool Mode
     const [qrOpen, setQrOpen] = useState(false) // For Driver Mode
+    const [releaseDialogOpen, setReleaseDialogOpen] = useState(false)
+    const [releasing, setReleasing] = useState(false)
 
     const [initialVehicleId, setInitialVehicleId] = useState<string>("")
 
@@ -132,6 +135,8 @@ export default function TransportePage() {
 
             if (contextVehicle) {
                 setAssignedVehicle(contextVehicle)
+            } else {
+                setAssignedVehicle(null)
             }
 
         } catch (error: any) {
@@ -255,6 +260,31 @@ export default function TransportePage() {
         if (data) setActiveTripReport(data)
     }
 
+    const handleReleaseVehicle = async () => {
+        if (activeTripReport) {
+            toast.error("Debes finalizar tu viaje actual antes de liberar la unidad.")
+            return
+        }
+
+        setReleasing(true)
+        try {
+            const result = await releaseVehicleAction()
+            if (!result.success) {
+                throw new Error(result.error)
+            }
+
+            setAssignedVehicle(null)
+            setActiveTripReport(null)
+            toast.success("Unidad liberada exitosamente")
+            loadData(true)
+        } catch (error: any) {
+            console.error("Error al liberar unidad:", error)
+            toast.error(error.message || "Error al liberar la unidad")
+        } finally {
+            setReleasing(false)
+        }
+    }
+
     // --- RENDER HELPERS ---
 
     if (loading) {
@@ -288,24 +318,41 @@ export default function TransportePage() {
                 </header>
 
                 {/* DRIVER SPECIFIC HEADER */}
-                {assignedVehicle && (
+                {assignedVehicle ? (
                     <div className="pb-8 mb-6 border-b border-neutral-100 animate-in fade-in slide-in-from-top-4 duration-500">
                         <div className="flex items-center justify-between gap-4 mb-4">
                             <span className="text-xs text-neutral-500">Vehículo asignado</span>
-                            <button
-                                type="button"
-                                disabled={!!activeTripReport} // [FIX] Disable if in trip
-                                onClick={() => {
-                                    if (activeTripReport) {
-                                        toast.error("Debes finalizar tu viaje actual antes de cambiar de unidad.")
-                                        return
-                                    }
-                                    setVehicleSelectOpen(true)
-                                }}
-                                className={`text-xs transition-colors ${activeTripReport ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-500 hover:text-neutral-900'}`}
-                            >
-                                Cambiar unidad
-                            </button>
+                            <div className="flex items-center gap-2.5">
+                                <button
+                                    type="button"
+                                    disabled={!!activeTripReport || releasing}
+                                    onClick={() => {
+                                        if (activeTripReport) {
+                                            toast.error("Debes finalizar tu viaje actual antes de liberar la unidad.")
+                                            return
+                                        }
+                                        setReleaseDialogOpen(true)
+                                    }}
+                                    className={`text-xs transition-colors active:scale-[0.985] duration-150 ${activeTripReport ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-500 hover:text-neutral-900'}`}
+                                >
+                                    {releasing ? "Liberando..." : "Liberar unidad"}
+                                </button>
+                                <span className="text-neutral-200">·</span>
+                                <button
+                                    type="button"
+                                    disabled={!!activeTripReport} // [FIX] Disable if in trip
+                                    onClick={() => {
+                                        if (activeTripReport) {
+                                            toast.error("Debes finalizar tu viaje actual antes de cambiar de unidad.")
+                                            return
+                                        }
+                                        setVehicleSelectOpen(true)
+                                    }}
+                                    className={`text-xs transition-colors active:scale-[0.985] duration-150 ${activeTripReport ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-500 hover:text-neutral-900'}`}
+                                >
+                                    Cambiar unidad
+                                </button>
+                            </div>
                         </div>
 
                         <div className="flex items-center gap-4">
@@ -373,6 +420,17 @@ export default function TransportePage() {
                                 </DialogContent>
                             </Dialog>
                         </div>
+                    </div>
+                ) : (
+                    <div className="pb-6 mb-6 border-b border-neutral-100 flex items-center justify-between gap-4 animate-in fade-in duration-300">
+                        <span className="text-xs text-neutral-400">Sin vehículo asignado</span>
+                        <button
+                            type="button"
+                            onClick={() => setVehicleSelectOpen(true)}
+                            className="text-xs text-neutral-600 hover:text-neutral-900 transition-colors active:scale-[0.985] duration-150"
+                        >
+                            Asignar unidad
+                        </button>
                     </div>
                 )}
 
@@ -520,6 +578,23 @@ export default function TransportePage() {
                         onFaultReported={() => { }}
                     />
                 )}
+
+                {/* RELEASE CONFIRM DIALOG */}
+                <DeleteConfirmDialog
+                    open={releaseDialogOpen}
+                    onOpenChange={setReleaseDialogOpen}
+                    title="Liberar unidad"
+                    description={
+                        assignedVehicle
+                            ? `¿Deseas desvincularte del vehículo ${assignedVehicle.modelo} (${assignedVehicle.placa})? La unidad quedará disponible para otros conductores y podrás volver a asignarte una unidad cuando lo necesites.`
+                            : "¿Deseas liberar tu vehículo asignado actualmente?"
+                    }
+                    confirmLabel="Liberar unidad"
+                    cancelLabel="Cancelar"
+                    destructive={false}
+                    onConfirm={handleReleaseVehicle}
+                    isLoading={releasing}
+                />
             </div>
         </main>
     )

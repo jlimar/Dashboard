@@ -267,6 +267,72 @@ export async function assignVehicleToDriver(vehicleId: string) {
     revalidatePath('/transporte');
     return { success: true };
 }
+
+// [NEW] Unassign / Release Vehicle from Driver
+export async function releaseVehicleAction() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return { success: false, error: "No autenticado" };
+    }
+
+    // 1. Validar que no tenga un viaje activo en curso
+    const { data: activeTrip } = await supabase
+        .from('reportes')
+        .select('id')
+        .eq('user_id', user.id)
+        .is('km_entrada', null)
+        .limit(1)
+        .maybeSingle();
+
+    if (activeTrip) {
+        return { 
+            success: false, 
+            error: "Debes finalizar y registrar la entrada de tu viaje actual antes de liberar la unidad." 
+        };
+    }
+
+    // 2. Desasignar vehículo del conductor
+    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        const { createClient: createAdminClient } = await import('@supabase/supabase-js');
+        const adminClient = createAdminClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY,
+            { auth: { autoRefreshToken: false, persistSession: false } }
+        );
+
+        const { error: adminErr } = await adminClient
+            .from('vehiculos')
+            .update({ assigned_driver_id: null })
+            .eq('assigned_driver_id', user.id);
+
+        if (adminErr) {
+            console.error("Admin unassign error:", adminErr);
+            return { success: false, error: adminErr.message };
+        }
+    } else {
+        const { error: rpcErr } = await supabase.rpc('assign_vehicle_to_me', {
+            target_vehicle_id: null
+        });
+
+        if (rpcErr) {
+            const { error: updateErr } = await supabase
+                .from('vehiculos')
+                .update({ assigned_driver_id: null })
+                .eq('assigned_driver_id', user.id);
+
+            if (updateErr) {
+                console.error("Direct unassign error:", updateErr);
+                return { success: false, error: updateErr.message };
+            }
+        }
+    }
+
+    revalidatePath('/transporte');
+    revalidatePath('/admin/vehiculos');
+    return { success: true };
+}
 // [NEW] Unified Exit Report Action (Replaces Client-Side Logic)
 export async function submitExitReport(reportData: any) {
     const supabase = await createClient();
