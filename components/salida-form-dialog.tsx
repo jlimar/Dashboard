@@ -419,7 +419,7 @@ export function SalidaFormDialog({ isOpen, onClose, initialVehicleId, onSuccess 
         }
         msg += `\n`
 
-        if ((data.departamento === 'Instalación' || data.departamento === 'Distribución' || data.departamento === 'Afectaciones') && !isMoto) {
+        if ((data.departamento === 'Instalación' || data.departamento === 'Distribución' || data.departamento === 'Afectaciones' || data.departamento === 'Soporte') && !isMoto) {
             msg += `*Equipos Asignados:*\n`
             if (data.departamento === 'Instalación') {
                 msg += `Mini-UPS: ${check(data.ups_salida)}\n`
@@ -445,7 +445,7 @@ export function SalidaFormDialog({ isOpen, onClose, initialVehicleId, onSuccess 
 
     // Helpers conditions
     const isMoto = selectedVehicle?.codigo?.startsWith('M-') || selectedVehicle?.tipo === 'Moto' || selectedVehicle?.modelo?.toLowerCase().includes('moto')
-    const isEquiposDepartamento = departamento === 'Instalación' || departamento === 'Distribución' || departamento === 'Afectaciones'
+    const isEquiposDepartamento = departamento === 'Instalación' || departamento === 'Distribución' || departamento === 'Afectaciones' || departamento === 'Soporte'
     const isCarga = selectedVehicle?.tipo?.toLowerCase() === 'carga' || selectedVehicle?.modelo?.toLowerCase().includes('carga')
 
     return (

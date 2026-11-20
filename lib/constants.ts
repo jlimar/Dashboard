@@ -6,7 +6,8 @@ export const DEPARTMENTS = [
     "Afectaciones",
     "Distribución",
     "Comercialización",
-    "Operaciones"
+    "Operaciones",
+    "Soporte"
 ] as const
 
 export const JOB_TITLES_BY_DEPARTMENT: Record<string, string[]> = {
@@ -50,6 +51,9 @@ export const JOB_TITLES_BY_DEPARTMENT: Record<string, string[]> = {
         "Coordinador",
         "Analista",
         "Inspector"
+    ],
+    "Soporte": [
+        "Técnico de Campo"
     ]
 }
 

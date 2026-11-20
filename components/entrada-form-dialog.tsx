@@ -407,10 +407,10 @@ export function EntradaFormDialog({ isOpen, onClose, initialVehicleId, onSuccess
             msg += `Herramientas: ${check(entradaData.herramientas_entrada)}\n`
         }
 
-        const isEquiposOriginal = reporteOriginal.departamento === 'Instalación' || reporteOriginal.departamento === 'Distribución' || reporteOriginal.departamento === 'Afectaciones'
-        const isEquiposEntrada = entradaData.departamento === 'Instalación' || entradaData.departamento === 'Distribución' || entradaData.departamento === 'Afectaciones'
+        const isEquiposOriginal = reporteOriginal.departamento === 'Instalación' || reporteOriginal.departamento === 'Distribución' || reporteOriginal.departamento === 'Afectaciones' || reporteOriginal.departamento === 'Soporte'
+        const isEquiposEntrada = entradaData.departamento === 'Instalación' || entradaData.departamento === 'Distribución' || entradaData.departamento === 'Afectaciones' || entradaData.departamento === 'Soporte'
         
-        if ((vehiculo?.department === 'Instalación' || vehiculo?.department === 'Distribución' || vehiculo?.department === 'Afectaciones' || isEquiposOriginal || isEquiposEntrada) && !isMoto) {
+        if ((vehiculo?.department === 'Instalación' || vehiculo?.department === 'Distribución' || vehiculo?.department === 'Afectaciones' || vehiculo?.department === 'Soporte' || isEquiposOriginal || isEquiposEntrada) && !isMoto) {
             msg += `\n*Equipos Asignados:*\n`
             if (reporteOriginal.departamento === 'Instalación' || entradaData.departamento === 'Instalación') {
                 msg += `Mini-UPS: ${check(entradaData.ups_entrada)}\n`
@@ -441,7 +441,7 @@ export function EntradaFormDialog({ isOpen, onClose, initialVehicleId, onSuccess
     // Note: In Entrada, we use selectedReport.vehiculos which is an object
     const v = selectedReport?.vehiculos
     const isMoto = v?.codigo?.startsWith('M-') || v?.tipo === 'Moto' || v?.modelo?.toLowerCase().includes('moto')
-    const isEquiposDepartamento = selectedReport?.departamento === 'Instalación' || selectedReport?.departamento === 'Distribución' || selectedReport?.departamento === 'Afectaciones'
+    const isEquiposDepartamento = selectedReport?.departamento === 'Instalación' || selectedReport?.departamento === 'Distribución' || selectedReport?.departamento === 'Afectaciones' || selectedReport?.departamento === 'Soporte'
     const isCarga = v?.tipo?.toLowerCase() === 'carga' || v?.modelo?.toLowerCase().includes('carga')
 
 
