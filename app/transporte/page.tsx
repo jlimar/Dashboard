@@ -55,8 +55,6 @@ export default function TransportePage() {
     const [qrOpen, setQrOpen] = useState(false) // For Driver Mode
     const [releaseDialogOpen, setReleaseDialogOpen] = useState(false)
     const [releasing, setReleasing] = useState(false)
-    const [openTripsCount, setOpenTripsCount] = useState(0)
-    const [fleetOpenTrips, setFleetOpenTrips] = useState<any[]>([])
 
     const [initialVehicleId, setInitialVehicleId] = useState<string>("")
 
@@ -88,8 +86,8 @@ export default function TransportePage() {
                 return
             }
 
-            // 1. Fetch Profile, Assigned Vehicle, Active Trip, and Fleet Open Trips in PARALLEL
-            const [profileRes, assignedVehRes, activeTripRes, allOpenTripsRes] = await Promise.all([
+            // 1. Fetch Profile, Assigned Vehicle, and Active Trip in PARALLEL
+            const [profileRes, assignedVehRes, activeTripRes] = await Promise.all([
                 supabase
                     .from('profiles')
                     .select('*')
@@ -108,36 +106,19 @@ export default function TransportePage() {
                     .is('km_entrada', null)
                     .order('created_at', { ascending: false })
                     .limit(1)
-                    .maybeSingle(),
-                supabase
-                    .from('reportes')
-                    .select('id, vehiculo_id, conductor, km_salida, fecha_salida, user_id, vehiculos(modelo, placa)')
-                    .is('km_entrada', null)
-                    .order('fecha_salida', { ascending: false })
+                    .maybeSingle()
             ])
 
             const profileData = profileRes.data
             setProfile(profileData)
 
-            const openTripsList = (allOpenTripsRes.data as any[]) || []
-            setOpenTripsCount(openTripsList.length)
-            setFleetOpenTrips(openTripsList)
-
-            let activeTripData = activeTripRes.data
+            const activeTripData = activeTripRes.data
             let myVehicle = assignedVehRes.data
 
             // IF user is 'mecanico', we SKIP Driver Mode to allow them to see ALL vehicles
             const isMecanico = (profileData?.roles || []).map((r: string) => r.toLowerCase()).includes('mecanico')
             if (isMecanico) {
                 myVehicle = null
-            }
-
-            // If user has an assigned vehicle and it is currently in route, link the trip
-            if (!activeTripData && myVehicle) {
-                const vTrip = openTripsList.find((t: any) => t.vehiculo_id === myVehicle.id)
-                if (vTrip) {
-                    activeTripData = { ...vTrip, vehiculos: myVehicle }
-                }
             }
 
             let contextVehicle = null
@@ -391,27 +372,13 @@ export default function TransportePage() {
                             )}
                             <div>
                                 <h2 className="text-xl font-medium text-neutral-900 leading-tight">{assignedVehicle.modelo}</h2>
-                                <div className="flex items-center gap-3 mt-1 text-xs text-neutral-500 flex-wrap">
+                                <div className="flex items-center gap-3 mt-1 text-xs text-neutral-500">
                                     <span className="font-mono">{assignedVehicle.placa}</span>
                                     <span>·</span>
                                     <span className="inline-flex items-center gap-1">
                                         <Fuel className="w-3.5 h-3.5 text-neutral-400" strokeWidth={1.25} />
                                         {assignedVehicle.current_fuel_level || 0}%
                                     </span>
-                                    {activeTripReport && (
-                                        <>
-                                            <span>·</span>
-                                            <span className="text-neutral-900 font-medium">En ruta</span>
-                                            <span>·</span>
-                                            <button
-                                                type="button"
-                                                onClick={() => router.push(`/transporte/entrada?vehicle_id=${assignedVehicle.id}`)}
-                                                className="text-neutral-500 hover:text-neutral-900 underline underline-offset-2 transition-colors active:scale-[0.985]"
-                                            >
-                                                Cerrar viaje
-                                            </button>
-                                        </>
-                                    )}
                                 </div>
                             </div>
                         </div>
@@ -505,40 +472,33 @@ export default function TransportePage() {
                     {/* ENTRADA */}
                     <button
                         type="button"
+                        disabled={!activeTripReport}
                         onClick={() => {
+                            if (!activeTripReport) return
                             const targetUrl = activeTripReport?.vehiculo_id
                                 ? `/transporte/entrada?vehicle_id=${activeTripReport.vehiculo_id}`
                                 : `/transporte/entrada`
                             router.push(targetUrl)
                         }}
-                        className="group w-full py-6 flex items-center justify-between gap-4 text-left transition-colors cursor-pointer"
+                        className="group w-full py-6 flex items-center justify-between gap-4 text-left transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     >
                         <div className="flex items-start gap-4">
                             <ArrowDownLeft className="w-5 h-5 text-neutral-400 group-hover:text-neutral-900 transition-colors mt-0.5 shrink-0" strokeWidth={1.25} />
                             <div>
-                                <div className="flex items-center gap-2">
-                                    <h2 className="text-base font-medium text-neutral-900">
-                                        {activeTripReport ? "Cerrar viaje / Registrar entrada" : "Cerrar vehículo en ruta"}
-                                    </h2>
-                                    {openTripsCount > 0 && !activeTripReport && (
-                                        <span className="text-xs font-mono text-neutral-500">
-                                            ({openTripsCount} en ruta)
-                                        </span>
-                                    )}
-                                </div>
+                                <h2 className="text-base font-medium text-neutral-900">
+                                    {!activeTripReport ? "Sin viaje activo" : "Registrar entrada"}
+                                </h2>
                                 <p className="text-sm text-neutral-500 mt-0.5">
-                                    {activeTripReport
-                                        ? `Finalizar viaje de ${activeTripReport.vehiculos?.modelo || 'unidad asignada'} y reportar kilometraje.`
-                                        : openTripsCount > 0
-                                            ? `Hay ${openTripsCount} unidad${openTripsCount > 1 ? 'es' : ''} en ruta actualmente. Selecciona un viaje para registrar llegada.`
-                                            : "Cerrar ruta y registrar kilometraje de llegada."}
+                                    {!activeTripReport ? "No tienes un vehículo en ruta actualmente. Registra una salida primero." : (assignedVehicle ? "Finalizar ruta y reportar kilometraje." : "Cerrar ruta, registrar kilometraje y liberar vehículo.")}
                                 </p>
                             </div>
                         </div>
-                        <ChevronRight
-                            className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0"
-                            strokeWidth={1.25}
-                        />
+                        {activeTripReport && (
+                            <ChevronRight
+                                className="w-4 h-4 text-neutral-300 group-hover:text-neutral-900 group-hover:translate-x-0.5 transition-all duration-150 shrink-0"
+                                strokeWidth={1.25}
+                            />
+                        )}
                     </button>
 
                     {/* FALLA */}
@@ -569,43 +529,6 @@ export default function TransportePage() {
                         />
                     </button>
                 </div>
-
-                {/* VEHICLES CURRENTLY IN ROUTE QUICK LIST */}
-                {openTripsCount > 0 && !activeTripReport && (
-                    <div className="pt-8 animate-in fade-in duration-300">
-                        <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
-                            <span className="text-xs font-medium text-neutral-900">
-                                Unidades en ruta actualmente ({openTripsCount})
-                            </span>
-                            <Link
-                                href="/transporte/entrada"
-                                className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors"
-                            >
-                                Ver todas
-                            </Link>
-                        </div>
-                        <div className="divide-y divide-neutral-100">
-                            {fleetOpenTrips.slice(0, 5).map((trip: any) => (
-                                <div key={trip.id} className="py-3 flex items-center justify-between gap-4 text-xs">
-                                    <div className="min-w-0">
-                                        <span className="font-medium text-neutral-900 truncate block">
-                                            {trip.vehiculos?.modelo || 'Vehículo'}
-                                        </span>
-                                        <span className="text-neutral-400 font-mono text-[11px]">
-                                            {trip.vehiculos?.placa} · Conductor: {trip.conductor}
-                                        </span>
-                                    </div>
-                                    <Link
-                                        href={`/transporte/entrada?vehicle_id=${trip.vehiculo_id}`}
-                                        className="text-neutral-600 hover:text-neutral-900 underline underline-offset-2 shrink-0 transition-colors active:scale-[0.985]"
-                                    >
-                                        Cerrar vehículo
-                                    </Link>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
 
                 {/* POOL SELECTOR DIALOG */}
                 <Dialog open={vehicleSelectOpen} onOpenChange={setVehicleSelectOpen}>
