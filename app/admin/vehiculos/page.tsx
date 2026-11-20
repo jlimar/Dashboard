@@ -72,6 +72,7 @@ function VehiculosContent() {
     const [detailsVehicle, setDetailsVehicle] = useState<Vehicle | null>(null)
     const [correctionVehicle, setCorrectionVehicle] = useState<Vehicle | null>(null)
     const [talonarioVehicle, setTalonarioVehicle] = useState<Vehicle | null>(null)
+    const [statusFilter, setStatusFilter] = useState<'ALL' | 'IN_ROUTE' | 'FAULT'>('ALL')
 
     // Open Trips State
     const [openTrips, setOpenTrips] = useState<any[]>([])
@@ -185,11 +186,15 @@ function VehiculosContent() {
         }
     }
 
-    const filteredVehicles = vehicles.filter(v =>
-        v.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        v.modelo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        v.codigo.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    const filteredVehicles = vehicles.filter(v => {
+        const matchesSearch = v.placa.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            v.modelo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            v.codigo.toLowerCase().includes(searchTerm.toLowerCase())
+        if (!matchesSearch) return false
+        if (statusFilter === 'IN_ROUTE') return openTrips.some(t => t.vehiculo_id === v.id)
+        if (statusFilter === 'FAULT') return !!v.falla_activa
+        return true
+    })
 
     // HANDLE DEEP LINK (Voice Command)
     useEffect(() => {
@@ -379,9 +384,9 @@ function VehiculosContent() {
                     </div>
                 </header>
 
-                {/* SEARCH */}
-                <div className="mb-8 max-w-md">
-                    <div className="relative flex items-center">
+                {/* SEARCH & FILTERS */}
+                <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="relative flex items-center max-w-md w-full">
                         <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-0 pointer-events-none" strokeWidth={1.25} />
                         <input
                             type="text"
@@ -391,6 +396,30 @@ function VehiculosContent() {
                             className="w-full bg-transparent border-b border-neutral-200 focus:border-neutral-900 pl-6 py-1.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors"
                             suppressHydrationWarning
                         />
+                    </div>
+
+                    <div className="flex items-center gap-4 text-xs shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => setStatusFilter('ALL')}
+                            className={`transition-colors active:scale-[0.985] ${statusFilter === 'ALL' ? 'font-medium text-neutral-900 border-b border-neutral-900 pb-0.5' : 'text-neutral-500 hover:text-neutral-900'}`}
+                        >
+                            Todos ({vehicles.length})
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setStatusFilter('IN_ROUTE')}
+                            className={`transition-colors active:scale-[0.985] ${statusFilter === 'IN_ROUTE' ? 'font-medium text-neutral-900 border-b border-neutral-900 pb-0.5' : 'text-neutral-500 hover:text-neutral-900'}`}
+                        >
+                            En ruta ({openTrips.length})
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setStatusFilter('FAULT')}
+                            className={`transition-colors active:scale-[0.985] ${statusFilter === 'FAULT' ? 'font-medium text-neutral-900 border-b border-neutral-900 pb-0.5' : 'text-neutral-500 hover:text-neutral-900'}`}
+                        >
+                            Con falla ({vehicles.filter(v => !!v.falla_activa).length})
+                        </button>
                     </div>
                 </div>
 
@@ -442,9 +471,25 @@ function VehiculosContent() {
                                                     {vehicle.placa}
                                                 </span>
                                                 {openTrip && (
-                                                    <span className="text-xs font-medium text-neutral-900">
-                                                        · En ruta ({openTrip.hoursActive}h)
-                                                    </span>
+                                                    <div className="inline-flex items-center gap-1.5">
+                                                        <span className="text-xs font-medium text-neutral-900">
+                                                            · En ruta ({openTrip.hoursActive}h)
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                setTripToClose(openTrip)
+                                                                setForceCloseKm(openTrip.km_salida?.toString() || "")
+                                                                setForceCloseNote("")
+                                                                setForceCloseDialog(true)
+                                                            }}
+                                                            className="text-xs text-neutral-500 hover:text-neutral-900 underline underline-offset-2 transition-colors active:scale-[0.985]"
+                                                            title="Cerrar vehículo en ruta"
+                                                        >
+                                                            Cerrar viaje
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </div>
                                             <div className="flex items-center gap-3 text-xs text-neutral-400 mt-0.5 flex-wrap">
@@ -460,7 +505,7 @@ function VehiculosContent() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-between sm:justify-end gap-6 shrink-0">
+                                    <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 shrink-0">
                                         <div className="flex items-center gap-5 text-xs">
                                             <span className="text-neutral-600 tabular-nums">
                                                 {(vehicle.kilometraje || 0).toLocaleString()} km
@@ -469,6 +514,23 @@ function VehiculosContent() {
                                                 {fuelLevel}% comb.
                                             </span>
                                         </div>
+
+                                        {openTrip && (
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    setTripToClose(openTrip)
+                                                    setForceCloseKm(openTrip.km_salida?.toString() || "")
+                                                    setForceCloseNote("")
+                                                    setForceCloseDialog(true)
+                                                }}
+                                                title="Cerrar vehículo en ruta"
+                                                className="text-xs text-neutral-900 hover:text-neutral-600 underline underline-offset-2 transition-colors active:scale-[0.985] shrink-0"
+                                            >
+                                                Cerrar viaje
+                                            </button>
+                                        )}
 
                                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-3">
                                             <button

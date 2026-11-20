@@ -1,7 +1,8 @@
 "use client"
 
-import { X, Car, Bike, Truck, Droplets, Gauge, Wrench, User, CheckCircle2 } from "lucide-react"
+import { X, Car, Bike, Truck, Droplets, Gauge, Wrench, User, CheckCircle2, ArrowDownLeft } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
@@ -286,11 +287,21 @@ export function VehicleDetailsDialog({ isOpen, onClose, vehicle, onUpdate, reado
                                 {/* ACTIVE REPORT SECTION */}
                                 {vehicle.activeReport && (
                                     <div className="py-5 border-b border-neutral-100 space-y-4">
-                                        <div>
-                                            <h3 className="font-medium text-neutral-900 text-sm">Reporte de salida activo</h3>
-                                            <p className="text-xs text-neutral-500 mt-0.5">
-                                                Salida: {new Date(vehicle.activeReport.fecha_salida).toLocaleString()}
-                                            </p>
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                            <div>
+                                                <h3 className="font-medium text-neutral-900 text-sm">Reporte de salida activo</h3>
+                                                <p className="text-xs text-neutral-500 mt-0.5">
+                                                    Salida: {new Date(vehicle.activeReport.fecha_salida).toLocaleString()}
+                                                </p>
+                                            </div>
+                                            <Link
+                                                href={`/transporte/entrada?vehicle_id=${vehicle.id}`}
+                                                onClick={() => onClose()}
+                                                className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 hover:text-neutral-600 transition-colors active:scale-[0.985]"
+                                            >
+                                                <ArrowDownLeft className="w-3.5 h-3.5" strokeWidth={1.25} />
+                                                Cerrar viaje / Registrar entrada
+                                            </Link>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">
