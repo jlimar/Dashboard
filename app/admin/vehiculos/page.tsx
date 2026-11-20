@@ -471,25 +471,9 @@ function VehiculosContent() {
                                                     {vehicle.placa}
                                                 </span>
                                                 {openTrip && (
-                                                    <div className="inline-flex items-center gap-1.5">
-                                                        <span className="text-xs font-medium text-neutral-900">
-                                                            · En ruta ({openTrip.hoursActive}h)
-                                                        </span>
-                                                        <button
-                                                            type="button"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation()
-                                                                setTripToClose(openTrip)
-                                                                setForceCloseKm(openTrip.km_salida?.toString() || "")
-                                                                setForceCloseNote("")
-                                                                setForceCloseDialog(true)
-                                                            }}
-                                                            className="text-xs text-neutral-500 hover:text-neutral-900 underline underline-offset-2 transition-colors active:scale-[0.985]"
-                                                            title="Cerrar vehículo en ruta"
-                                                        >
-                                                            Cerrar viaje
-                                                        </button>
-                                                    </div>
+                                                    <span className="text-xs font-medium text-neutral-900">
+                                                        · En ruta ({openTrip.hoursActive}h)
+                                                    </span>
                                                 )}
                                             </div>
                                             <div className="flex items-center gap-3 text-xs text-neutral-400 mt-0.5 flex-wrap">
